@@ -1,1 +1,34 @@
+@import './tokens.css';
 @import 'tailwindcss';
+
+@theme {
+  /* Colores */
+  --color-dz-page: var(--dz-bg-page);
+  --color-dz-surface: var(--dz-bg-surface);
+  --color-dz-raised: var(--dz-bg-raised);
+  --color-dz-sunken: var(--dz-bg-sunken);
+  --color-dz-sidebar: var(--dz-bg-sidebar);
+
+  --color-dz-text: var(--dz-text-primary);
+  --color-dz-secondary: var(--dz-text-secondary);
+  --color-dz-muted: var(--dz-text-muted);
+  --color-dz-faint: var(--dz-text-faint);
+
+  --color-dz-signature: var(--dz-signature);
+  --color-dz-income: var(--dz-income);
+  --color-dz-expense: var(--dz-expense);
+  --color-dz-saving: var(--dz-saving);
+  --color-dz-debt: var(--dz-debt);
+
+  /* Tipografía */
+  --font-sans: var(--dz-font-sans);
+  --font-mono: var(--dz-font-mono);
+
+  /* Border radius */
+  --radius-xs: var(--dz-r-xs);
+  --radius-sm: var(--dz-r-sm);
+  --radius-md: var(--dz-r-md);
+  --radius-lg: var(--dz-r-lg);
+  --radius-xl: var(--dz-r-xl);
+  --radius-pill: var(--dz-r-pill);
+}
