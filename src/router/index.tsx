@@ -1,4 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
+import { Button } from '@atoms/button/Button.tsx'
+import { Avatar } from '@atoms/avatar/Avatar.tsx'
 
 const Home = () => (
   <section>
@@ -6,6 +8,10 @@ const Home = () => (
     <p className="mt-2 text-neutral-600 dark:text-neutral-400">
       Tu consejero financiero inteligente.
     </p>
+    <Avatar name="Juan Pérez" size="md" />
+    <Button variant="primary" size="sm" className="mt-6">
+      Comenzar
+    </Button>
   </section>
 )
 
