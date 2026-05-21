@@ -1,0 +1,321 @@
+:root,
+[data-theme='arctic'] {
+  /* — Surfaces — */
+  --dz-bg-page: #0d1419;
+  --dz-bg-surface: #141c24;
+  --dz-bg-raised: #1c2530;
+  --dz-bg-sunken: #080d12;
+  --dz-bg-sidebar: #091017;
+
+  /* — Borders — */
+  --dz-border-soft: rgba(220, 235, 255, 0.05);
+  --dz-border-base: rgba(220, 235, 255, 0.09);
+  --dz-border-strong: rgba(220, 235, 255, 0.18);
+  --dz-border-focus: rgba(94, 225, 230, 0.55);
+
+  /* — Text — */
+  --dz-text-primary: #e8eef5;
+  --dz-text-secondary: #acb7c4;
+  --dz-text-muted: #6e7986;
+  --dz-text-faint: #46505b;
+
+  /* — Accents (cuatro cuentas) — */
+  --dz-signature: #5ee1e6;
+  /* cian eléctrico — mismo que income */
+  --dz-income: #5ee1e6;
+  --dz-expense: #e07a9c;
+  /* rosa frío */
+  --dz-saving: #8fa8f0;
+  /* periwinkle / azul-violeta */
+  --dz-debt: #f0b57a;
+  /* ámbar cálido — único tono cálido para warning */
+
+  /* — Tints (12-14% alpha, para fondos suaves) — */
+  --dz-tint-signature: rgba(94, 225, 230, 0.12);
+  --dz-tint-income: rgba(94, 225, 230, 0.12);
+  --dz-tint-expense: rgba(224, 122, 156, 0.14);
+  --dz-tint-saving: rgba(143, 168, 240, 0.12);
+  --dz-tint-debt: rgba(240, 181, 122, 0.14);
+}
+
+:root {
+  /* — Radii — */
+  --dz-r-xs: 4px;
+  --dz-r-sm: 6px;
+  --dz-r-md: 10px;
+  --dz-r-lg: 14px;
+  --dz-r-xl: 20px;
+  --dz-r-pill: 999px;
+
+  /* — Tipografía — */
+  --dz-font-sans: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --dz-font-serif: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --dz-font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, 'Menlo', monospace;
+
+  /* — Escalas de tamaño tipográfico — */
+  --dz-fs-display: 56px;
+  /* hero serif numbers */
+  --dz-fs-h1: 28px;
+  --dz-fs-h2: 22px;
+  --dz-fs-h3: 17px;
+  --dz-fs-body: 14px;
+  --dz-fs-caption: 12.5px;
+  --dz-fs-eyebrow: 11px;
+  --dz-fs-mono-tab: 12.5px;
+
+  /* — Pesos — */
+  --dz-fw-regular: 400;
+  --dz-fw-medium: 500;
+  --dz-fw-semibold: 600;
+  --dz-fw-bold: 700;
+
+  /* — Letter-spacing — */
+  --dz-ls-tight: -0.025em;
+  /* display / hero */
+  --dz-ls-snug: -0.01em;
+  /* h1 / h2 */
+  --dz-ls-normal: -0.005em;
+  /* body / UI */
+  --dz-ls-eyebrow: 0.14em;
+  /* mono uppercase */
+  --dz-ls-mono: 0.04em;
+  /* mono tabular */
+
+  /* — Line height — */
+  --dz-lh-display: 1.02;
+  --dz-lh-heading: 1.1;
+  --dz-lh-body: 1.55;
+
+  /* — Spacing scale — */
+  --dz-sp-1: 4px;
+  --dz-sp-2: 8px;
+  --dz-sp-3: 12px;
+  --dz-sp-4: 16px;
+  --dz-sp-5: 20px;
+  --dz-sp-6: 24px;
+  --dz-sp-8: 32px;
+  --dz-sp-10: 40px;
+  --dz-sp-12: 48px;
+  --dz-sp-16: 64px;
+
+  /* — Sombras — */
+  --dz-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --dz-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --dz-shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.32);
+  --dz-shadow-xl: 0 40px 80px rgba(0, 0, 0, 0.45);
+
+  /* — Transiciones — */
+  --dz-transition-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  --dz-transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --dz-transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* — Layout — */
+  --dz-sidebar-w: 240px;
+  --dz-mobile-nav-h: 64px;
+  --dz-header-h: 64px;
+  --dz-content-pad: 32px;
+  --dz-breakpoint: 768px;
+}
+
+html,
+body {
+  background: var(--dz-bg-page);
+  color: var(--dz-text-primary);
+  font-family: var(--dz-font-sans);
+  font-size: var(--dz-fs-body);
+  line-height: var(--dz-lh-body);
+  letter-spacing: var(--dz-ls-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--dz-tint-signature);
+  color: var(--dz-text-primary);
+}
+
+/* Tabular numbers — útil para columnas de montos */
+.dz-tabular,
+.dz-money {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+}
+
+/* Money editorial — número grande con peso display */
+.dz-money-display {
+  font-family: var(--dz-font-serif);
+  font-weight: var(--dz-fw-medium);
+  letter-spacing: var(--dz-ls-tight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Eyebrow — etiqueta mono mayúscula */
+.dz-eyebrow {
+  font-family: var(--dz-font-mono);
+  font-size: var(--dz-fs-eyebrow);
+  font-weight: var(--dz-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--dz-ls-eyebrow);
+  color: var(--dz-text-muted);
+}
+
+/* ============================================================
+ * 6 · COMPONENTES UTILITARIOS (opcionales — punto de partida)
+ * ============================================================ */
+
+/* Card */
+.dz-card {
+  background: var(--dz-bg-surface);
+  border: 1px solid var(--dz-border-base);
+  border-radius: var(--dz-r-md);
+  padding: var(--dz-sp-6);
+}
+
+.dz-card--raised {
+  background: var(--dz-bg-raised);
+}
+
+/* Button */
+.dz-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dz-sp-2);
+  height: 40px;
+  padding: 0 var(--dz-sp-4);
+  border-radius: var(--dz-r-sm);
+  font-family: var(--dz-font-sans);
+  font-size: var(--dz-fs-body);
+  font-weight: var(--dz-fw-semibold);
+  letter-spacing: var(--dz-ls-normal);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background var(--dz-transition-fast),
+    border-color var(--dz-transition-fast);
+}
+
+.dz-btn--primary {
+  background: var(--dz-signature);
+  color: var(--dz-bg-page);
+}
+
+.dz-btn--secondary {
+  background: var(--dz-bg-raised);
+  color: var(--dz-text-primary);
+  border-color: var(--dz-border-strong);
+}
+
+.dz-btn--ghost {
+  background: transparent;
+  color: var(--dz-text-primary);
+  border-color: var(--dz-border-base);
+}
+
+.dz-btn--sm {
+  height: 32px;
+  padding: 0 var(--dz-sp-3);
+  font-size: 12.5px;
+}
+
+.dz-btn--lg {
+  height: 48px;
+  padding: 0 var(--dz-sp-5);
+  font-size: 15px;
+}
+
+/* Field (input) */
+.dz-field {
+  display: flex;
+  align-items: center;
+  height: 46px;
+  padding: 0 var(--dz-sp-4);
+  background: var(--dz-bg-sunken);
+  border: 1.5px solid var(--dz-border-base);
+  border-radius: var(--dz-r-sm);
+  color: var(--dz-text-primary);
+  font-family: var(--dz-font-sans);
+  font-size: var(--dz-fs-body);
+  transition: border-color var(--dz-transition-fast);
+}
+
+.dz-field:focus-within {
+  border-color: var(--dz-border-focus);
+}
+
+.dz-field input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: inherit;
+  font: inherit;
+  flex: 1;
+}
+
+/* Tag / Pill — tonos por cuenta */
+.dz-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--dz-r-pill);
+  font-family: var(--dz-font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dz-tag--income {
+  background: var(--dz-tint-income);
+  color: var(--dz-income);
+}
+
+.dz-tag--expense {
+  background: var(--dz-tint-expense);
+  color: var(--dz-expense);
+}
+
+.dz-tag--saving {
+  background: var(--dz-tint-saving);
+  color: var(--dz-saving);
+}
+
+.dz-tag--debt {
+  background: var(--dz-tint-debt);
+  color: var(--dz-debt);
+}
+
+.dz-tag--neutral {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--dz-text-secondary);
+}
+
+/* Bar — barra de progreso simple */
+.dz-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--dz-border-base);
+  border-radius: var(--dz-r-pill);
+  overflow: hidden;
+}
+
+.dz-bar__fill {
+  height: 100%;
+  background: var(--dz-signature);
+  transition: width var(--dz-transition-slow) ease;
+}
+
+/* ============================================================
+ * 7 · RESPONSIVE — punto de quiebre mobile (< 768px)
+ * ============================================================ */
+@media (max-width: 768px) {
+  :root {
+    --dz-content-pad: 20px;
+    --dz-fs-display: 44px;
+    --dz-fs-h1: 24px;
+    --dz-fs-h2: 18px;
+  }
+}
