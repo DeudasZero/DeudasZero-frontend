@@ -1,17 +1,21 @@
 import { Routes, Route } from 'react-router-dom'
 import { Button } from '@atoms/button/Button.tsx'
 import { Avatar } from '@atoms/avatar/Avatar.tsx'
+import { PageHeader } from '@molecules/page-header/PageHeader.tsx'
 
 const Home = () => (
   <section>
-    <h1 className="text-3xl font-semibold">DeudaZero</h1>
-    <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-      Tu consejero financiero inteligente.
-    </p>
-    <Avatar name="Juan Pérez" size="md" />
-    <Button variant="primary" size="sm" className="mt-6">
-      Comenzar
-    </Button>
+    <PageHeader
+      eyebrow="Bienvenido"
+      title="DeudaZero"
+      subtitle="Tu consejero financiero inteligente."
+      actions={
+        <Button variant="secondary" size="sm">
+          Comenzar
+        </Button>
+      }
+    />
+    <Avatar name="Juan Pérez" size="md" className="mt-6" />
   </section>
 )
 
