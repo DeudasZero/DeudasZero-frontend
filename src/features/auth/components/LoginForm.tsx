@@ -1,6 +1,9 @@
 import { useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
+import { useLogin } from '../hooks/useLogin.ts'
+import { Spinner } from '@shared/components/atoms/spinner/Spinner.tsx'
+import type { LoginCredentials } from '../types/auth.types.ts'
 
 const EyeOpen = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -26,10 +29,10 @@ const EyeClosed = () => (
 interface FieldWrapProps {
   label: string
   id: string
-  error?: string
+  error?: string | undefined
   children: React.ReactNode
 }
-const FieldWrap = ({ label, id, children }: FieldWrapProps) => (
+const FieldWrap = ({ label, id, error, children }: FieldWrapProps) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
     <label
       htmlFor={id}
@@ -44,6 +47,19 @@ const FieldWrap = ({ label, id, children }: FieldWrapProps) => (
       {label}
     </label>
     {children}
+    {error && (
+      <span
+        role="alert"
+        style={{
+          fontFamily: 'var(--dz-font-sans)',
+          fontSize: '12px',
+          color: 'var(--dz-expense)',
+          lineHeight: 1.4,
+        }}
+      >
+        {error}
+      </span>
+    )}
   </div>
 )
 
@@ -53,11 +69,13 @@ export const LoginForm = () => {
   const remId = useId()
 
   const [showPassword, setShowPassword] = useState(false)
+  const { isLoading, error, handleLogin, dismissError } = useLogin()
 
   const {
     register,
+    handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<LoginCredentials>({
     defaultValues: { email: '', password: '', rememberMe: false },
   })
 
@@ -109,12 +127,56 @@ export const LoginForm = () => {
         </p>
       </div>
 
+      {error && (
+        <div
+          role="alert"
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '10px',
+            padding: '12px 14px',
+            background: 'var(--dz-tint-expense)',
+            border: '1px solid rgba(224,122,156,0.25)',
+            borderRadius: 'var(--dz-r-md)',
+          }}
+        >
+          <span
+            style={{
+              flex: 1,
+              fontFamily: 'var(--dz-font-sans)',
+              fontSize: 'var(--dz-fs-caption)',
+              color: 'var(--dz-expense)',
+              lineHeight: 1.5,
+            }}
+          >
+            {error}
+          </span>
+          <button
+            type="button"
+            onClick={dismissError}
+            aria-label="Cerrar error"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--dz-expense)',
+              fontSize: '16px',
+              lineHeight: 1,
+              padding: 0,
+              flexShrink: 0,
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <form
-        onSubmit={() => {}}
+        onSubmit={handleSubmit(handleLogin)}
         noValidate
         style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
       >
-        <FieldWrap label="Correo electrónico" id={emailId}>
+        <FieldWrap label="Correo electrónico" id={emailId} error={errors.email?.message}>
           <InputField
             id={emailId}
             type="email"
@@ -131,7 +193,7 @@ export const LoginForm = () => {
           />
         </FieldWrap>
 
-        <FieldWrap label="Contraseña" id={passId}>
+        <FieldWrap label="Contraseña" id={passId} error={errors.password?.message}>
           <div style={{ position: 'relative' }}>
             <InputField
               id={passId}
@@ -209,6 +271,7 @@ export const LoginForm = () => {
 
         <button
           type="submit"
+          disabled={isLoading}
           style={{
             marginTop: '4px',
             display: 'flex',
@@ -217,7 +280,7 @@ export const LoginForm = () => {
             gap: '8px',
             height: '46px',
             width: '100%',
-            background: 'var(--dz-signature)',
+            background: isLoading ? 'rgba(94,225,230,0.6)' : 'var(--dz-signature)',
             border: 'none',
             borderRadius: 'var(--dz-r-sm)',
             fontFamily: 'var(--dz-font-sans)',
@@ -225,22 +288,26 @@ export const LoginForm = () => {
             fontWeight: 600,
             color: 'var(--dz-bg-page)',
             letterSpacing: '-0.005em',
-            cursor: 'pointer',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
             transition: 'background var(--dz-transition-fast)',
           }}
         >
-          <>
-            <span>Entrar</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path
-                d="M5 12h14M13 6l6 6-6 6"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </>
+          {isLoading ? (
+            <Spinner size="sm" color="muted" label="Ingresando…" />
+          ) : (
+            <>
+              <span>Entrar</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path
+                  d="M5 12h14M13 6l6 6-6 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </>
+          )}
         </button>
       </form>
 

@@ -1,4 +1,5 @@
 import { LoginForm } from './LoginForm.tsx'
+import logo from '@assets/logo.png'
 
 const DecoGrid = () => (
   <svg
@@ -25,169 +26,164 @@ const DecoGrid = () => (
 )
 
 export const LoginPage = () => (
-  <main
-    style={{
-      display: 'flex',
-      minHeight: '100vh',
-      background: 'var(--dz-bg-page)',
-    }}
-  >
-    <aside
-      style={{
-        display: 'none',
-        position: 'relative',
-        overflow: 'hidden',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        width: '460px',
-        flexShrink: 0,
-        background: 'var(--dz-bg-sidebar)',
-        borderRight: '1px solid var(--dz-border-soft)',
-        padding: '48px 40px',
-      }}
-      className="lg:flex"
-    >
-      <DecoGrid />
+  <>
+    <style>{`
+      .login-root {
+        display: flex;
+        min-height: 100vh;
+        background: var(--dz-bg-page);
+      }
+      .login-panel {
+        display: none;
+      }
+      @media (min-width: 1024px) {
+        .login-panel {
+          display: flex;
+        }
+      }
+    `}</style>
 
-      {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', position: 'relative' }}>
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-label="DeudaZero">
-          <circle cx="16" cy="16" r="13" stroke="var(--dz-text-primary)" strokeWidth="1.6" />
-          <path
-            d="M6.8 25.2 L25.2 6.8"
-            stroke="var(--dz-signature)"
-            strokeWidth="2.6"
-            strokeLinecap="round"
-          />
-        </svg>
-        <span
-          style={{
-            fontFamily: 'var(--dz-font-sans)',
-            fontSize: 'var(--dz-fs-h3)',
-            fontWeight: 700,
-            color: 'var(--dz-text-primary)',
-            letterSpacing: 'var(--dz-ls-snug)',
-          }}
-        >
-          Deuda<span style={{ color: 'var(--dz-signature)' }}>Zero</span>
-        </span>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', position: 'relative' }}>
-        <span
-          style={{
-            fontFamily: 'var(--dz-font-mono)',
-            fontSize: 'var(--dz-fs-eyebrow)',
-            fontWeight: 500,
-            textTransform: 'uppercase',
-            letterSpacing: 'var(--dz-ls-eyebrow)',
-            color: 'var(--dz-signature)',
-          }}
-        >
-          Consejero financiero
-        </span>
-
-        <h1
-          style={{
-            margin: 0,
-            fontFamily: 'var(--dz-font-sans)',
-            fontSize: '44px',
-            fontWeight: 600,
-            lineHeight: 1.05,
-            letterSpacing: 'var(--dz-ls-tight)',
-            color: 'var(--dz-text-primary)',
-          }}
-        >
-          Tu deuda
-          <br />
-          al <em style={{ fontStyle: 'italic', color: 'var(--dz-signature)' }}>cero,</em>
-          <br />
-          con plan.
-        </h1>
-
-        <p
-          style={{
-            margin: 0,
-            fontFamily: 'var(--dz-font-sans)',
-            fontSize: 'var(--dz-fs-body)',
-            color: 'var(--dz-text-muted)',
-            lineHeight: 'var(--dz-lh-body)',
-            maxWidth: '320px',
-          }}
-        >
-          Registra ingresos, gastos y deudas — la IA calcula el orden óptimo y te dice cuánto te
-          ahorras en intereses.
-        </p>
-
-        {/* Stats */}
-        <div style={{ display: 'flex', gap: '32px' }}>
-          {[
-            { value: '$720k', label: 'Ahorro promedio' },
-            { value: '9 meses', label: 'Liquidación típica' },
-          ].map((s) => (
-            <div key={s.label} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <span
-                style={{
-                  fontFamily: 'var(--dz-font-mono)',
-                  fontSize: 'var(--dz-fs-h2)',
-                  fontWeight: 600,
-                  color: 'var(--dz-signature)',
-                  letterSpacing: 'var(--dz-ls-tight)',
-                  fontVariantNumeric: 'tabular-nums',
-                }}
-              >
-                {s.value}
-              </span>
-              <span
-                style={{
-                  fontFamily: 'var(--dz-font-sans)',
-                  fontSize: 'var(--dz-fs-caption)',
-                  color: 'var(--dz-text-faint)',
-                }}
-              >
-                {s.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div
+    <main className="login-root">
+      <aside
+        className="login-panel"
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
           position: 'relative',
+          overflow: 'hidden',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          width: '460px',
+          flexShrink: 0,
+          background: 'var(--dz-bg-sidebar)',
+          borderRight: '1px solid var(--dz-border-soft)',
+          padding: '48px 40px',
         }}
       >
-        {['DeudaZero · MVP 2026', 'Hackathon · 4 días'].map((t) => (
+        <DecoGrid />
+
+        <div className="relative flex items-center gap-2.5">
+          <img src={logo} alt="DeudaZero Logo" className="h-7 w-7 object-contain" />
           <span
-            key={t}
             style={{
-              fontFamily: 'var(--dz-font-mono)',
-              fontSize: '11px',
-              color: 'var(--dz-text-faint)',
-              letterSpacing: 'var(--dz-ls-eyebrow)',
+              fontFamily: 'var(--dz-font-sans)',
+              fontSize: 'var(--dz-fs-h3)',
+              fontWeight: 700,
+              color: 'var(--dz-text-primary)',
+              letterSpacing: 'var(--dz-ls-snug)',
             }}
           >
-            {t}
+            Deuda<span style={{ color: 'var(--dz-signature)' }}>Zero</span>
           </span>
-        ))}
-      </div>
-    </aside>
+        </div>
 
-    {/* ── Panel formulario (derecha) ─────────────────────────────────────── */}
-    <section
-      style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '32px 20px',
-        minHeight: '100vh',
-      }}
-    >
-      <LoginForm />
-    </section>
-  </main>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', gap: '28px', position: 'relative' }}
+        >
+          <span
+            style={{
+              fontFamily: 'var(--dz-font-mono)',
+              fontSize: 'var(--dz-fs-eyebrow)',
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: 'var(--dz-ls-eyebrow)',
+              color: 'var(--dz-signature)',
+            }}
+          >
+            Consejero financiero
+          </span>
+
+          <h1
+            style={{
+              margin: 0,
+              fontFamily: 'var(--dz-font-sans)',
+              fontSize: '44px',
+              fontWeight: 600,
+              lineHeight: 1.05,
+              letterSpacing: 'var(--dz-ls-tight)',
+              color: 'var(--dz-text-primary)',
+            }}
+          >
+            Tu deuda
+            <br />
+            al <em style={{ fontStyle: 'italic', color: 'var(--dz-signature)' }}>cero,</em>
+            <br />
+            con plan.
+          </h1>
+
+          <p
+            style={{
+              margin: 0,
+              fontFamily: 'var(--dz-font-sans)',
+              fontSize: 'var(--dz-fs-body)',
+              color: 'var(--dz-text-muted)',
+              lineHeight: 'var(--dz-lh-body)',
+              maxWidth: '320px',
+            }}
+          >
+            Registra ingresos, gastos y deudas — la IA calcula el orden óptimo y te dice cuánto te
+            ahorras en intereses.
+          </p>
+
+          <div style={{ display: 'flex', gap: '32px' }}>
+            {[
+              { value: '$720k', label: 'Ahorro promedio' },
+              { value: '9 meses', label: 'Liquidación típica' },
+            ].map((s) => (
+              <div key={s.label} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--dz-font-mono)',
+                    fontSize: 'var(--dz-fs-h2)',
+                    fontWeight: 600,
+                    color: 'var(--dz-signature)',
+                    letterSpacing: 'var(--dz-ls-tight)',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {s.value}
+                </span>
+                <span
+                  style={{
+                    fontFamily: 'var(--dz-font-sans)',
+                    fontSize: 'var(--dz-fs-caption)',
+                    color: 'var(--dz-text-faint)',
+                  }}
+                >
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative' }}>
+          {['DeudaZero · MVP 2026', 'Hackathon · 4 días'].map((t) => (
+            <span
+              key={t}
+              style={{
+                fontFamily: 'var(--dz-font-mono)',
+                fontSize: '11px',
+                color: 'var(--dz-text-faint)',
+                letterSpacing: 'var(--dz-ls-eyebrow)',
+              }}
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      </aside>
+
+      <section
+        style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '32px 20px',
+          minHeight: '100vh',
+        }}
+      >
+        <LoginForm />
+      </section>
+    </main>
+  </>
 )
