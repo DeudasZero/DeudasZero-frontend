@@ -13,41 +13,17 @@ export const DashboardLayout: FC<DashboardLayoutProps> = ({
 }) => {
   const { isNarrow, isCompact, isDesktop } = useBreakpoint()
 
-  /**
-   * On tablet (lg) the sidebar is collapsed by default.
-   * On desktop it respects the prop.
-   * On narrow it's hidden entirely (mobileNav takes over).
-   */
   const [tabletCollapsed, setTabletCollapsed] = useState(true)
   const effectiveCollapsed = isDesktop ? sidebarCollapsedProp : tabletCollapsed
 
-  const rootStyle: CSSProperties = {
-    display: 'flex',
-    minHeight: '100vh',
-    background: 'var(--dz-bg-page)',
-  }
+  const sidebarWrapStyle: CSSProperties = { flexShrink: 0 }
 
-  const mainStyle: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    minWidth: 0,
-    paddingBottom: mobileNav && isNarrow ? 'var(--dz-mobile-nav-h)' : undefined,
-  }
-
-  const contentStyle: CSSProperties = {
-    flex: 1,
-    /* Scale content padding by viewport */
-    padding: isNarrow ? '16px' : isCompact ? '20px 24px' : 'var(--dz-content-pad)',
-    overflowX: 'hidden',
-  }
+  const contentPadding = isNarrow ? '16px' : isCompact ? '20px 24px' : 'var(--dz-content-pad)'
 
   return (
-    <div style={rootStyle} className={className}>
-      {/* Sidebar — hidden on narrow */}
-      {sidebar && !isNarrow && (
-        <div style={{ flexShrink: 0 }}>
-          {/* Clone sidebar injecting collapsed state */}
+    <div className={`flex min-h-screen bg-(--dz-bg-page) ${className ?? ''}`}>
+      {sidebar && (
+        <div className="hidden lg:block" style={sidebarWrapStyle}>
           {isValidElement(sidebar)
             ? cloneElement(sidebar as ReactElement<{ collapsed?: boolean }>, {
                 collapsed: effectiveCollapsed,
@@ -56,7 +32,6 @@ export const DashboardLayout: FC<DashboardLayoutProps> = ({
         </div>
       )}
 
-      {/* Overlay for tablet when sidebar is open */}
       {sidebar && isCompact && !isNarrow && !tabletCollapsed && (
         <div
           aria-hidden
@@ -71,17 +46,25 @@ export const DashboardLayout: FC<DashboardLayoutProps> = ({
         />
       )}
 
-      <div style={mainStyle}>
+      <div
+        className="flex flex-col flex-1 min-w-0"
+        style={{ paddingBottom: mobileNav && isNarrow ? 'var(--dz-mobile-nav-h)' : undefined }}
+      >
         {topBar}
-        <main id="main-content" tabIndex={-1} style={contentStyle}>
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 overflow-x-hidden"
+          style={{ padding: contentPadding }}
+        >
           {children}
         </main>
       </div>
 
-      {/* Mobile bottom nav */}
-      {mobileNav && isNarrow && (
+      {mobileNav && (
         <nav
           aria-label="Navegación"
+          className="lg:hidden"
           style={{
             position: 'fixed',
             bottom: 0,

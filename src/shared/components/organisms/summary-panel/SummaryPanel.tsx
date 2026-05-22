@@ -1,7 +1,6 @@
-import type { CSSProperties, FC } from 'react'
+import type { FC } from 'react'
 import { Button } from '@atoms/button/Button.tsx'
 import { Skeleton } from '@atoms/skeleton/Skeleton.tsx'
-import { useBreakpoint } from '@shared/hooks/useBreakpoint.ts'
 import type {
   SummaryPanelProps,
   SummaryPanelMetric,
@@ -16,18 +15,12 @@ const ACCENT_COLOR: Record<string, string> = {
   signature: 'var(--dz-signature)',
   neutral: 'var(--dz-text-secondary)',
 }
-
 const TREND_COLOR: Record<string, string> = {
   up: 'var(--dz-income)',
   down: 'var(--dz-expense)',
   neutral: 'var(--dz-text-muted)',
 }
-
-const TREND_ARROW: Record<string, string> = {
-  up: '↑',
-  down: '↓',
-  neutral: '→',
-}
+const TREND_ARROW: Record<string, string> = { up: '↑', down: '↓', neutral: '→' }
 
 export const SummaryPanel: FC<SummaryPanelProps> = ({
   title,
@@ -39,44 +32,22 @@ export const SummaryPanel: FC<SummaryPanelProps> = ({
   surface = 'surface',
   className,
 }) => {
-  const { isNarrow } = useBreakpoint()
-
   const bgColor = surface === 'raised' ? 'var(--dz-bg-raised)' : 'var(--dz-bg-surface)'
 
-  /**
-   * Responsive column count:
-   * - narrow  → 2 max (instead of 3)
-   * - compact → min(metrics.length, 3) but at most 2 if metrics < 3
-   * - desktop → original min(metrics.length, 3)
-   */
-  const maxCols = isNarrow ? 2 : Math.min(metrics.length, 3)
-  const gridCols = `repeat(${maxCols}, 1fr)`
-
-  const rootStyle: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 0,
-    background: bgColor,
-    border: '1px solid var(--dz-border-base)',
-    borderRadius: 'var(--dz-r-lg)',
-    overflow: 'hidden',
-  }
+  const desktopCols = Math.min(metrics.length, 3)
 
   return (
-    <div style={rootStyle} className={className}>
-      {/* Header */}
+    <div
+      style={{
+        background: bgColor,
+        border: '1px solid var(--dz-border-base)',
+        borderRadius: 'var(--dz-r-lg)',
+        overflow: 'hidden',
+      }}
+      className={`flex flex-col ${className ?? ''}`}
+    >
       {(title || actions.length > 0) && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: isNarrow ? 'column' : 'row',
-            alignItems: isNarrow ? 'flex-start' : 'flex-start',
-            justifyContent: 'space-between',
-            gap: '12px',
-            padding: isNarrow ? '16px 16px 14px' : '20px 24px 16px',
-            borderBottom: '1px solid var(--dz-border-soft)',
-          }}
-        >
+        <div className="flex flex-col gap-3 p-[16px_16px_14px] border-b border-(--dz-border-soft) lg:flex-row lg:items-start lg:justify-between lg:p-[20px_24px_16px]">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
             {title && (
               <h2
@@ -108,23 +79,14 @@ export const SummaryPanel: FC<SummaryPanelProps> = ({
           </div>
 
           {actions.length > 0 && (
-            <div
-              style={{
-                display: 'flex',
-                gap: '8px',
-                alignItems: 'center',
-                flexShrink: 0,
-                width: isNarrow ? '100%' : undefined,
-                flexWrap: 'wrap',
-              }}
-            >
+            <div className="flex gap-2 items-center shrink-0 flex-wrap w-full lg:w-auto">
               {actions.map((action: SummaryPanelAction, i: number) => (
                 <Button
                   key={i}
                   variant={action.variant ?? 'ghost'}
                   size="sm"
                   onClick={action.onClick}
-                  fullWidth={isNarrow}
+                  className="w-full lg:w-auto"
                 >
                   {action.label}
                 </Button>
@@ -134,35 +96,44 @@ export const SummaryPanel: FC<SummaryPanelProps> = ({
         </div>
       )}
 
-      {/* Metrics grid */}
       <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: gridCols,
-          gap: 0,
-        }}
+        style={{ display: 'grid', gridTemplateColumns: `repeat(2, 1fr)` }}
+        className={`lg:grid-cols-${desktopCols}`}
       >
         {metrics.map((metric: SummaryPanelMetric, i: number) => {
           const accentColor = metric.accent ? ACCENT_COLOR[metric.accent] : 'var(--dz-text-primary)'
+          const mobileCols = 2
+          const colMobile = i % mobileCols
+          const isLastColMobile = colMobile === mobileCols - 1
+          const totalRowsMobile = Math.ceil(metrics.length / mobileCols)
+          const currentRowMobile = Math.floor(i / mobileCols)
+          const isLastRowMobile = currentRowMobile === totalRowsMobile - 1
 
-          const col = i % maxCols
-          const isLastCol = col === maxCols - 1
-          const totalRows = Math.ceil(metrics.length / maxCols)
-          const currentRow = Math.floor(i / maxCols)
-          const isLastRow = currentRow === totalRows - 1
+          const colDesktop = i % desktopCols
+          const isLastColDesktop = colDesktop === desktopCols - 1
+          const totalRowsDesktop = Math.ceil(metrics.length / desktopCols)
+          const currentRowDesktop = Math.floor(i / desktopCols)
+          const isLastRowDesktop = currentRowDesktop === totalRowsDesktop - 1
+
+          const rightBorder = isLastColMobile
+            ? isLastColDesktop
+              ? ''
+              : 'lg:border-r'
+            : isLastColDesktop
+              ? 'border-r lg:border-r-0'
+              : 'border-r'
+          const bottomBorder = isLastRowMobile
+            ? isLastRowDesktop
+              ? ''
+              : 'lg:border-b'
+            : isLastRowDesktop
+              ? 'border-b lg:border-b-0'
+              : 'border-b'
 
           return (
             <div
               key={metric.id}
-              style={{
-                padding: isNarrow ? '16px' : '20px 24px',
-                borderRight: isLastCol ? 'none' : '1px solid var(--dz-border-soft)',
-                borderBottom: isLastRow ? 'none' : '1px solid var(--dz-border-soft)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '7px',
-                minWidth: 0,
-              }}
+              className={`p-4 lg:p-[20px_24px] flex flex-col gap-1.75 min-w-0 border-(--dz-border-soft) ${rightBorder} ${bottomBorder}`}
             >
               <span
                 style={{
@@ -183,28 +154,22 @@ export const SummaryPanel: FC<SummaryPanelProps> = ({
 
               {loading ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                  <Skeleton width="70%" height={isNarrow ? '20px' : '24px'} />
+                  <Skeleton width="70%" height="20px" />
                   <Skeleton width="40%" height="11px" />
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div
+                    className="text-(--dz-fs-h3) lg:text-(--dz-fs-h2) font-semibold overflow-hidden text-ellipsis whitespace-nowrap leading-none"
                     style={{
                       fontFamily: 'var(--dz-font-sans)',
-                      fontSize: isNarrow ? 'var(--dz-fs-h3)' : 'var(--dz-fs-h2)',
-                      fontWeight: 600,
                       color: accentColor,
                       letterSpacing: 'var(--dz-ls-tight)',
-                      lineHeight: 1,
                       fontVariantNumeric: 'tabular-nums',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
                     }}
                   >
                     {metric.value}
                   </div>
-
                   {metric.subvalue && (
                     <div
                       style={{
@@ -219,7 +184,6 @@ export const SummaryPanel: FC<SummaryPanelProps> = ({
                       {metric.subvalue}
                     </div>
                   )}
-
                   {metric.trend && metric.trendLabel && (
                     <span
                       style={{
@@ -247,14 +211,10 @@ export const SummaryPanel: FC<SummaryPanelProps> = ({
         })}
       </div>
 
-      {/* Footer */}
       {footer && (
         <div
-          style={{
-            padding: isNarrow ? '12px 16px' : '14px 24px',
-            borderTop: '1px solid var(--dz-border-soft)',
-            background: 'var(--dz-bg-raised)',
-          }}
+          className="p-[12px_16px] lg:p-[14px_24px] border-t border-(--dz-border-soft)"
+          style={{ background: 'var(--dz-bg-raised)' }}
         >
           {footer}
         </div>

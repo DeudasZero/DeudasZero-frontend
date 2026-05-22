@@ -26,10 +26,7 @@ function groupByDate(items: TransactionFeedItem[]): TransactionFeedGroup[] {
     const existing = map.get(item.date) ?? []
     map.set(item.date, [...existing, item])
   }
-  return Array.from(map.entries()).map(([label, groupItems]) => ({
-    label,
-    items: groupItems,
-  }))
+  return Array.from(map.entries()).map(([label, groupItems]) => ({ label, items: groupItems }))
 }
 
 function TransactionSkeleton({ rows = 5 }: { rows?: number }) {
@@ -46,12 +43,7 @@ function TransactionSkeleton({ rows = 5 }: { rows?: number }) {
             <Skeleton width="25%" height="11px" />
           </div>
           <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '5px',
-              alignItems: 'flex-end',
-            }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'flex-end' }}
           >
             <Skeleton width="64px" height="14px" />
             <Skeleton width="40px" height="18px" rounded />
@@ -81,24 +73,14 @@ export const TransactionFeed: FC<TransactionFeedProps> = ({
     filter === 'all'
       ? transactions
       : transactions.filter((t: TransactionFeedItem) => t.type === filter)
-
   const sliced = maxItems ? filtered.slice(0, maxItems) : filtered
   const hasMore = maxItems !== undefined && filtered.length > maxItems
   const groups: TransactionFeedGroup[] =
     groupBy === 'date' ? groupByDate(sliced) : [{ label: '', items: sliced }]
 
   return (
-    <div className={className} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {/* Toolbar */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: isNarrow ? 'column' : 'row',
-          alignItems: isNarrow ? 'flex-start' : 'center',
-          justifyContent: 'space-between',
-          gap: '10px',
-        }}
-      >
+    <div className={`flex flex-col gap-3 ${className ?? ''}`}>
+      <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
         <h2
           style={{
             margin: 0,
@@ -112,28 +94,17 @@ export const TransactionFeed: FC<TransactionFeedProps> = ({
           Movimientos
         </h2>
 
-        <div
-          style={{
-            display: 'flex',
-            gap: '8px',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            width: isNarrow ? '100%' : undefined,
-          }}
-        >
+        <div className="flex gap-2 items-center flex-wrap w-full lg:w-auto">
           {onFilterChange && (
             <div
               role="group"
               aria-label="Filtrar por tipo"
+              className="flex gap-0.5 flex-1 lg:flex-none overflow-x-auto"
               style={{
-                display: 'flex',
-                gap: '3px',
                 background: 'var(--dz-bg-sunken)',
                 border: '1px solid var(--dz-border-base)',
                 borderRadius: 'var(--dz-r-pill)',
                 padding: '3px',
-                flex: isNarrow ? 1 : undefined,
-                overflowX: 'auto',
                 scrollbarWidth: 'none',
               }}
             >
@@ -144,26 +115,20 @@ export const TransactionFeed: FC<TransactionFeedProps> = ({
                     key={opt.value}
                     type="button"
                     onClick={() => onFilterChange(opt.value)}
+                    className="flex-1 lg:flex-none px-2 py-1.25 lg:px-3 rounded-(--dz-r-pill) whitespace-nowrap border"
                     style={{
-                      flex: isNarrow ? 1 : undefined,
-                      padding: isNarrow ? '5px 8px' : '5px 12px',
-                      borderRadius: 'var(--dz-r-pill)',
                       fontFamily: 'var(--dz-font-sans)',
                       fontSize: 'var(--dz-fs-caption)',
                       fontWeight: isActive ? 600 : 400,
                       color: isActive ? 'var(--dz-text-primary)' : 'var(--dz-text-muted)',
                       background: isActive ? 'var(--dz-bg-raised)' : 'transparent',
-                      border: isActive
-                        ? '1px solid var(--dz-border-strong)'
-                        : '1px solid transparent',
+                      borderColor: isActive ? 'var(--dz-border-strong)' : 'transparent',
                       cursor: 'pointer',
                       transition: 'all var(--dz-transition-fast)',
-                      whiteSpace: 'nowrap',
                       letterSpacing: '-0.005em',
                       boxShadow: isActive ? 'var(--dz-shadow-sm)' : 'none',
                     }}
                   >
-                    {/* Show abbreviated labels on narrow */}
                     {isNarrow ? opt.short : opt.label}
                   </button>
                 )
@@ -171,15 +136,14 @@ export const TransactionFeed: FC<TransactionFeedProps> = ({
             </div>
           )}
 
-          {onAddTransaction && !isNarrow && (
-            <Button variant="ghost" size="sm" onClick={onAddTransaction}>
+          {onAddTransaction && (
+            <Button variant="ghost" size="sm" onClick={onAddTransaction} className="hidden lg:flex">
               + Nuevo
             </Button>
           )}
         </div>
       </div>
 
-      {/* Content */}
       <div
         style={{
           background: 'var(--dz-bg-surface)',
@@ -232,7 +196,6 @@ export const TransactionFeed: FC<TransactionFeedProps> = ({
                     <span style={{ flex: 1, height: '1px', background: 'var(--dz-border-soft)' }} />
                   </div>
                 )}
-
                 {group.items.map((tx: TransactionFeedItem, ti: number) => (
                   <div key={tx.id}>
                     <TransactionItem

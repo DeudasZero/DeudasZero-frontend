@@ -1,7 +1,6 @@
 import type { CSSProperties, FC } from 'react'
 import { Button } from '@atoms/button/Button.tsx'
 import { ProgressBar } from '@atoms/progress-bar/ProgressBar.tsx'
-import { useBreakpoint } from '@shared/hooks/useBreakpoint.ts'
 import type { OnboardingWizardProps, WizardStep } from './OnboardingWizard.types.ts'
 
 const CheckIcon = () => (
@@ -26,8 +25,6 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
   completionLabel = 'Comenzar',
   className,
 }) => {
-  const { isNarrow, isCompact } = useBreakpoint()
-
   const currentStep = steps[currentStepIndex]
   const isFirst = currentStepIndex === 0
   const isLast = currentStepIndex === steps.length - 1
@@ -44,131 +41,103 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
     if (!isFirst) onStepChange(currentStepIndex - 1)
   }
 
-  const hPad = isNarrow ? '16px' : isCompact ? '24px' : '32px'
-
   return (
     <div
-      className={className}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 0,
-        background: 'var(--dz-bg-surface)',
-        border: '1px solid var(--dz-border-base)',
-        borderRadius: isNarrow ? 'var(--dz-r-lg)' : 'var(--dz-r-xl)',
-        overflow: 'hidden',
-        maxWidth: '640px',
-        width: '100%',
-      }}
+      className={`flex flex-col bg-(--dz-bg-surface) border border-(--dz-border-base) rounded-(--dz-r-lg) lg:rounded-(--dz-r-xl) overflow-hidden max-w-160 w-full ${className ?? ''}`}
     >
-      {/* Progress header */}
-      <div
-        style={{
-          padding: `${isNarrow ? '16px' : '24px'} ${hPad} ${isNarrow ? '14px' : '20px'}`,
-          borderBottom: '1px solid var(--dz-border-soft)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: isNarrow ? '12px' : '16px',
-        }}
-      >
-        {/* Step indicators — on narrow show simplified dots */}
-        {isNarrow ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {steps.map((_, i) => {
-              const isDone = i < currentStepIndex
-              const isCurrent = i === currentStepIndex
-              return (
-                <span
-                  key={i}
-                  style={{
-                    width: isCurrent ? '20px' : '8px',
-                    height: '8px',
-                    borderRadius: 'var(--dz-r-pill)',
-                    background:
-                      isDone || isCurrent ? 'var(--dz-signature)' : 'var(--dz-border-strong)',
-                    opacity: isDone ? 0.5 : 1,
-                    transition: 'all var(--dz-transition-base)',
-                    flexShrink: 0,
-                  }}
-                />
-              )
-            })}
-          </div>
-        ) : (
-          <div
-            role="list"
-            aria-label="Pasos del proceso"
-            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            {steps.map((step: WizardStep, i: number) => {
-              const isDone = i < currentStepIndex
-              const isCurrent = i === currentStepIndex
-              const isReachable = i <= currentStepIndex
+      <div className="flex flex-col gap-3 p-[16px_16px_14px] border-b border-(--dz-border-soft) lg:gap-4 lg:p-[24px_32px_20px]">
+        <div className="lg:hidden flex items-center gap-1.5">
+          {steps.map((_, i) => {
+            const isDone = i < currentStepIndex
+            const isCurrent = i === currentStepIndex
+            return (
+              <span
+                key={i}
+                style={{
+                  width: isCurrent ? '20px' : '8px',
+                  height: '8px',
+                  borderRadius: 'var(--dz-r-pill)',
+                  background:
+                    isDone || isCurrent ? 'var(--dz-signature)' : 'var(--dz-border-strong)',
+                  opacity: isDone ? 0.5 : 1,
+                  transition: 'all var(--dz-transition-base)',
+                  flexShrink: 0,
+                }}
+              />
+            )
+          })}
+        </div>
 
-              const dotStyle: CSSProperties = {
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '28px',
-                height: '28px',
-                borderRadius: '50%',
-                border: `1.5px solid ${isDone || isCurrent ? 'var(--dz-signature)' : 'var(--dz-border-strong)'}`,
-                background: isDone
+        <div
+          role="list"
+          aria-label="Pasos del proceso"
+          className="hidden lg:flex items-center gap-1.5"
+        >
+          {steps.map((step: WizardStep, i: number) => {
+            const isDone = i < currentStepIndex
+            const isCurrent = i === currentStepIndex
+            const isReachable = i <= currentStepIndex
+
+            const dotStyle: CSSProperties = {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              border: `1.5px solid ${isDone || isCurrent ? 'var(--dz-signature)' : 'var(--dz-border-strong)'}`,
+              background: isDone
+                ? 'var(--dz-signature)'
+                : isCurrent
+                  ? 'var(--dz-tint-signature)'
+                  : 'transparent',
+              fontFamily: 'var(--dz-font-mono)',
+              fontSize: '11px',
+              fontWeight: 700,
+              color: isDone
+                ? 'var(--dz-bg-page)'
+                : isCurrent
                   ? 'var(--dz-signature)'
-                  : isCurrent
-                    ? 'var(--dz-tint-signature)'
-                    : 'transparent',
-                fontFamily: 'var(--dz-font-mono)',
-                fontSize: '11px',
-                fontWeight: 700,
-                color: isDone
-                  ? 'var(--dz-bg-page)'
-                  : isCurrent
-                    ? 'var(--dz-signature)'
-                    : 'var(--dz-text-faint)',
-                cursor: isReachable ? 'pointer' : 'default',
-                transition: 'all var(--dz-transition-fast)',
-                flexShrink: 0,
-              }
+                  : 'var(--dz-text-faint)',
+              cursor: isReachable ? 'pointer' : 'default',
+              transition: 'all var(--dz-transition-fast)',
+              flexShrink: 0,
+            }
 
-              return (
-                <div
-                  key={step.id}
-                  role="listitem"
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+            return (
+              <div
+                key={step.id}
+                role="listitem"
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <button
+                  type="button"
+                  style={dotStyle}
+                  disabled={!isReachable}
+                  aria-label={`Paso ${i + 1}: ${step.title}${isDone ? ' (completado)' : isCurrent ? ' (actual)' : ''}`}
+                  onClick={() => isReachable && onStepChange(i)}
                 >
-                  <button
-                    type="button"
-                    style={dotStyle}
-                    disabled={!isReachable}
-                    aria-label={`Paso ${i + 1}: ${step.title}${isDone ? ' (completado)' : isCurrent ? ' (actual)' : ''}`}
-                    onClick={() => isReachable && onStepChange(i)}
-                  >
-                    {isDone ? <CheckIcon /> : i + 1}
-                  </button>
+                  {isDone ? <CheckIcon /> : i + 1}
+                </button>
+                {i < steps.length - 1 && (
+                  <div
+                    aria-hidden
+                    style={{
+                      flex: 1,
+                      height: '1.5px',
+                      background: isDone ? 'var(--dz-signature)' : 'var(--dz-border-base)',
+                      minWidth: '16px',
+                      transition: 'background var(--dz-transition-slow)',
+                    }}
+                  />
+                )}
+              </div>
+            )
+          })}
+        </div>
 
-                  {i < steps.length - 1 && (
-                    <div
-                      aria-hidden
-                      style={{
-                        flex: 1,
-                        height: '1.5px',
-                        background: isDone ? 'var(--dz-signature)' : 'var(--dz-border-base)',
-                        minWidth: '16px',
-                        transition: 'background var(--dz-transition-slow)',
-                      }}
-                    />
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
-
-        {/* Progress bar */}
         <ProgressBar value={progress} accent="signature" size="xs" />
 
-        {/* Step info */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span
@@ -197,20 +166,16 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
               </span>
             )}
           </div>
-
           <h2
+            className="m-0 font-semibold text-(--dz-fs-h3) lg:text-(--dz-fs-h2)"
             style={{
-              margin: 0,
               fontFamily: 'var(--dz-font-sans)',
-              fontSize: isNarrow ? 'var(--dz-fs-h3)' : 'var(--dz-fs-h2)',
-              fontWeight: 600,
               color: 'var(--dz-text-primary)',
               letterSpacing: 'var(--dz-ls-snug)',
             }}
           >
             {currentStep.title}
           </h2>
-
           {currentStep.description && (
             <p
               style={{
@@ -228,29 +193,9 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
         </div>
       </div>
 
-      {/* Step content */}
-      <div
-        style={{
-          padding: `${isNarrow ? '20px' : '28px'} ${hPad}`,
-          flex: 1,
-        }}
-      >
-        {currentStep.content}
-      </div>
+      <div className="flex-1 p-[20px_16px] lg:p-[28px_32px]">{currentStep.content}</div>
 
-      {/* Footer navigation */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: `14px ${hPad} ${isNarrow ? '16px' : '24px'}`,
-          borderTop: '1px solid var(--dz-border-soft)',
-          gap: '10px',
-          /* On narrow: stack skip below, actions on same row */
-          flexWrap: isNarrow ? 'wrap' : undefined,
-        }}
-      >
+      <div className="flex items-center justify-between gap-2.5 flex-wrap p-[14px_16px_16px] border-t border-(--dz-border-soft) lg:flex-nowrap lg:p-[14px_32px_24px]">
         <div>
           {onSkip && currentStep.isOptional && (
             <Button variant="ghost" size="sm" onClick={onSkip}>
@@ -258,27 +203,24 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
             </Button>
           )}
         </div>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: '8px',
-            /* On narrow: buttons fill remaining space */
-            flex: isNarrow ? 1 : undefined,
-            justifyContent: isNarrow ? 'flex-end' : undefined,
-          }}
-        >
+        <div className="flex gap-2 flex-1 justify-end lg:flex-none">
           {!isFirst && (
-            <Button variant="secondary" size={isNarrow ? 'sm' : 'md'} onClick={handleBack}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleBack}
+              className="lg:h-10! lg:px-4! lg:text-sm!"
+            >
               Atrás
             </Button>
           )}
           <Button
             variant="primary"
-            size={isNarrow ? 'sm' : 'md'}
+            size="sm"
             onClick={handleNext}
             loading={isLast ? completionLoading : false}
             disabled={currentStep.isValid === false}
+            className="lg:h-10! lg:px-4! lg:text-sm!"
           >
             {isLast ? completionLabel : 'Siguiente'}
           </Button>
