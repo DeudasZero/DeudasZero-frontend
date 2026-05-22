@@ -7,7 +7,6 @@ import { Textarea } from '@atoms/textarea/Textarea.tsx'
 import { AmountInput } from '@molecules/amount-input/AmountInput.tsx'
 import { Alert } from '@molecules/alert/Alert.tsx'
 import { Divider } from '@atoms/divider/Divider.tsx'
-import { useBreakpoint } from '@shared/hooks/useBreakpoint.ts'
 import type { DebtFormProps, DebtFormValues, DebtFormErrors } from './DebtForm.types.ts'
 
 const DEFAULT_VALUES: DebtFormValues = {
@@ -52,21 +51,14 @@ export const DebtForm: FC<DebtFormProps> = ({
   mode = 'create',
   className,
 }) => {
-  const { isNarrow } = useBreakpoint()
-
-  const [values, setValues] = useState<DebtFormValues>({
-    ...DEFAULT_VALUES,
-    ...initialValues,
-  })
+  const [values, setValues] = useState<DebtFormValues>({ ...DEFAULT_VALUES, ...initialValues })
   const [errors, setErrors] = useState<DebtFormErrors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [touched, setTouched] = useState<Partial<Record<keyof DebtFormValues, boolean>>>({})
 
   function setField<K extends keyof DebtFormValues>(key: K, value: DebtFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }))
-    if (errors[key as keyof DebtFormErrors]) {
-      setErrors((prev) => ({ ...prev, [key]: undefined }))
-    }
+    if (errors[key as keyof DebtFormErrors]) setErrors((prev) => ({ ...prev, [key]: undefined }))
   }
 
   function touch(key: keyof DebtFormValues) {
@@ -94,18 +86,11 @@ export const DebtForm: FC<DebtFormProps> = ({
     }
   }
 
-  /**
-   * On narrow: all grids collapse to single column.
-   * On wider:  use 2-column grids where applicable.
-   */
-  const twoCol = isNarrow ? '1fr' : '1fr 1fr'
-
   return (
     <form
       onSubmit={handleSubmit}
       noValidate
-      className={className}
-      style={{ display: 'flex', flexDirection: 'column', gap: isNarrow ? '20px' : '24px' }}
+      className={`flex flex-col gap-5 lg:gap-6 ${className ?? ''}`}
     >
       {submitError && (
         <Alert variant="danger" onDismiss={() => setSubmitError(null)}>
@@ -113,8 +98,7 @@ export const DebtForm: FC<DebtFormProps> = ({
         </Alert>
       )}
 
-      {/* Información básica */}
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <section className="flex flex-col gap-3.5">
         <div>
           <h3
             style={{
@@ -140,15 +124,14 @@ export const DebtForm: FC<DebtFormProps> = ({
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '12px' }}>
-          <div style={{ gridColumn: '1 / -1' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="lg:col-span-2">
             <Input
               label="Nombre de la deuda *"
               placeholder="Ej: Tarjeta Visa Bancolombia"
               value={values.name}
               onChange={(e) => setField('name', e.target.value)}
               onBlur={() => touch('name')}
-              // InputProps.error expects a string (not undefined) when exactOptionalPropertyTypes is enabled
               error={touched.name ? (errors.name ?? '') : ''}
               fullWidth
             />
@@ -174,8 +157,7 @@ export const DebtForm: FC<DebtFormProps> = ({
 
       <Divider />
 
-      {/* Montos */}
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <section className="flex flex-col gap-3.5">
         <div>
           <h3
             style={{
@@ -201,8 +183,8 @@ export const DebtForm: FC<DebtFormProps> = ({
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '12px' }}>
-          <div style={{ gridColumn: '1 / -1' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="lg:col-span-2">
             <AmountInput
               label="Deuda total original *"
               value={values.totalDebt === '' ? '' : Number(values.totalDebt)}
@@ -235,8 +217,7 @@ export const DebtForm: FC<DebtFormProps> = ({
 
       <Divider />
 
-      {/* Condiciones */}
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <section className="flex flex-col gap-3.5">
         <div>
           <h3
             style={{
@@ -262,7 +243,7 @@ export const DebtForm: FC<DebtFormProps> = ({
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '12px' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <Input
             label="Tasa de interés (% EA)"
             type="number"
@@ -293,7 +274,6 @@ export const DebtForm: FC<DebtFormProps> = ({
 
       <Divider />
 
-      {/* Notas */}
       <section>
         <Textarea
           label="Notas adicionales"
@@ -305,16 +285,7 @@ export const DebtForm: FC<DebtFormProps> = ({
         />
       </section>
 
-      {/* Actions */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: isNarrow ? 'column-reverse' : 'row',
-          justifyContent: isNarrow ? undefined : 'flex-end',
-          gap: '10px',
-          paddingTop: '4px',
-        }}
-      >
+      <div className="flex flex-col-reverse gap-2.5 pt-1 lg:flex-row lg:justify-end">
         {onCancel && (
           <Button
             type="button"
@@ -322,12 +293,18 @@ export const DebtForm: FC<DebtFormProps> = ({
             size="md"
             onClick={onCancel}
             disabled={loading}
-            fullWidth={isNarrow}
+            className="w-full lg:w-auto"
           >
             Cancelar
           </Button>
         )}
-        <Button type="submit" variant="primary" size="md" loading={loading} fullWidth={isNarrow}>
+        <Button
+          type="submit"
+          variant="primary"
+          size="md"
+          loading={loading}
+          className="w-full lg:w-auto"
+        >
           {mode === 'edit' ? 'Guardar cambios' : 'Agregar deuda'}
         </Button>
       </div>
