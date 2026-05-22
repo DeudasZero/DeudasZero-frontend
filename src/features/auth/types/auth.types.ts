@@ -1,14 +1,18 @@
 export interface LoginCredentials {
   email: string
   password: string
-  rememberMe: boolean
+  rememberMe?: boolean
 }
 
 export interface AuthUser {
-  id: string
-  email: string
   name: string
+  email: string
+}
+
+export interface LoginResponse {
   token: string
+  name: string
+  email: string
 }
 
 export interface AuthState {
@@ -16,14 +20,4 @@ export interface AuthState {
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
-}
-
-export interface LoginResponse {
-  user: AuthUser
-  token: string
-}
-
-export interface ApiError {
-  message: string
-  statusCode: number
 }

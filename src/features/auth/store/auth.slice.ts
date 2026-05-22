@@ -16,14 +16,20 @@ export const login = createAsyncThunk(
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
       const response = await loginUser(credentials)
+
       if (credentials.rememberMe) {
         localStorage.setItem('token', response.token)
       } else {
         sessionStorage.setItem('token', response.token)
       }
-      return response.user
+
+      return {
+        name: response.name,
+        email: response.email,
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error al iniciar sesión'
+
       return rejectWithValue(message)
     }
   },
