@@ -67,12 +67,6 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
   const debtRate = income > 0 ? Math.round((debts / income) * 100) : 0
   const expenseRate = income > 0 ? Math.round((expenses / income) * 100) : 0
 
-  /**
-   * Grid columns:
-   * - narrow  (< 640)  → 1 column  (stacked)
-   * - compact (< 1024) → 2 columns
-   * - desktop          → 4 columns
-   */
   const gridCols = isNarrow ? '1fr 1fr' : isCompact ? '1fr 1fr' : 'repeat(4, 1fr)'
 
   return (
@@ -95,7 +89,6 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
         </span>
       )}
 
-      {/* Stats grid — 2 cols on narrow/compact, 4 on desktop */}
       <div
         style={{
           display: 'grid',
@@ -165,7 +158,6 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
         />
       </div>
 
-      {/* Balance summary bar */}
       {!loading && (
         <div
           style={{
@@ -298,7 +290,6 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
         </div>
       )}
 
-      {/* Categories */}
       {categories.length > 0 && !loading && (
         <div
           style={{

@@ -94,10 +94,6 @@ export const DebtForm: FC<DebtFormProps> = ({
     }
   }
 
-  /**
-   * On narrow: all grids collapse to single column.
-   * On wider:  use 2-column grids where applicable.
-   */
   const twoCol = isNarrow ? '1fr' : '1fr 1fr'
 
   return (
@@ -113,7 +109,6 @@ export const DebtForm: FC<DebtFormProps> = ({
         </Alert>
       )}
 
-      {/* Información básica */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div>
           <h3
@@ -148,7 +143,6 @@ export const DebtForm: FC<DebtFormProps> = ({
               value={values.name}
               onChange={(e) => setField('name', e.target.value)}
               onBlur={() => touch('name')}
-              // InputProps.error expects a string (not undefined) when exactOptionalPropertyTypes is enabled
               error={touched.name ? (errors.name ?? '') : ''}
               fullWidth
             />
@@ -174,7 +168,6 @@ export const DebtForm: FC<DebtFormProps> = ({
 
       <Divider />
 
-      {/* Montos */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div>
           <h3
@@ -235,7 +228,6 @@ export const DebtForm: FC<DebtFormProps> = ({
 
       <Divider />
 
-      {/* Condiciones */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div>
           <h3
@@ -293,7 +285,6 @@ export const DebtForm: FC<DebtFormProps> = ({
 
       <Divider />
 
-      {/* Notas */}
       <section>
         <Textarea
           label="Notas adicionales"
@@ -305,7 +296,6 @@ export const DebtForm: FC<DebtFormProps> = ({
         />
       </section>
 
-      {/* Actions */}
       <div
         style={{
           display: 'flex',

@@ -40,11 +40,6 @@ export const Sidebar: FC<SidebarProps> = ({
 }) => {
   const { isCompact } = useBreakpoint()
 
-  /**
-   * On compact viewports (< 1024px) the sidebar auto-collapses to icon-only
-   * unless the parent explicitly sets collapsed=false.
-   * The parent (DashboardLayout) controls the override.
-   */
   const effectiveCollapsed = collapsed
 
   const sidebarStyle: CSSProperties = {
@@ -66,7 +61,6 @@ export const Sidebar: FC<SidebarProps> = ({
       style={sidebarStyle}
       className={className}
     >
-      {/* Logo / Brand */}
       <div
         style={{
           display: 'flex',
@@ -128,7 +122,6 @@ export const Sidebar: FC<SidebarProps> = ({
         )}
       </div>
 
-      {/* Nav groups */}
       <div
         style={{
           flex: 1,
@@ -230,7 +223,6 @@ export const Sidebar: FC<SidebarProps> = ({
         ))}
       </div>
 
-      {/* User section */}
       {user && (
         <div
           style={{

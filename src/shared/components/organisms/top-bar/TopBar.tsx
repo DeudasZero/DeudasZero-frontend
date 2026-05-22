@@ -34,7 +34,6 @@ export const TopBar: FC<TopBarProps> = ({
     alignItems: 'center',
     gap: isNarrow ? '10px' : '16px',
     height: 'var(--dz-header-h)',
-    /* Tighter horizontal padding on compact viewports */
     padding: isNarrow ? '0 16px' : isCompact ? '0 20px' : '0 var(--dz-content-pad)',
     background: 'var(--dz-bg-page)',
     borderBottom: '1px solid var(--dz-border-soft)',
@@ -46,7 +45,6 @@ export const TopBar: FC<TopBarProps> = ({
 
   return (
     <header style={rootStyle} className={className}>
-      {/* Mobile/tablet menu toggle */}
       {(showMenuButton || isCompact) && onMenuToggle && (
         <button
           type="button"
@@ -70,7 +68,6 @@ export const TopBar: FC<TopBarProps> = ({
         </button>
       )}
 
-      {/* Title area — hide subtitle on narrow */}
       {(title || eyebrow) && (
         <div style={{ flex: 1, minWidth: 0 }}>
           {eyebrow && !isNarrow && (
@@ -124,10 +121,8 @@ export const TopBar: FC<TopBarProps> = ({
         </div>
       )}
 
-      {/* Center slot */}
       {children && <div style={{ flex: title ? undefined : 1 }}>{children}</div>}
 
-      {/* Search — hide on narrow, show icon only on compact */}
       {onSearchChange !== undefined && !isNarrow && (
         <div
           style={{
@@ -145,10 +140,8 @@ export const TopBar: FC<TopBarProps> = ({
         </div>
       )}
 
-      {/* Actions */}
       {actions.length > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flexShrink: 0 }}>
-          {/* On narrow show max 2 actions */}
           {(isNarrow ? actions.slice(0, 2) : actions).map((action: TopBarAction) => (
             <button
               key={action.id}

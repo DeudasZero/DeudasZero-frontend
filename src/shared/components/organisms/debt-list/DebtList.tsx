@@ -4,7 +4,6 @@ import { EmptyState } from '@molecules/empty-state/EmptyState.tsx'
 import { SegmentedControl } from '@molecules/segmented-control/SegmentedControl.tsx'
 import { Button } from '@atoms/button/Button.tsx'
 import { Skeleton } from '@atoms/skeleton/Skeleton.tsx'
-import { useBreakpoint } from '@shared/hooks/useBreakpoint.ts'
 import type { DebtListProps, DebtListItem, DebtListFilterStatus } from './DebtList.types.ts'
 
 const FILTER_OPTIONS: { value: DebtListFilterStatus; label: string }[] = [
@@ -20,10 +19,10 @@ const AddIcon = () => (
   </svg>
 )
 
-function DebtListSkeleton({ rows = 3 }: { rows?: number }) {
+function DebtListSkeleton() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      {Array.from({ length: rows }).map((_, i) => (
+      {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={i}
           style={{
@@ -37,11 +36,7 @@ function DebtListSkeleton({ rows = 3 }: { rows?: number }) {
           }}
         >
           <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-            }}
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <Skeleton width="160px" height="16px" />
@@ -77,27 +72,14 @@ export const DebtList: FC<DebtListProps> = ({
   header,
   className,
 }) => {
-  const { isNarrow } = useBreakpoint()
-
   const filtered =
     filterStatus === 'all' ? debts : debts.filter((d: DebtListItem) => d.status === filterStatus)
-
   const emptyStateAction =
     emptyAction ?? (onAddDebt ? { label: 'Agregar primera deuda', onClick: onAddDebt } : undefined)
 
   return (
-    <div className={className} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          /* Stack on narrow */
-          flexDirection: isNarrow ? 'column' : 'row',
-          alignItems: isNarrow ? 'flex-start' : 'center',
-          justifyContent: 'space-between',
-          gap: '12px',
-        }}
-      >
+    <div className={`flex flex-col gap-3.5 ${className ?? ''}`}>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
           {header ?? (
             <>
@@ -128,43 +110,35 @@ export const DebtList: FC<DebtListProps> = ({
           )}
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            /* On narrow: fill full width, wrap filter and button */
-            flexWrap: 'wrap',
-            width: isNarrow ? '100%' : undefined,
-          }}
-        >
+        <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto">
           {onFilterChange && (
-            <div style={{ flex: isNarrow ? 1 : undefined }}>
+            <div className="flex-1 lg:flex-none">
               <SegmentedControl
                 options={FILTER_OPTIONS}
                 value={filterStatus}
                 onChange={onFilterChange}
-                fullWidth={isNarrow}
+                fullWidth
               />
             </div>
           )}
+
           {onAddDebt && (
             <Button
               variant="primary"
               size="sm"
               iconLeft={<AddIcon />}
               onClick={onAddDebt}
-              fullWidth={isNarrow && !onFilterChange}
+              className={!onFilterChange ? 'w-full lg:w-auto' : undefined}
             >
-              {isNarrow ? 'Agregar' : 'Agregar deuda'}
+              <span className="lg:hidden">Agregar</span>
+              <span className="hidden lg:inline">Agregar deuda</span>
             </Button>
           )}
         </div>
       </div>
 
-      {/* List */}
       {loading ? (
-        <DebtListSkeleton rows={isNarrow ? 2 : 3} />
+        <DebtListSkeleton />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon="💳"

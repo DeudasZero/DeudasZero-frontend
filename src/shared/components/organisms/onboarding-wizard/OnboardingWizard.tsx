@@ -61,7 +61,6 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
         width: '100%',
       }}
     >
-      {/* Progress header */}
       <div
         style={{
           padding: `${isNarrow ? '16px' : '24px'} ${hPad} ${isNarrow ? '14px' : '20px'}`,
@@ -71,7 +70,6 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
           gap: isNarrow ? '12px' : '16px',
         }}
       >
-        {/* Step indicators — on narrow show simplified dots */}
         {isNarrow ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             {steps.map((_, i) => {
@@ -165,7 +163,6 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
           </div>
         )}
 
-        {/* Progress bar */}
         <ProgressBar value={progress} accent="signature" size="xs" />
 
         {/* Step info */}
@@ -228,7 +225,6 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
         </div>
       </div>
 
-      {/* Step content */}
       <div
         style={{
           padding: `${isNarrow ? '20px' : '28px'} ${hPad}`,
@@ -238,7 +234,6 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
         {currentStep.content}
       </div>
 
-      {/* Footer navigation */}
       <div
         style={{
           display: 'flex',
@@ -247,7 +242,6 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
           padding: `14px ${hPad} ${isNarrow ? '16px' : '24px'}`,
           borderTop: '1px solid var(--dz-border-soft)',
           gap: '10px',
-          /* On narrow: stack skip below, actions on same row */
           flexWrap: isNarrow ? 'wrap' : undefined,
         }}
       >
@@ -263,7 +257,6 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
           style={{
             display: 'flex',
             gap: '8px',
-            /* On narrow: buttons fill remaining space */
             flex: isNarrow ? 1 : undefined,
             justifyContent: isNarrow ? 'flex-end' : undefined,
           }}

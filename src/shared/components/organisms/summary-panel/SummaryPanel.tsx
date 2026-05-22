@@ -43,12 +43,6 @@ export const SummaryPanel: FC<SummaryPanelProps> = ({
 
   const bgColor = surface === 'raised' ? 'var(--dz-bg-raised)' : 'var(--dz-bg-surface)'
 
-  /**
-   * Responsive column count:
-   * - narrow  → 2 max (instead of 3)
-   * - compact → min(metrics.length, 3) but at most 2 if metrics < 3
-   * - desktop → original min(metrics.length, 3)
-   */
   const maxCols = isNarrow ? 2 : Math.min(metrics.length, 3)
   const gridCols = `repeat(${maxCols}, 1fr)`
 
@@ -64,7 +58,6 @@ export const SummaryPanel: FC<SummaryPanelProps> = ({
 
   return (
     <div style={rootStyle} className={className}>
-      {/* Header */}
       {(title || actions.length > 0) && (
         <div
           style={{
@@ -134,7 +127,6 @@ export const SummaryPanel: FC<SummaryPanelProps> = ({
         </div>
       )}
 
-      {/* Metrics grid */}
       <div
         style={{
           display: 'grid',
@@ -247,7 +239,6 @@ export const SummaryPanel: FC<SummaryPanelProps> = ({
         })}
       </div>
 
-      {/* Footer */}
       {footer && (
         <div
           style={{

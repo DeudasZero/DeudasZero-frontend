@@ -104,7 +104,6 @@ export const PaymentPlanCard: FC<PaymentPlanCardProps> = ({
     return 0
   })
 
-  /* Metrics grid: 2 cols on narrow, 4 on wider */
   const metricsGrid = isNarrow ? '1fr 1fr' : 'repeat(4, 1fr)'
 
   return (
@@ -120,7 +119,6 @@ export const PaymentPlanCard: FC<PaymentPlanCardProps> = ({
         overflow: 'hidden',
       }}
     >
-      {/* Header */}
       <div
         style={{
           padding: isNarrow ? '16px 16px 0' : '20px 24px 0',
@@ -191,8 +189,6 @@ export const PaymentPlanCard: FC<PaymentPlanCardProps> = ({
           </div>
         )}
       </div>
-
-      {/* Summary metrics */}
       {loading ? (
         <div
           style={{
@@ -301,7 +297,6 @@ export const PaymentPlanCard: FC<PaymentPlanCardProps> = ({
         </div>
       )}
 
-      {/* Priority order */}
       {!loading && sortedDebts.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div
