@@ -2,7 +2,6 @@ import type { CSSProperties, FC } from 'react'
 import { Avatar } from '@atoms/avatar/Avatar.tsx'
 import { NavItem } from '@molecules/nav-item/NavItem.tsx'
 import { Divider } from '@atoms/divider/Divider.tsx'
-import { useBreakpoint } from '@shared/hooks/useBreakpoint.ts'
 import type { SidebarProps, SidebarNavGroup, SidebarNavItem } from './Sidebar.types.ts'
 
 const CollapseIcon = ({ collapsed }: { collapsed: boolean }) => (
@@ -38,19 +37,11 @@ export const Sidebar: FC<SidebarProps> = ({
   onToggleCollapse,
   className,
 }) => {
-  const { isCompact } = useBreakpoint()
-
-  /**
-   * On compact viewports (< 1024px) the sidebar auto-collapses to icon-only
-   * unless the parent explicitly sets collapsed=false.
-   * The parent (DashboardLayout) controls the override.
-   */
   const effectiveCollapsed = collapsed
 
   const sidebarStyle: CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    width: effectiveCollapsed ? '64px' : isCompact ? '200px' : 'var(--dz-sidebar-w)',
     minHeight: '100vh',
     background: 'var(--dz-bg-sidebar)',
     borderRight: '1px solid var(--dz-border-soft)',
@@ -64,9 +55,8 @@ export const Sidebar: FC<SidebarProps> = ({
       role="navigation"
       aria-label="Navegación principal"
       style={sidebarStyle}
-      className={className}
+      className={`w-16 ${!effectiveCollapsed ? 'xl:w-50 2xl:w-(--dz-sidebar-w)' : ''} ${className ?? ''}`}
     >
-      {/* Logo / Brand */}
       <div
         style={{
           display: 'flex',
@@ -82,13 +72,11 @@ export const Sidebar: FC<SidebarProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
             {logo ?? (
               <span
+                className="text-(--dz-fs-body) xl:text-(--dz-fs-h3) font-bold whitespace-nowrap"
                 style={{
                   fontFamily: 'var(--dz-font-sans)',
-                  fontSize: isCompact ? 'var(--dz-fs-body)' : 'var(--dz-fs-h3)',
-                  fontWeight: 700,
                   color: 'var(--dz-signature)',
                   letterSpacing: 'var(--dz-ls-snug)',
-                  whiteSpace: 'nowrap',
                 }}
               >
                 DeudaZero
@@ -128,7 +116,6 @@ export const Sidebar: FC<SidebarProps> = ({
         )}
       </div>
 
-      {/* Nav groups */}
       <div
         style={{
           flex: 1,
@@ -144,7 +131,6 @@ export const Sidebar: FC<SidebarProps> = ({
         {groups.map((group: SidebarNavGroup, groupIndex: number) => (
           <div key={group.id}>
             {groupIndex > 0 && <Divider spacing="sm" />}
-
             {!effectiveCollapsed && group.label && (
               <span
                 style={{
@@ -162,7 +148,6 @@ export const Sidebar: FC<SidebarProps> = ({
                 {group.label}
               </span>
             )}
-
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
               {group.items.map((item: SidebarNavItem) => {
                 if (effectiveCollapsed) {
@@ -210,7 +195,6 @@ export const Sidebar: FC<SidebarProps> = ({
                     </button>
                   )
                 }
-
                 return (
                   <NavItem
                     key={item.id}
@@ -230,7 +214,6 @@ export const Sidebar: FC<SidebarProps> = ({
         ))}
       </div>
 
-      {/* User section */}
       {user && (
         <div
           style={{
@@ -280,16 +263,17 @@ export const Sidebar: FC<SidebarProps> = ({
                 >
                   {user.name}
                 </p>
-                {user.email && !isCompact && (
+                {user.email && (
                   <p
+                    className="hidden xl:block m-0"
                     style={{
-                      margin: '1px 0 0',
                       fontFamily: 'var(--dz-font-sans)',
                       fontSize: '11px',
                       color: 'var(--dz-text-faint)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
+                      marginTop: '1px',
                     }}
                   >
                     {user.email}

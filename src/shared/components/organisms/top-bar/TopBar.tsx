@@ -1,6 +1,5 @@
-import type { CSSProperties, FC } from 'react'
+import type { FC } from 'react'
 import { SearchInput } from '@molecules/search-input/SearchInput.tsx'
-import { useBreakpoint } from '@shared/hooks/useBreakpoint.ts'
 import type { TopBarProps, TopBarAction } from './TopBar.types.ts'
 
 const MenuIcon = () => (
@@ -27,56 +26,35 @@ export const TopBar: FC<TopBarProps> = ({
   children,
   className,
 }) => {
-  const { isNarrow, isCompact } = useBreakpoint()
-
-  const rootStyle: CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: isNarrow ? '10px' : '16px',
-    height: 'var(--dz-header-h)',
-    /* Tighter horizontal padding on compact viewports */
-    padding: isNarrow ? '0 16px' : isCompact ? '0 20px' : '0 var(--dz-content-pad)',
-    background: 'var(--dz-bg-page)',
-    borderBottom: '1px solid var(--dz-border-soft)',
-    flexShrink: 0,
-    position: 'sticky',
-    top: 0,
-    zIndex: 100,
-  }
-
   return (
-    <header style={rootStyle} className={className}>
-      {/* Mobile/tablet menu toggle */}
-      {(showMenuButton || isCompact) && onMenuToggle && (
+    <header
+      className={`
+        flex items-center gap-2.5 lg:gap-4
+        h-(--dz-header-h)
+        px-4 lg:px-5 xl:px-(--dz-content-pad)
+        sticky top-0 z-100 shrink-0
+        ${className ?? ''}
+      `}
+      style={{ background: 'var(--dz-bg-page)', borderBottom: '1px solid var(--dz-border-soft)' }}
+    >
+      {showMenuButton && onMenuToggle && (
         <button
           type="button"
           aria-label="Abrir menú"
           onClick={onMenuToggle}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '36px',
-            height: '36px',
-            background: 'transparent',
-            border: 'none',
-            borderRadius: 'var(--dz-r-sm)',
-            cursor: 'pointer',
-            color: 'var(--dz-text-muted)',
-            flexShrink: 0,
-          }}
+          className="xl:hidden flex items-center justify-center w-9 h-9 shrink-0 rounded-(--dz-r-sm) border-none cursor-pointer"
+          style={{ background: 'transparent', color: 'var(--dz-text-muted)' }}
         >
           <MenuIcon />
         </button>
       )}
 
-      {/* Title area — hide subtitle on narrow */}
       {(title || eyebrow) && (
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {eyebrow && !isNarrow && (
+        <div className="flex-1 min-w-0">
+          {eyebrow && (
             <span
+              className="hidden lg:block"
               style={{
-                display: 'block',
                 fontFamily: 'var(--dz-font-mono)',
                 fontSize: 'var(--dz-fs-eyebrow)',
                 fontWeight: 500,
@@ -85,6 +63,7 @@ export const TopBar: FC<TopBarProps> = ({
                 color: 'var(--dz-text-faint)',
                 lineHeight: 1,
                 marginBottom: '2px',
+                display: 'block',
               }}
             >
               {eyebrow}
@@ -92,26 +71,20 @@ export const TopBar: FC<TopBarProps> = ({
           )}
           {title && (
             <h1
+              className="m-0 font-semibold text-(--dz-fs-body) lg:text-(--dz-fs-h3) overflow-hidden text-ellipsis whitespace-nowrap leading-tight"
               style={{
-                margin: 0,
                 fontFamily: 'var(--dz-font-sans)',
-                fontSize: isNarrow ? 'var(--dz-fs-body)' : 'var(--dz-fs-h3)',
-                fontWeight: 600,
                 color: 'var(--dz-text-primary)',
                 letterSpacing: 'var(--dz-ls-snug)',
-                lineHeight: 1.1,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
               }}
             >
               {title}
             </h1>
           )}
-          {subtitle && !isNarrow && (
+          {subtitle && (
             <p
+              className="hidden lg:block m-0 mt-0.5"
               style={{
-                margin: '2px 0 0',
                 fontFamily: 'var(--dz-font-sans)',
                 fontSize: 'var(--dz-fs-caption)',
                 color: 'var(--dz-text-muted)',
@@ -124,18 +97,10 @@ export const TopBar: FC<TopBarProps> = ({
         </div>
       )}
 
-      {/* Center slot */}
       {children && <div style={{ flex: title ? undefined : 1 }}>{children}</div>}
 
-      {/* Search — hide on narrow, show icon only on compact */}
-      {onSearchChange !== undefined && !isNarrow && (
-        <div
-          style={{
-            flex: title ? undefined : 1,
-            minWidth: 0,
-            maxWidth: isCompact ? '220px' : '320px',
-          }}
-        >
+      {onSearchChange !== undefined && (
+        <div className="hidden lg:block flex-none min-w-0 max-w-55 xl:max-w-[320px]">
           <SearchInput
             value={searchValue ?? ''}
             onChange={onSearchChange}
@@ -145,27 +110,21 @@ export const TopBar: FC<TopBarProps> = ({
         </div>
       )}
 
-      {/* Actions */}
       {actions.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flexShrink: 0 }}>
-          {/* On narrow show max 2 actions */}
-          {(isNarrow ? actions.slice(0, 2) : actions).map((action: TopBarAction) => (
+        <div className="flex items-center gap-0.5 shrink-0">
+          {actions.map((action: TopBarAction, index: number) => (
             <button
               key={action.id}
               type="button"
               aria-label={action.label}
               onClick={action.onClick}
+              className={`
+                relative flex items-center justify-center w-9 h-9
+                rounded-(--dz-r-sm) border border-transparent cursor-pointer
+                ${index >= 2 ? 'hidden lg:flex' : ''}
+              `}
               style={{
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '36px',
-                height: '36px',
                 background: 'transparent',
-                border: '1px solid transparent',
-                borderRadius: 'var(--dz-r-sm)',
-                cursor: 'pointer',
                 color: 'var(--dz-text-muted)',
                 transition: 'background var(--dz-transition-fast), color var(--dz-transition-fast)',
               }}

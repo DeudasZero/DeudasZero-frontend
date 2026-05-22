@@ -1,3 +1,7 @@
+/**
+ * @deprecated useBreakpoint
+ */
+
 import { useEffect, useState } from 'react'
 
 export type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl'

@@ -2,7 +2,6 @@ import type { FC } from 'react'
 import { Money } from '@atoms/money/Money.tsx'
 import { ProgressBar } from '@atoms/progress-bar/ProgressBar.tsx'
 import { StatCard } from '@molecules/stat-card/StatCard.tsx'
-import { useBreakpoint } from '@shared/hooks/useBreakpoint.ts'
 import type { BudgetOverviewProps, BudgetCategory } from './BudgetOverview.types.ts'
 
 const IncomeIcon = () => (
@@ -60,26 +59,13 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
   onCategoryClick,
   className,
 }) => {
-  const { isNarrow, isCompact } = useBreakpoint()
-
   const balance = income - expenses - savings - debts
   const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0
   const debtRate = income > 0 ? Math.round((debts / income) * 100) : 0
   const expenseRate = income > 0 ? Math.round((expenses / income) * 100) : 0
 
-  /**
-   * Grid columns:
-   * - narrow  (< 640)  → 1 column  (stacked)
-   * - compact (< 1024) → 2 columns
-   * - desktop          → 4 columns
-   */
-  const gridCols = isNarrow ? '1fr 1fr' : isCompact ? '1fr 1fr' : 'repeat(4, 1fr)'
-
   return (
-    <div
-      className={className}
-      style={{ display: 'flex', flexDirection: 'column', gap: isNarrow ? '14px' : '20px' }}
-    >
+    <div className={`flex flex-col gap-3.5 lg:gap-5 ${className ?? ''}`}>
       {period && (
         <span
           style={{
@@ -95,14 +81,7 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
         </span>
       )}
 
-      {/* Stats grid — 2 cols on narrow/compact, 4 on desktop */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: gridCols,
-          gap: '10px',
-        }}
-      >
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
         <StatCard
           label="Ingresos"
           value={
@@ -165,20 +144,14 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
         />
       </div>
 
-      {/* Balance summary bar */}
       {!loading && (
         <div
           style={{
-            padding: isNarrow ? '14px 16px' : '16px 20px',
             background: 'var(--dz-bg-surface)',
             border: '1px solid var(--dz-border-base)',
             borderRadius: 'var(--dz-r-md)',
-            display: 'flex',
-            flexDirection: isNarrow ? 'column' : 'row',
-            alignItems: isNarrow ? 'flex-start' : 'center',
-            justifyContent: 'space-between',
-            gap: isNarrow ? '12px' : '16px',
           }}
+          className="flex flex-col gap-3 p-[14px_16px] lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:p-[16px_20px]"
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             <span
@@ -204,15 +177,7 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
           </div>
 
           {income > 0 && (
-            <div
-              style={{
-                flex: 1,
-                minWidth: isNarrow ? '100%' : '200px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '6px',
-              }}
-            >
+            <div className="flex flex-col gap-1.5 w-full lg:flex-1 lg:min-w-50">
               <div
                 style={{
                   display: 'flex',
@@ -298,7 +263,6 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
         </div>
       )}
 
-      {/* Categories */}
       {categories.length > 0 && !loading && (
         <div
           style={{
@@ -333,17 +297,10 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
                   type="button"
                   onClick={onCategoryClick ? () => onCategoryClick(cat) : undefined}
                   disabled={!onCategoryClick}
+                  className="flex flex-col gap-2 p-[10px_16px] lg:p-[12px_20px] text-left bg-transparent border-none cursor-pointer"
                   style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '8px',
-                    padding: isNarrow ? '10px 16px' : '12px 20px',
-                    background: 'transparent',
-                    border: 'none',
                     borderBottom:
                       i < categories.length - 1 ? '1px solid var(--dz-border-soft)' : 'none',
-                    cursor: onCategoryClick ? 'pointer' : 'default',
-                    textAlign: 'left',
                   }}
                 >
                   <div
@@ -377,25 +334,23 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
                         variant="caption"
                         accent={isOver ? 'expense' : 'neutral'}
                       />
-                      {!isNarrow && (
-                        <>
-                          <span
-                            style={{
-                              fontFamily: 'var(--dz-font-mono)',
-                              fontSize: 'var(--dz-fs-caption)',
-                              color: 'var(--dz-text-faint)',
-                            }}
-                          >
-                            /
-                          </span>
-                          <Money
-                            amount={cat.budget}
-                            currency={currency}
-                            locale={locale}
-                            variant="caption"
-                          />
-                        </>
-                      )}
+                      <span className="hidden lg:contents">
+                        <span
+                          style={{
+                            fontFamily: 'var(--dz-font-mono)',
+                            fontSize: 'var(--dz-fs-caption)',
+                            color: 'var(--dz-text-faint)',
+                          }}
+                        >
+                          /
+                        </span>
+                        <Money
+                          amount={cat.budget}
+                          currency={currency}
+                          locale={locale}
+                          variant="caption"
+                        />
+                      </span>
                     </div>
                   </div>
                   <ProgressBar
