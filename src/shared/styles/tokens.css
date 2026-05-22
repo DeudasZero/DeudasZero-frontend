@@ -1,3 +1,7 @@
+/* ============================================================
+ * 1 · TEMA ARCTIC (dark-first)
+ * ============================================================ */
+
 :root,
 [data-theme='arctic'] {
   /* — Surfaces — */
@@ -21,22 +25,27 @@
 
   /* — Accents (cuatro cuentas) — */
   --dz-signature: #5ee1e6;
-  /* cian eléctrico — mismo que income */
+  /* cian eléctrico */
   --dz-income: #5ee1e6;
+  /* mismo que signature */
   --dz-expense: #e07a9c;
   /* rosa frío */
   --dz-saving: #8fa8f0;
   /* periwinkle / azul-violeta */
   --dz-debt: #f0b57a;
-  /* ámbar cálido — único tono cálido para warning */
+  /* ámbar cálido — único tono cálido */
 
-  /* — Tints (12-14% alpha, para fondos suaves) — */
+  /* — Tints (12-14 % alpha, fondos suaves) — */
   --dz-tint-signature: rgba(94, 225, 230, 0.12);
   --dz-tint-income: rgba(94, 225, 230, 0.12);
   --dz-tint-expense: rgba(224, 122, 156, 0.14);
   --dz-tint-saving: rgba(143, 168, 240, 0.12);
   --dz-tint-debt: rgba(240, 181, 122, 0.14);
 }
+
+/* ============================================================
+ * 2 · TOKENS GLOBALES (independientes del tema)
+ * ============================================================ */
 
 :root {
   /* — Radii — */
@@ -49,12 +58,18 @@
 
   /* — Tipografía — */
   --dz-font-sans: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --dz-font-serif: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /*
+   * FIX: --dz-font-serif eliminado — apuntaba a Instrument Sans (sans-serif),
+   * lo que hacía el token semánticamente incorrecto. Reemplazado por
+   * --dz-font-display para números hero / montos editoriales.
+   * Si en el futuro se agrega una fuente serif real, se puede restaurar aquí.
+   */
+  --dz-font-display: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --dz-font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, 'Menlo', monospace;
 
   /* — Escalas de tamaño tipográfico — */
   --dz-fs-display: 56px;
-  /* hero serif numbers */
+  /* números hero / montos display */
   --dz-fs-h1: 28px;
   --dz-fs-h2: 22px;
   --dz-fs-h3: 17px;
@@ -114,8 +129,20 @@
   --dz-mobile-nav-h: 64px;
   --dz-header-h: 64px;
   --dz-content-pad: 32px;
+
+  /*
+   * DEPRECADO: --dz-breakpoint ya no debe usarse en JS (useBreakpoint).
+   * Los breakpoints viven en Tailwind via @theme en index.css.
+   * Mantenido solo como referencia durante la migración.
+   * @deprecated — usar clases Tailwind md: en su lugar
+   */
   --dz-breakpoint: 768px;
 }
+
+/* ============================================================
+ * 3 · ESTILOS BASE GLOBALES
+ * (fuente única de verdad — NO duplicar en <style> del HTML)
+ * ============================================================ */
 
 html,
 body {
@@ -127,23 +154,56 @@ body {
   letter-spacing: var(--dz-ls-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
+/* FIX: declaración única de ::selection — eliminado el duplicado del HTML */
 ::selection {
   background: var(--dz-tint-signature);
   color: var(--dz-text-primary);
 }
 
-/* Tabular numbers — útil para columnas de montos */
+/* FIX: scrollbar cross-browser — agrega soporte Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(220, 235, 255, 0.08) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(220, 235, 255, 0.08);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(220, 235, 255, 0.18);
+}
+
+/* ============================================================
+ * 4 · UTILIDADES TIPOGRÁFICAS
+ * ============================================================ */
+
+/* Tabular numbers — columnas de montos */
 .dz-tabular,
 .dz-money {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.005em;
 }
 
-/* Money editorial — número grande con peso display */
+/*
+ * Money editorial — número grande con peso display
+ * FIX: cambiado var(--dz-font-serif) → var(--dz-font-display)
+ */
 .dz-money-display {
-  font-family: var(--dz-font-serif);
+  font-family: var(--dz-font-display);
   font-weight: var(--dz-fw-medium);
   letter-spacing: var(--dz-ls-tight);
   line-height: 1;
@@ -161,7 +221,15 @@ body {
 }
 
 /* ============================================================
- * 6 · COMPONENTES UTILITARIOS (opcionales — punto de partida)
+ * 5 · CÓDIGO
+ * ============================================================ */
+
+code {
+  font-family: var(--dz-font-mono);
+}
+
+/* ============================================================
+ * 6 · COMPONENTES UTILITARIOS
  * ============================================================ */
 
 /* Card */
@@ -309,7 +377,7 @@ body {
 }
 
 /* ============================================================
- * 7 · RESPONSIVE — punto de quiebre mobile (< 768px)
+ * 7 · RESPONSIVE — ajuste de tokens en mobile (< 768px)
  * ============================================================ */
 @media (max-width: 768px) {
   :root {
