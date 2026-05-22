@@ -1,0 +1,308 @@
+import { useId, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
+
+const EyeOpen = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <path
+      d="M1.5 8s2.5-4.5 6.5-4.5S14.5 8 14.5 8s-2.5 4.5-6.5 4.5S1.5 8 1.5 8Z"
+      stroke="currentColor"
+      strokeWidth="1.3"
+    />
+    <circle cx="8" cy="8" r="1.75" stroke="currentColor" strokeWidth="1.3" />
+  </svg>
+)
+const EyeClosed = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <path
+      d="M2 2l12 12M6.8 6.9A1.75 1.75 0 0 0 9.1 9.2M4.3 4.4C2.7 5.4 1.5 8 1.5 8s2.5 4.5 6.5 4.5c1.4 0 2.7-.4 3.7-1.1M7 3.6c.33-.07.66-.1 1-.1 4 0 6.5 4.5 6.5 4.5s-.5 1-1.4 2"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+    />
+  </svg>
+)
+
+interface FieldWrapProps {
+  label: string
+  id: string
+  error?: string
+  children: React.ReactNode
+}
+const FieldWrap = ({ label, id, children }: FieldWrapProps) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+    <label
+      htmlFor={id}
+      style={{
+        fontFamily: 'var(--dz-font-sans)',
+        fontSize: 'var(--dz-fs-caption)',
+        fontWeight: 500,
+        color: 'var(--dz-text-secondary)',
+        letterSpacing: '-0.005em',
+      }}
+    >
+      {label}
+    </label>
+    {children}
+  </div>
+)
+
+export const LoginForm = () => {
+  const emailId = useId()
+  const passId = useId()
+  const remId = useId()
+
+  const [showPassword, setShowPassword] = useState(false)
+
+  const {
+    register,
+    formState: { errors },
+  } = useForm({
+    defaultValues: { email: '', password: '', rememberMe: false },
+  })
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        maxWidth: '400px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '28px',
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <span
+          style={{
+            fontFamily: 'var(--dz-font-mono)',
+            fontSize: 'var(--dz-fs-eyebrow)',
+            fontWeight: 500,
+            textTransform: 'uppercase',
+            letterSpacing: 'var(--dz-ls-eyebrow)',
+            color: 'var(--dz-text-muted)',
+          }}
+        >
+          Bienvenido de vuelta
+        </span>
+        <h2
+          style={{
+            margin: 0,
+            fontFamily: 'var(--dz-font-sans)',
+            fontSize: 'var(--dz-fs-h1)',
+            fontWeight: 600,
+            color: 'var(--dz-text-primary)',
+            letterSpacing: 'var(--dz-ls-snug)',
+          }}
+        >
+          Entra a tu cuenta
+        </h2>
+        <p
+          style={{
+            margin: 0,
+            fontFamily: 'var(--dz-font-sans)',
+            fontSize: 'var(--dz-fs-body)',
+            color: 'var(--dz-text-muted)',
+            lineHeight: 'var(--dz-lh-body)',
+          }}
+        >
+          Tu progreso y plan te están esperando.
+        </p>
+      </div>
+
+      <form
+        onSubmit={() => {}}
+        noValidate
+        style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+      >
+        <FieldWrap label="Correo electrónico" id={emailId}>
+          <InputField
+            id={emailId}
+            type="email"
+            autoComplete="email"
+            placeholder="tu@correo.com"
+            hasError={!!errors.email}
+            {...register('email', {
+              required: 'El correo es requerido',
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'Correo inválido',
+              },
+            })}
+          />
+        </FieldWrap>
+
+        <FieldWrap label="Contraseña" id={passId}>
+          <div style={{ position: 'relative' }}>
+            <InputField
+              id={passId}
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              placeholder="••••••••"
+              hasError={!!errors.password}
+              style={{ paddingRight: '44px' }}
+              {...register('password', {
+                required: 'La contraseña es requerida',
+                minLength: { value: 6, message: 'Mínimo 6 caracteres' },
+              })}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--dz-text-muted)',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                lineHeight: 0,
+              }}
+            >
+              {showPassword ? <EyeClosed /> : <EyeOpen />}
+            </button>
+          </div>
+        </FieldWrap>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <label
+            htmlFor={remId}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              fontFamily: 'var(--dz-font-sans)',
+              fontSize: 'var(--dz-fs-caption)',
+              color: 'var(--dz-text-secondary)',
+            }}
+          >
+            <input
+              type="checkbox"
+              id={remId}
+              style={{ accentColor: 'var(--dz-signature)', width: '15px', height: '15px' }}
+              {...register('rememberMe')}
+            />
+            Recordarme
+          </label>
+          <button
+            type="button"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'var(--dz-font-sans)',
+              fontSize: 'var(--dz-fs-caption)',
+              color: 'var(--dz-signature)',
+              padding: 0,
+              transition: 'opacity var(--dz-transition-fast)',
+            }}
+          >
+            ¿Olvidaste tu contraseña?
+          </button>
+        </div>
+
+        <button
+          type="submit"
+          style={{
+            marginTop: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            height: '46px',
+            width: '100%',
+            background: 'var(--dz-signature)',
+            border: 'none',
+            borderRadius: 'var(--dz-r-sm)',
+            fontFamily: 'var(--dz-font-sans)',
+            fontSize: 'var(--dz-fs-body)',
+            fontWeight: 600,
+            color: 'var(--dz-bg-page)',
+            letterSpacing: '-0.005em',
+            cursor: 'pointer',
+            transition: 'background var(--dz-transition-fast)',
+          }}
+        >
+          <>
+            <span>Entrar</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path
+                d="M5 12h14M13 6l6 6-6 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </>
+        </button>
+      </form>
+
+      <p
+        style={{
+          margin: 0,
+          textAlign: 'center',
+          fontFamily: 'var(--dz-font-sans)',
+          fontSize: 'var(--dz-fs-caption)',
+          color: 'var(--dz-text-muted)',
+        }}
+      >
+        ¿Sin cuenta?{' '}
+        <Link
+          to="/register"
+          style={{
+            color: 'var(--dz-signature)',
+            textDecoration: 'none',
+            fontWeight: 600,
+          }}
+        >
+          Crea una
+        </Link>
+      </p>
+    </div>
+  )
+}
+
+interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  hasError?: boolean
+}
+
+const InputField = ({ hasError, style, ...rest }: InputFieldProps) => {
+  const [focused, setFocused] = useState(false)
+  return (
+    <input
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      style={{
+        display: 'block',
+        width: '100%',
+        height: '42px',
+        padding: '0 14px',
+        background: 'var(--dz-bg-sunken)',
+        border: `1.5px solid ${
+          hasError
+            ? 'var(--dz-expense)'
+            : focused
+              ? 'var(--dz-border-focus)'
+              : 'var(--dz-border-base)'
+        }`,
+        borderRadius: 'var(--dz-r-sm)',
+        color: 'var(--dz-text-primary)',
+        fontFamily: 'var(--dz-font-sans)',
+        fontSize: 'var(--dz-fs-body)',
+        letterSpacing: '-0.005em',
+        outline: 'none',
+        boxSizing: 'border-box',
+        transition: 'border-color var(--dz-transition-fast)',
+        ...style,
+      }}
+      {...rest}
+    />
+  )
+}
