@@ -2,33 +2,61 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Colores */
+  /* ── Colores de superficie ── */
   --color-dz-page: var(--dz-bg-page);
   --color-dz-surface: var(--dz-bg-surface);
   --color-dz-raised: var(--dz-bg-raised);
   --color-dz-sunken: var(--dz-bg-sunken);
   --color-dz-sidebar: var(--dz-bg-sidebar);
 
+  /* ── Colores de texto ── */
   --color-dz-text: var(--dz-text-primary);
   --color-dz-secondary: var(--dz-text-secondary);
   --color-dz-muted: var(--dz-text-muted);
   --color-dz-faint: var(--dz-text-faint);
 
+  /* ── Colores de acento ── */
   --color-dz-signature: var(--dz-signature);
   --color-dz-income: var(--dz-income);
   --color-dz-expense: var(--dz-expense);
   --color-dz-saving: var(--dz-saving);
   --color-dz-debt: var(--dz-debt);
 
-  /* Tipografía */
+  /* ── Tipografía ── */
   --font-sans: var(--dz-font-sans);
+  --font-display: var(--dz-font-display);
   --font-mono: var(--dz-font-mono);
 
-  /* Border radius */
+  /* ── Border radius ── */
   --radius-xs: var(--dz-r-xs);
   --radius-sm: var(--dz-r-sm);
   --radius-md: var(--dz-r-md);
   --radius-lg: var(--dz-r-lg);
   --radius-xl: var(--dz-r-xl);
   --radius-pill: var(--dz-r-pill);
+
+  /* ── Sombras ── */
+  --shadow-dz-sm: var(--dz-shadow-sm);
+  --shadow-dz-md: var(--dz-shadow-md);
+  --shadow-dz-lg: var(--dz-shadow-lg);
+  --shadow-dz-xl: var(--dz-shadow-xl);
+
+  /* ── Transiciones ── */
+  --transition-dz-fast: var(--dz-transition-fast);
+  --transition-dz-base: var(--dz-transition-base);
+  --transition-dz-slow: var(--dz-transition-slow);
+
+  --breakpoint-sm: 480px;
+  /* móvil grande / landscape */
+  --breakpoint-md: 768px;
+  /* tablet — equivale al --dz-breakpoint original */
+  --breakpoint-lg: 1024px;
+  /* desktop */
+  --breakpoint-xl: 1280px;
+  /* desktop wide */
+
+  /* ── Layout tokens ── */
+  --spacing-dz-sidebar: var(--dz-sidebar-w);
+  --spacing-dz-mobile-nav: var(--dz-mobile-nav-h);
+  --spacing-dz-header: var(--dz-header-h);
 }
