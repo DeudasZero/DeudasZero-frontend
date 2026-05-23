@@ -1,23 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAppSelector } from '@/store/hookStore.ts'
 import { LoginPage } from '@/features/auth/components/LoginPage.tsx'
-
-// ── Placeholders (reemplazar cuando existan los features) ─────────────────────
-const RegisterPage = () => (
-  <div
-    style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'var(--dz-bg-page)',
-    }}
-  >
-    <p style={{ fontFamily: 'var(--dz-font-sans)', color: 'var(--dz-text-muted)' }}>
-      Registro — próximamente
-    </p>
-  </div>
-)
+import { RegisterPage } from '@/features/auth/components/RegisterPage.tsx'
 
 const DashboardPage = () => (
   <div
@@ -35,16 +19,14 @@ const DashboardPage = () => (
   </div>
 )
 
-// ── Guard ─────────────────────────────────────────────────────────────────────
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
   const tokenInStorage =
-    Boolean(localStorage.getItem('dz_token')) || Boolean(sessionStorage.getItem('dz_token'))
+    Boolean(localStorage.getItem('token')) || Boolean(sessionStorage.getItem('token'))
 
   return isAuthenticated || tokenInStorage ? <>{children}</> : <Navigate to="/login" replace />
 }
 
-// ── 404 ───────────────────────────────────────────────────────────────────────
 const NotFound = () => (
   <section className="py-16 text-center">
     <h1 className="text-4xl font-semibold">404</h1>
@@ -54,7 +36,6 @@ const NotFound = () => (
   </section>
 )
 
-// ── Router ────────────────────────────────────────────────────────────────────
 export const AppRouter = () => (
   <Routes>
     <Route path="/" element={<Navigate to="/login" replace />} />

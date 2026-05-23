@@ -1,8 +1,12 @@
 export { LoginPage } from './components/LoginPage.tsx'
 export { LoginForm } from './components/LoginForm.tsx'
+export { RegisterPage } from './components/RegisterPage.tsx'
+export { RegisterForm } from './components/RegisterForm.tsx'
 export { useLogin } from './hooks/useLogin.ts'
+export { useRegister } from './hooks/useRegister.ts'
 export {
   login,
+  register,
   logout,
   clearError,
   restoreSession,
@@ -11,4 +15,9 @@ export {
   selectAuthLoading,
   selectAuthError,
 } from './store/auth.slice.ts'
-export type { LoginCredentials, AuthUser, AuthState } from './types/auth.types.ts'
+export type {
+  LoginCredentials,
+  RegisterCredentials,
+  AuthUser,
+  AuthState,
+} from './types/auth.types.ts'
