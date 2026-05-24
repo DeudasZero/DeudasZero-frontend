@@ -7,6 +7,7 @@ import { DashboardPage } from '@/features/dashboard/index.ts'
 import { TransactionsPage, NewMovementModal } from '@/features/transactions/index.ts'
 import { DebtsPage, RegisterDebtModal } from '@/features/debts/index.ts'
 import { PlanIAPage } from '@/features/plan-ia/index.ts'
+import { ProfilePage } from '@/features/profile/index.ts'
 import { DashboardLayout } from '@/shared/components/organisms/dashboard-layout/index.js'
 import { Sidebar } from '@/shared/components/organisms/sidebar/index.js'
 import { TopBar } from '@/shared/components/organisms/top-bar/index.js'
@@ -89,12 +90,13 @@ const NAV_GROUPS = [
 const ROUTE_META: Record<string, { eyebrow: string; title: (n: string) => string; cta: string }> = {
   '/dashboard': { eyebrow: 'PANEL', title: (n) => `Hola, ${n}`, cta: 'Registrar movimiento' },
   '/transactions': {
-    eyebrow: 'MIS TRANSACCIONES',
+    eyebrow: 'MÓDULO I',
     title: () => 'Ingresos & Gastos',
     cta: 'Nuevo movimiento',
   },
-  '/debts': { eyebrow: 'MIS DEUDAS', title: () => 'Mis deudas', cta: 'Registrar deuda' },
-  '/ai': { eyebrow: 'PLAN IA', title: () => 'Plan de liquidación · Consejero IA', cta: '' },
+  '/debts': { eyebrow: 'MÓDULO II', title: () => 'Mis deudas', cta: 'Registrar deuda' },
+  '/ai': { eyebrow: 'MÓDULO III', title: () => 'Plan de liquidación · Consejero IA', cta: '' },
+  '/profile': { eyebrow: 'CUENTA', title: () => 'Mi perfil', cta: '' },
 }
 
 function month() {
@@ -135,6 +137,7 @@ function AppShell() {
             groups={NAV_GROUPS}
             activeItemId={activeId}
             onItemClick={(item) => item.href && navigate(item.href)}
+            onUserClick={() => navigate('/profile')}
             logo={<DZLogo />}
             user={{
               name: user?.name ?? 'Mariana López',
@@ -168,7 +171,8 @@ function AppShell() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/debts" element={<DebtsPage />} />
-          <Route path="/ai" element={<PlanIAPage />} /> {/* ← reemplaza Placeholder */}
+          <Route path="/ai" element={<PlanIAPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </DashboardLayout>
