@@ -1,9 +1,10 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useAppSelector } from '@/store/hookStore.ts'
 import { LoginPage } from '@/features/auth/components/LoginPage.tsx'
 import { RegisterPage } from '@/features/auth/components/RegisterPage.tsx'
 import { DashboardPage } from '@/features/dashboard/index.ts'
+import { TransactionsPage, NewMovementModal } from '@/features/transactions/index.ts'
 import { DashboardLayout } from '@/shared/components/organisms/dashboard-layout/index.js'
 import { Sidebar } from '@/shared/components/organisms/sidebar/index.js'
 import { TopBar } from '@/shared/components/organisms/top-bar/index.js'
@@ -83,9 +84,9 @@ const NAV_GROUPS = [
   },
 ]
 
-const ROUTE_META: Record<string, { eyebrow: string; title: (name: string) => string }> = {
+const ROUTE_META: Record<string, { eyebrow: string; title: (n: string) => string }> = {
   '/dashboard': { eyebrow: 'PANEL', title: (n) => `Hola, ${n}` },
-  '/transactions': { eyebrow: 'INGRESOS & GASTOS', title: () => 'Movimientos' },
+  '/transactions': { eyebrow: 'MIS TRANSACCIONES', title: () => 'Ingresos & Gastos' },
   '/debts': { eyebrow: 'MIS DEUDAS', title: () => 'Deudas activas' },
   '/ai': { eyebrow: 'PLAN IA', title: () => 'Consejero IA' },
 }
@@ -123,66 +124,80 @@ function AppShell() {
   const user = useAppSelector((s) => s.auth.user)
   const firstName = user?.name?.split(' ')[0] ?? 'Mariana'
 
+  const [modalOpen, setModalOpen] = useState(false)
+
   const activeId =
     NAV_GROUPS[0]!.items.find((i) => pathname.startsWith(i.href ?? ''))?.id ?? 'dashboard'
   const meta = ROUTE_META[pathname] ?? ROUTE_META['/dashboard']!
 
   return (
-    <DashboardLayout
-      sidebar={
-        <Sidebar
-          groups={NAV_GROUPS}
-          activeItemId={activeId}
-          onItemClick={(item) => item.href && navigate(item.href)}
-          logo={<DZLogo />}
-          user={{
-            name: user?.name ?? 'Mariana López',
-            email: user?.email ?? 'usuario@deudazero.com',
-          }}
-        />
-      }
-      topBar={
-        <TopBar eyebrow={`${meta.eyebrow} · ${month()}`} title={meta.title(firstName)}>
-          <button
-            type="button"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '9px 16px',
-              background: '#5EE1E6',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontFamily: 'var(--dz-font-sans)',
-              fontSize: '14px',
-              fontWeight: 600,
-              letterSpacing: '-0.07px',
-              color: 'rgb(13,20,25)',
-              flexShrink: 0,
-              whiteSpace: 'nowrap',
-              transition: 'opacity 0.15s',
+    <>
+      <DashboardLayout
+        sidebar={
+          <Sidebar
+            groups={NAV_GROUPS}
+            activeItemId={activeId}
+            onItemClick={(item) => item.href && navigate(item.href)}
+            logo={<DZLogo />}
+            user={{
+              name: user?.name ?? 'Mariana López',
+              email: user?.email ?? 'usuario@deudazero.com',
             }}
-            onMouseEnter={(e) => {
-              ;(e.currentTarget as HTMLButtonElement).style.opacity = '0.88'
-            }}
-            onMouseLeave={(e) => {
-              ;(e.currentTarget as HTMLButtonElement).style.opacity = '1'
-            }}
-          >
-            <PlusIcon /> Registrar movimiento
-          </button>
-        </TopBar>
-      }
-    >
-      <Routes>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/transactions" element={<Placeholder title="Ingresos & Gastos" />} />
-        <Route path="/debts" element={<Placeholder title="Mis deudas" />} />
-        <Route path="/ai" element={<Placeholder title="Plan IA" />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </DashboardLayout>
+          />
+        }
+        topBar={
+          <TopBar eyebrow={`${meta.eyebrow} · ${month()}`} title={meta.title(firstName)}>
+            <button
+              type="button"
+              onClick={() => setModalOpen(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '9px 16px',
+                background: '#5EE1E6',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontFamily: 'var(--dz-font-sans)',
+                fontSize: '14px',
+                fontWeight: 600,
+                letterSpacing: '-0.07px',
+                color: 'rgb(13,20,25)',
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
+                transition: 'opacity 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                ;(e.currentTarget as HTMLButtonElement).style.opacity = '0.88'
+              }}
+              onMouseLeave={(e) => {
+                ;(e.currentTarget as HTMLButtonElement).style.opacity = '1'
+              }}
+            >
+              <PlusIcon /> Registrar movimiento
+            </button>
+          </TopBar>
+        }
+      >
+        <Routes>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/transactions" element={<TransactionsPage />} />
+          <Route path="/debts" element={<Placeholder title="Mis deudas" />} />
+          <Route path="/ai" element={<Placeholder title="Plan IA" />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </DashboardLayout>
+
+      <NewMovementModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSave={(form) => {
+          console.log('new movement', form)
+          setModalOpen(false)
+        }}
+      />
+    </>
   )
 }
 
