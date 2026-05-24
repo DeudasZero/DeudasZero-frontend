@@ -6,6 +6,7 @@ import { RegisterPage } from '@/features/auth/components/RegisterPage.tsx'
 import { DashboardPage } from '@/features/dashboard/index.ts'
 import { TransactionsPage, NewMovementModal } from '@/features/transactions/index.ts'
 import { DebtsPage, RegisterDebtModal } from '@/features/debts/index.ts'
+import { PlanIAPage } from '@/features/plan-ia/index.ts'
 import { DashboardLayout } from '@/shared/components/organisms/dashboard-layout/index.js'
 import { Sidebar } from '@/shared/components/organisms/sidebar/index.js'
 import { TopBar } from '@/shared/components/organisms/top-bar/index.js'
@@ -93,21 +94,12 @@ const ROUTE_META: Record<string, { eyebrow: string; title: (n: string) => string
     cta: 'Nuevo movimiento',
   },
   '/debts': { eyebrow: 'MIS DEUDAS', title: () => 'Mis deudas', cta: 'Registrar deuda' },
-  '/ai': { eyebrow: 'PLAN IA', title: () => 'Consejero IA', cta: '' },
+  '/ai': { eyebrow: 'PLAN IA', title: () => 'Plan de liquidación · Consejero IA', cta: '' },
 }
 
 function month() {
   return new Date().toLocaleString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()
 }
-
-const Placeholder = ({ title }: { title: string }) => (
-  <div
-    className="flex items-center justify-center h-72 font-sans text-[15px]"
-    style={{ color: 'var(--dz-text-faint)' }}
-  >
-    {title} — próximamente
-  </div>
-)
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated)
@@ -176,11 +168,12 @@ function AppShell() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/debts" element={<DebtsPage />} />
-          <Route path="/ai" element={<Placeholder title="Plan IA" />} />
+          <Route path="/ai" element={<PlanIAPage />} /> {/* ← reemplaza Placeholder */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </DashboardLayout>
 
+      {/* Global modals */}
       <NewMovementModal
         open={txModalOpen}
         onClose={() => setTxModalOpen(false)}
