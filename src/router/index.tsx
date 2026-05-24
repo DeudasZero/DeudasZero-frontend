@@ -5,6 +5,7 @@ import { LoginPage } from '@/features/auth/components/LoginPage.tsx'
 import { RegisterPage } from '@/features/auth/components/RegisterPage.tsx'
 import { DashboardPage } from '@/features/dashboard/index.ts'
 import { TransactionsPage, NewMovementModal } from '@/features/transactions/index.ts'
+import { DebtsPage, RegisterDebtModal } from '@/features/debts/index.ts'
 import { DashboardLayout } from '@/shared/components/organisms/dashboard-layout/index.js'
 import { Sidebar } from '@/shared/components/organisms/sidebar/index.js'
 import { TopBar } from '@/shared/components/organisms/top-bar/index.js'
@@ -84,11 +85,15 @@ const NAV_GROUPS = [
   },
 ]
 
-const ROUTE_META: Record<string, { eyebrow: string; title: (n: string) => string }> = {
-  '/dashboard': { eyebrow: 'PANEL', title: (n) => `Hola, ${n}` },
-  '/transactions': { eyebrow: 'MIS TRANSACCIONES', title: () => 'Ingresos & Gastos' },
-  '/debts': { eyebrow: 'MIS DEUDAS', title: () => 'Deudas activas' },
-  '/ai': { eyebrow: 'PLAN IA', title: () => 'Consejero IA' },
+const ROUTE_META: Record<string, { eyebrow: string; title: (n: string) => string; cta: string }> = {
+  '/dashboard': { eyebrow: 'PANEL', title: (n) => `Hola, ${n}`, cta: 'Registrar movimiento' },
+  '/transactions': {
+    eyebrow: 'MIS TRANSACCIONES',
+    title: () => 'Ingresos & Gastos',
+    cta: 'Nuevo movimiento',
+  },
+  '/debts': { eyebrow: 'MIS DEUDAS', title: () => 'Mis deudas', cta: 'Registrar deuda' },
+  '/ai': { eyebrow: 'PLAN IA', title: () => 'Consejero IA', cta: '' },
 }
 
 function month() {
@@ -97,15 +102,8 @@ function month() {
 
 const Placeholder = ({ title }: { title: string }) => (
   <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '300px',
-      fontFamily: 'var(--dz-font-sans)',
-      fontSize: '15px',
-      color: 'rgb(110,121,134)',
-    }}
+    className="flex items-center justify-center h-72 font-sans text-[15px]"
+    style={{ color: 'var(--dz-text-faint)' }}
   >
     {title} — próximamente
   </div>
@@ -124,11 +122,18 @@ function AppShell() {
   const user = useAppSelector((s) => s.auth.user)
   const firstName = user?.name?.split(' ')[0] ?? 'Mariana'
 
-  const [modalOpen, setModalOpen] = useState(false)
+  const [txModalOpen, setTxModalOpen] = useState(false)
+  const [debtModalOpen, setDebtModalOpen] = useState(false)
 
   const activeId =
     NAV_GROUPS[0]!.items.find((i) => pathname.startsWith(i.href ?? ''))?.id ?? 'dashboard'
   const meta = ROUTE_META[pathname] ?? ROUTE_META['/dashboard']!
+
+  function handleCtaClick() {
+    if (pathname.startsWith('/debts')) return setDebtModalOpen(true)
+    if (pathname.startsWith('/transactions')) return setTxModalOpen(true)
+    setTxModalOpen(true)
+  }
 
   return (
     <>
@@ -147,54 +152,53 @@ function AppShell() {
         }
         topBar={
           <TopBar eyebrow={`${meta.eyebrow} · ${month()}`} title={meta.title(firstName)}>
-            <button
-              type="button"
-              onClick={() => setModalOpen(true)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '9px 16px',
-                background: '#5EE1E6',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontFamily: 'var(--dz-font-sans)',
-                fontSize: '14px',
-                fontWeight: 600,
-                letterSpacing: '-0.07px',
-                color: 'rgb(13,20,25)',
-                flexShrink: 0,
-                whiteSpace: 'nowrap',
-                transition: 'opacity 0.15s',
-              }}
-              onMouseEnter={(e) => {
-                ;(e.currentTarget as HTMLButtonElement).style.opacity = '0.88'
-              }}
-              onMouseLeave={(e) => {
-                ;(e.currentTarget as HTMLButtonElement).style.opacity = '1'
-              }}
-            >
-              <PlusIcon /> Registrar movimiento
-            </button>
+            {meta.cta && (
+              <button
+                type="button"
+                onClick={handleCtaClick}
+                className="flex items-center gap-2 font-sans font-semibold rounded-[8px] cursor-pointer transition-opacity hover:opacity-[0.88] shrink-0 whitespace-nowrap"
+                style={{
+                  padding: '9px 16px',
+                  background: 'var(--dz-signature)',
+                  border: 'none',
+                  fontSize: '14px',
+                  letterSpacing: '-0.07px',
+                  color: 'rgb(13,20,25)',
+                }}
+              >
+                <PlusIcon /> {meta.cta}
+              </button>
+            )}
           </TopBar>
         }
       >
         <Routes>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
-          <Route path="/debts" element={<Placeholder title="Mis deudas" />} />
+          <Route path="/debts" element={<DebtsPage />} />
           <Route path="/ai" element={<Placeholder title="Plan IA" />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </DashboardLayout>
 
       <NewMovementModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        open={txModalOpen}
+        onClose={() => setTxModalOpen(false)}
         onSave={(form) => {
-          console.log('new movement', form)
-          setModalOpen(false)
+          console.log('movement', form)
+          setTxModalOpen(false)
+        }}
+      />
+      <RegisterDebtModal
+        open={debtModalOpen}
+        onClose={() => setDebtModalOpen(false)}
+        onSaveCard={(v) => {
+          console.log('card', v)
+          setDebtModalOpen(false)
+        }}
+        onSaveLoan={(v) => {
+          console.log('loan', v)
+          setDebtModalOpen(false)
         }}
       />
     </>
