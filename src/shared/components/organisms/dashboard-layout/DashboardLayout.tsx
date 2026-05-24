@@ -21,9 +21,12 @@ export const DashboardLayout: FC<DashboardLayoutProps> = ({
   const contentPadding = isNarrow ? '16px' : isCompact ? '20px 24px' : 'var(--dz-content-pad)'
 
   return (
-    <div className={`flex min-h-screen bg-(--dz-bg-page) ${className ?? ''}`}>
+    <div
+      className={`flex min-h-screen bg-(--dz-bg-page) ${className ?? ''}`}
+      style={{ alignItems: 'flex-start' }}
+    >
       {sidebar && (
-        <div className="hidden lg:block" style={sidebarWrapStyle}>
+        <div className="hidden lg:block" style={{ ...sidebarWrapStyle, alignSelf: 'flex-start' }}>
           {isValidElement(sidebar)
             ? cloneElement(sidebar as ReactElement<{ collapsed?: boolean }>, {
                 collapsed: effectiveCollapsed,

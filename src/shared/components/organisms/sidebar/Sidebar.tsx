@@ -212,13 +212,16 @@ export const Sidebar: FC<SidebarProps> = ({
   const sidebarStyle: CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    minHeight: '100vh',
+    height: '100vh',
+    position: 'sticky',
+    top: 0,
+    overflowY: 'auto',
+    scrollbarWidth: 'none' as const,
     width: collapsed ? '64px' : '240px',
     background: 'rgb(9, 16, 23)',
     borderRight: '1px solid rgba(220, 235, 255, 0.05)',
     padding: collapsed ? '24px 8px' : '24px 16px',
     transition: 'width var(--dz-transition-base), padding var(--dz-transition-base)',
-    overflow: 'hidden',
     flexShrink: 0,
   }
 
