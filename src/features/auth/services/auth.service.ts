@@ -1,4 +1,4 @@
-import { http } from '../../../services/http.ts'
+import { http } from '@services/http.ts'
 import type {
   LoginCredentials,
   LoginResponse,
