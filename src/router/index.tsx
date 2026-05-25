@@ -1,6 +1,9 @@
 import { useState, type ReactNode } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
-import { useAppSelector } from '@/store/hookStore.ts'
+import { useAppDispatch, useAppSelector } from '@/store/hookStore.ts'
+import { addTransaction } from '@/features/transactions/store/transactions.slice.ts'
+import { addDebt } from '@/features/debts/store/debts.slice.ts'
+import type { DebtFormValues } from '@/features/debts/types/debts.types.ts'
 import { LoginPage } from '@/features/auth/components/LoginPage.tsx'
 import { RegisterPage } from '@/features/auth/components/RegisterPage.tsx'
 import { DashboardPage } from '@/features/dashboard/index.ts'
@@ -11,6 +14,7 @@ import { ProfilePage } from '@/features/profile/index.ts'
 import { DashboardLayout } from '@/shared/components/organisms/dashboard-layout/index.js'
 import { Sidebar } from '@/shared/components/organisms/sidebar/index.js'
 import { TopBar } from '@/shared/components/organisms/top-bar/index.js'
+import type { NewTransactionForm } from '@/features/transactions/types/transactions.types.ts'
 import logo from '@/assets/logo.png'
 
 const HomeIcon = () => (
@@ -81,12 +85,12 @@ const NAV_GROUPS = [
 const ROUTE_META: Record<string, { eyebrow: string; title: (n: string) => string; cta: string }> = {
   '/dashboard': { eyebrow: 'PANEL', title: (n) => `Hola, ${n}`, cta: 'Registrar movimiento' },
   '/transactions': {
-    eyebrow: 'MÓDULO I',
+    eyebrow: 'MIS TRANSACCIONES',
     title: () => 'Ingresos & Gastos',
     cta: 'Nuevo movimiento',
   },
-  '/debts': { eyebrow: 'MÓDULO II', title: () => 'Mis deudas', cta: 'Registrar deuda' },
-  '/ai': { eyebrow: 'MÓDULO III', title: () => 'Plan de liquidación · Consejero IA', cta: '' },
+  '/debts': { eyebrow: 'MIS DEUDAS', title: () => 'Mis deudas', cta: 'Registrar deuda' },
+  '/ai': { eyebrow: 'PLAN IA', title: () => 'Plan de liquidación · Consejero IA', cta: '' },
   '/profile': { eyebrow: 'CUENTA', title: () => 'Mi perfil', cta: '' },
 }
 
@@ -104,6 +108,7 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 function AppShell() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const dispatch = useAppDispatch()
   const user = useAppSelector((s) => s.auth.user)
   const firstName = user?.name?.split(' ')[0] ?? 'Mariana'
 
@@ -116,8 +121,12 @@ function AppShell() {
 
   function handleCtaClick() {
     if (pathname.startsWith('/debts')) return setDebtModalOpen(true)
-    if (pathname.startsWith('/transactions')) return setTxModalOpen(true)
     setTxModalOpen(true)
+  }
+
+  async function handleGlobalTxSave(form: NewTransactionForm) {
+    await dispatch(addTransaction(form))
+    setTxModalOpen(false)
   }
 
   return (
@@ -172,20 +181,13 @@ function AppShell() {
       <NewMovementModal
         open={txModalOpen}
         onClose={() => setTxModalOpen(false)}
-        onSave={(form) => {
-          console.log('movement', form)
-          setTxModalOpen(false)
-        }}
+        onSave={handleGlobalTxSave}
       />
       <RegisterDebtModal
         open={debtModalOpen}
         onClose={() => setDebtModalOpen(false)}
-        onSaveCard={(v) => {
-          console.log('card', v)
-          setDebtModalOpen(false)
-        }}
-        onSaveLoan={(v) => {
-          console.log('loan', v)
+        onSave={async (values: DebtFormValues) => {
+          await dispatch(addDebt(values))
           setDebtModalOpen(false)
         }}
       />

@@ -1,8 +1,26 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { getTransactions } from '../services/transactions.service.ts'
-import type { TransactionsState } from '../types/transactions.types.ts'
+import {
+  getTransactions,
+  createTransaction,
+  deleteIncome,
+  deleteExpense,
+} from '../services/transactions.service.ts'
+import type {
+  TransactionsState,
+  NewTransactionForm,
+  Transaction,
+} from '../types/transactions.types.ts'
 
-const initialState: TransactionsState = { data: null, isLoading: false, error: null }
+const initialState: TransactionsState = {
+  data: null,
+  isLoading: false,
+  isSaving: false,
+  isDeleting: null,
+  error: null,
+  saveError: null,
+  successMessage: null,
+  deleteError: null,
+}
 
 export const fetchTransactions = createAsyncThunk(
   'transactions/fetch',
@@ -10,7 +28,36 @@ export const fetchTransactions = createAsyncThunk(
     try {
       return await getTransactions()
     } catch (err) {
-      return rejectWithValue(err instanceof Error ? err.message : 'Error')
+      return rejectWithValue(err instanceof Error ? err.message : 'Error al cargar movimientos')
+    }
+  },
+)
+
+export const addTransaction = createAsyncThunk(
+  'transactions/add',
+  async (form: NewTransactionForm, { dispatch, rejectWithValue }) => {
+    try {
+      await createTransaction(form)
+      return await dispatch(fetchTransactions())
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Error al guardar movimiento')
+    }
+  },
+)
+
+export const removeTransaction = createAsyncThunk(
+  'transactions/remove',
+  async (tx: Pick<Transaction, 'id' | 'type'>, { dispatch, rejectWithValue }) => {
+    try {
+      if (tx.type === 'income') {
+        await deleteIncome(tx.id)
+      } else {
+        await deleteExpense(tx.id)
+      }
+      await dispatch(fetchTransactions())
+      return tx.id
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Error al eliminar movimiento')
     }
   },
 )
@@ -18,8 +65,19 @@ export const fetchTransactions = createAsyncThunk(
 const slice = createSlice({
   name: 'transactions',
   initialState,
-  reducers: {},
+  reducers: {
+    clearSaveError(s) {
+      s.saveError = null
+    },
+    clearMessages(s) {
+      s.successMessage = null
+      s.saveError = null
+      s.deleteError = null
+      s.error = null
+    },
+  },
   extraReducers: (builder) => {
+    // fetch
     builder
       .addCase(fetchTransactions.pending, (s) => {
         s.isLoading = true
@@ -33,7 +91,40 @@ const slice = createSlice({
         s.isLoading = false
         s.error = a.payload as string
       })
+
+    // add
+    builder
+      .addCase(addTransaction.pending, (s) => {
+        s.isSaving = true
+        s.saveError = null
+        s.successMessage = null
+      })
+      .addCase(addTransaction.fulfilled, (s) => {
+        s.isSaving = false
+        s.successMessage = 'Movimiento registrado correctamente.'
+      })
+      .addCase(addTransaction.rejected, (s, a) => {
+        s.isSaving = false
+        s.saveError = a.payload as string
+      })
+
+    // remove
+    builder
+      .addCase(removeTransaction.pending, (s, a) => {
+        s.isDeleting = a.meta.arg.id
+        s.deleteError = null
+        s.successMessage = null
+      })
+      .addCase(removeTransaction.fulfilled, (s) => {
+        s.isDeleting = null
+        s.successMessage = 'Movimiento eliminado correctamente.'
+      })
+      .addCase(removeTransaction.rejected, (s, a) => {
+        s.isDeleting = null
+        s.deleteError = a.payload as string
+      })
   },
 })
 
+export const { clearSaveError, clearMessages } = slice.actions
 export default slice.reducer

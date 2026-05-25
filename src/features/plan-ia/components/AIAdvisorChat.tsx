@@ -62,6 +62,7 @@ const MessageBubble: FC<{ msg: ChatMessage }> = ({ msg }) => {
           fontSize: '13.5px',
           lineHeight: 1.55,
           fontWeight: isAI ? 400 : 500,
+          whiteSpace: 'pre-wrap',
         }}
       >
         {isAI ? parseBold(msg.content) : msg.content}
@@ -72,7 +73,6 @@ const MessageBubble: FC<{ msg: ChatMessage }> = ({ msg }) => {
           fontSize: '10px',
           color: 'var(--dz-text-faint)',
           letterSpacing: '0.05em',
-          padding: isAI ? '0 2px' : '0 2px',
           display: 'flex',
           alignItems: 'center',
           gap: '4px',
@@ -203,7 +203,7 @@ export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({ messages, onSend, isTypi
                   display: 'inline-block',
                 }}
               />
-              Solo responde sobre tus datos
+              Responde sobre tus finanzas reales
             </p>
           </div>
         </div>
@@ -236,9 +236,25 @@ export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({ messages, onSend, isTypi
           maxHeight: '480px',
         }}
       >
-        {messages.map((msg) => (
-          <MessageBubble key={msg.id} msg={msg} />
-        ))}
+        {messages.length === 0 ? (
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: 'var(--dz-font-sans)',
+              fontSize: '12.5px',
+              color: 'var(--dz-text-faint)',
+              textAlign: 'center',
+              padding: '20px',
+            }}
+          >
+            Genera tu plan para que el consejero IA pueda ayudarte.
+          </div>
+        ) : (
+          messages.map((msg) => <MessageBubble key={msg.id} msg={msg} />)
+        )}
         {isTyping && <TypingIndicator />}
       </div>
 

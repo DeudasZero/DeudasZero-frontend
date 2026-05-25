@@ -7,6 +7,10 @@ import type { Debt } from '../types/debts.types.ts'
 interface DebtCardProps {
   debt: Debt
   onLiquidar?: (id: string) => void
+  onEdit?: (debt: Debt) => void
+  onDelete?: (id: string) => void
+  isPatching?: boolean
+  isDeleting?: boolean
   priority?: number
 }
 
@@ -29,13 +33,91 @@ const LoanIcon = () => (
     />
   </svg>
 )
+const TrashIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+const EditIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
 
-export const DebtCard: FC<DebtCardProps> = ({ debt, onLiquidar, priority }) => {
-  const paid = Math.max(0, debt.totalDebt - debt.balance)
-  const progress = debt.totalDebt > 0 ? Math.round((paid / debt.totalDebt) * 100) : 100
-  const isPaid = debt.status === 'paid'
+const IconButton: FC<{
+  onClick: () => void
+  disabled?: boolean
+  label: string
+  title: string
+  hoverBorder: string
+  hoverColor: string
+  children: React.ReactNode
+}> = ({ onClick, disabled = false, label, title, hoverBorder, hoverColor, children }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    aria-label={label}
+    title={title}
+    style={{
+      background: 'transparent',
+      border: '1px solid rgba(220,235,255,0.08)',
+      borderRadius: '6px',
+      padding: '4px 6px',
+      cursor: disabled ? 'not-allowed' : 'pointer',
+      color: 'var(--dz-text-faint)',
+      display: 'inline-flex',
+      alignItems: 'center',
+      lineHeight: 0,
+      transition: 'all 0.15s',
+    }}
+    onMouseEnter={(e) => {
+      if (!disabled) {
+        ;(e.currentTarget as HTMLButtonElement).style.borderColor = hoverBorder
+        ;(e.currentTarget as HTMLButtonElement).style.color = hoverColor
+      }
+    }}
+    onMouseLeave={(e) => {
+      ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(220,235,255,0.08)'
+      ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--dz-text-faint)'
+    }}
+  >
+    {children}
+  </button>
+)
 
+export const DebtCard: FC<DebtCardProps> = ({
+  debt,
+  onLiquidar,
+  onEdit,
+  onDelete,
+  isPatching = false,
+  isDeleting = false,
+  priority,
+}) => {
   const fmt = (n: number) => `$${new Intl.NumberFormat('es-CO').format(n)}`
+  const isPaid = debt.status === 'paid'
+  const progress = isPaid ? 100 : 0
+  const isBusy = isPatching || isDeleting
 
   return (
     <div
@@ -43,7 +125,8 @@ export const DebtCard: FC<DebtCardProps> = ({ debt, onLiquidar, priority }) => {
       style={{
         background: 'rgb(20,28,36)',
         border: isPaid ? '1px solid rgba(94,225,230,0.15)' : '1px solid rgba(220,235,255,0.06)',
-        opacity: isPaid ? 0.7 : 1,
+        opacity: isBusy ? 0.6 : isPaid ? 0.7 : 1,
+        transition: 'opacity 0.2s',
       }}
     >
       <div
@@ -56,17 +139,12 @@ export const DebtCard: FC<DebtCardProps> = ({ debt, onLiquidar, priority }) => {
             style={{ fontSize: '11px', letterSpacing: '0.44px', color: 'var(--dz-text-faint)' }}
           >
             {debt.kind === 'card' ? <CardIcon /> : <LoanIcon />}
-            {debt.issuer}
-          </span>
-          <span
-            className="font-mono uppercase"
-            style={{ fontSize: '9.5px', letterSpacing: '1.1px', color: 'rgba(220,235,255,0.2)' }}
-          >
             {KIND_LABEL[debt.kind]}
           </span>
         </div>
+
         <div className="flex items-center gap-2">
-          {priority && (
+          {priority !== undefined && (
             <Badge accent="debt" size="xs">
               #{priority} Mayor tasa
             </Badge>
@@ -76,23 +154,43 @@ export const DebtCard: FC<DebtCardProps> = ({ debt, onLiquidar, priority }) => {
               Liquidada
             </Badge>
           )}
+
+          {onEdit && !isPaid && (
+            <IconButton
+              onClick={() => onEdit(debt)}
+              disabled={isBusy}
+              label={`Editar ${debt.name}`}
+              title="Editar"
+              hoverBorder="rgba(94,225,230,0.4)"
+              hoverColor="var(--dz-signature)"
+            >
+              <EditIcon />
+            </IconButton>
+          )}
+
+          {onDelete && (
+            <IconButton
+              onClick={() => onDelete(debt.id)}
+              disabled={isBusy}
+              label={`Eliminar ${debt.name}`}
+              title="Eliminar"
+              hoverBorder="rgba(224,122,156,0.4)"
+              hoverColor="var(--dz-expense)"
+            >
+              <TrashIcon />
+            </IconButton>
+          )}
         </div>
       </div>
 
       <div className="px-5 py-4 flex gap-6" style={{ alignItems: 'flex-start' }}>
         <div className="flex flex-col gap-3 flex-1 min-w-0">
-          <div>
-            <p
-              className="m-0 font-sans font-semibold"
-              style={{
-                fontSize: '15px',
-                color: 'var(--dz-text-primary)',
-                letterSpacing: '-0.075px',
-              }}
-            >
-              {debt.name}
-            </p>
-          </div>
+          <p
+            className="m-0 font-sans font-semibold"
+            style={{ fontSize: '15px', color: 'var(--dz-text-primary)', letterSpacing: '-0.075px' }}
+          >
+            {debt.name}
+          </p>
 
           <div className="flex flex-col gap-2">
             <div className="flex items-baseline gap-2">
@@ -123,24 +221,25 @@ export const DebtCard: FC<DebtCardProps> = ({ debt, onLiquidar, priority }) => {
 
             <ProgressBar value={progress} accent={isPaid ? 'income' : 'debt'} size="sm" />
 
-            <div className="flex items-center justify-between">
-              <span
-                className="font-mono"
-                style={{ fontSize: '11px', letterSpacing: '0.44px', color: 'var(--dz-text-faint)' }}
-              >
-                <span
-                  style={{ color: isPaid ? 'var(--dz-income)' : 'var(--dz-debt)', fontWeight: 600 }}
-                >
-                  {progress}%
-                </span>{' '}
-                PAGADO · DE{' '}
-                <span style={{ color: 'var(--dz-text-secondary)' }}>{fmt(debt.totalDebt)}</span>
-              </span>
-            </div>
+            <span
+              className="font-mono"
+              style={{ fontSize: '11px', letterSpacing: '0.44px', color: 'var(--dz-text-faint)' }}
+            >
+              {isPaid ? (
+                <span style={{ color: 'var(--dz-income)', fontWeight: 600 }}>LIQUIDADA</span>
+              ) : (
+                <>
+                  Saldo pendiente · Interés mensual estimado:{' '}
+                  <span style={{ color: 'var(--dz-expense)', fontWeight: 600 }}>
+                    {fmt(debt.monthlyInterest)}
+                  </span>
+                </>
+              )}
+            </span>
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 shrink-0" style={{ minWidth: '200px' }}>
+        <div className="flex flex-col gap-3 shrink-0" style={{ minWidth: '180px' }}>
           <div className="flex flex-col gap-0.5">
             <span
               className="font-mono uppercase"
@@ -153,7 +252,7 @@ export const DebtCard: FC<DebtCardProps> = ({ debt, onLiquidar, priority }) => {
                 className="font-sans"
                 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--dz-debt)' }}
               >
-                {debt.monthlyRate}
+                {debt.monthlyRate}%
               </span>
               <span
                 className="font-mono"
@@ -163,7 +262,7 @@ export const DebtCard: FC<DebtCardProps> = ({ debt, onLiquidar, priority }) => {
               </span>
               <span
                 className="font-mono"
-                style={{ fontSize: '11px', letterSpacing: '0.44px', color: 'var(--dz-text-faint)' }}
+                style={{ fontSize: '11px', color: 'var(--dz-text-faint)' }}
               >
                 {debt.annualRate}% E.A.
               </span>
@@ -184,65 +283,11 @@ export const DebtCard: FC<DebtCardProps> = ({ debt, onLiquidar, priority }) => {
               >
                 {fmt(debt.minPayment)}
               </span>
-              <span
-                className="font-mono"
-                style={{ fontSize: '11px', letterSpacing: '0.44px', color: 'var(--dz-expense)' }}
-              >
+              <span className="font-mono" style={{ fontSize: '11px', color: 'var(--dz-expense)' }}>
                 {fmt(debt.monthlyInterest)} interés
               </span>
             </div>
           </div>
-
-          {debt.kind === 'loan' && debt.remainingMonths !== undefined && (
-            <div className="flex flex-col gap-0.5">
-              <span
-                className="font-mono uppercase"
-                style={{
-                  fontSize: '9.5px',
-                  letterSpacing: '1.33px',
-                  color: 'var(--dz-text-faint)',
-                }}
-              >
-                PLAZO RESTANTE
-              </span>
-              <span
-                className="font-sans"
-                style={{ fontSize: '13px', fontWeight: 500, color: 'var(--dz-text-secondary)' }}
-              >
-                {debt.remainingMonths} meses
-                {debt.originalMonths && (
-                  <span
-                    className="font-mono"
-                    style={{ fontSize: '11px', color: 'var(--dz-text-faint)' }}
-                  >
-                    {' '}
-                    de {debt.originalMonths}
-                  </span>
-                )}
-              </span>
-            </div>
-          )}
-
-          {debt.kind === 'card' && debt.cutDay !== undefined && (
-            <div className="flex flex-col gap-0.5">
-              <span
-                className="font-mono uppercase"
-                style={{
-                  fontSize: '9.5px',
-                  letterSpacing: '1.33px',
-                  color: 'var(--dz-text-faint)',
-                }}
-              >
-                DÍA DE CORTE
-              </span>
-              <span
-                className="font-sans"
-                style={{ fontSize: '13px', fontWeight: 500, color: 'var(--dz-text-secondary)' }}
-              >
-                {debt.cutDay} del mes
-              </span>
-            </div>
-          )}
         </div>
 
         {!isPaid && (
@@ -251,10 +296,11 @@ export const DebtCard: FC<DebtCardProps> = ({ debt, onLiquidar, priority }) => {
             <Button
               variant="ghost"
               size="sm"
+              disabled={isBusy}
               onClick={() => onLiquidar?.(debt.id)}
               style={{ color: 'var(--dz-signature)', borderColor: 'rgba(94,225,230,0.25)' }}
             >
-              Liquidar
+              {isPatching ? 'Liquidando…' : 'Liquidar'}
             </Button>
           </div>
         )}

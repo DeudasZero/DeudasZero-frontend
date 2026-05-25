@@ -1,14 +1,14 @@
 import type { FC } from 'react'
-import { Money } from '@atoms/money/Money.tsx'
 import { Skeleton } from '@atoms/skeleton/Skeleton.tsx'
+import { Button } from '@atoms/button/Button.tsx'
 import type { PlanSummary, PaymentStrategy } from '../types/plan-ia.types.ts'
 
 interface PlanSummaryCardProps {
-  onStrategyChange?: (s: PaymentStrategy) => void
   summary: PlanSummary
   isLoading?: boolean
-  currency?: string
-  locale?: string
+  isGenerating?: boolean
+  strategy: PaymentStrategy
+  onStrategyChange?: (s: PaymentStrategy) => void
 }
 
 const STRATEGY_LABEL: Record<PaymentStrategy, string> = {
@@ -16,13 +16,21 @@ const STRATEGY_LABEL: Record<PaymentStrategy, string> = {
   snowball: 'Bola de Nieve',
 }
 
+function fmt(n: number, locale = 'es-CO') {
+  return '$' + Math.round(n).toLocaleString(locale)
+}
+
 export const PlanSummaryCard: FC<PlanSummaryCardProps> = ({
   summary,
   isLoading = false,
-  currency = 'COP',
-  locale = 'es-CO',
+  isGenerating = false,
+  strategy,
+  onStrategyChange,
 }) => {
-  const progressPct = Math.round((summary.progressMonths / summary.totalMonths) * 100)
+  const progressPct =
+    summary.totalInstallments > 0
+      ? Math.round((summary.paidInstallments / summary.totalInstallments) * 100)
+      : 0
 
   if (isLoading) {
     return (
@@ -67,48 +75,67 @@ export const PlanSummaryCard: FC<PlanSummaryCardProps> = ({
       }}
     >
       <div style={{ padding: '18px 20px 14px' }}>
-        {/* Strategy badge */}
+        {/* Strategy toggle */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            marginBottom: '10px',
+            justifyContent: 'space-between',
+            marginBottom: '12px',
           }}
         >
-          <span
-            style={{
-              fontFamily: 'var(--dz-font-mono)',
-              fontSize: '10.5px',
-              fontWeight: 600,
-              letterSpacing: '0.13em',
-              textTransform: 'uppercase',
-              color: 'var(--dz-signature)',
-            }}
-          >
-            Plan {STRATEGY_LABEL[summary.strategy]} Activo
-          </span>
-          <span
-            aria-hidden
-            style={{
-              width: '4px',
-              height: '4px',
-              borderRadius: '50%',
-              background: 'var(--dz-signature)',
-            }}
-          />
-          <span
-            style={{
-              fontFamily: 'var(--dz-font-mono)',
-              fontSize: '10.5px',
-              fontWeight: 600,
-              letterSpacing: '0.13em',
-              textTransform: 'uppercase',
-              color: 'var(--dz-signature)',
-            }}
-          >
-            {summary.totalMonths} meses
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span
+              style={{
+                fontFamily: 'var(--dz-font-mono)',
+                fontSize: '10.5px',
+                fontWeight: 600,
+                letterSpacing: '0.13em',
+                textTransform: 'uppercase',
+                color: 'var(--dz-signature)',
+              }}
+            >
+              Plan {STRATEGY_LABEL[summary.strategy]} Activo
+            </span>
+            <span
+              aria-hidden
+              style={{
+                width: '4px',
+                height: '4px',
+                borderRadius: '50%',
+                background: 'var(--dz-signature)',
+              }}
+            />
+            <span
+              style={{
+                fontFamily: 'var(--dz-font-mono)',
+                fontSize: '10.5px',
+                fontWeight: 600,
+                letterSpacing: '0.13em',
+                textTransform: 'uppercase',
+                color: 'var(--dz-signature)',
+              }}
+            >
+              {summary.monthsToPayoff} meses
+            </span>
+          </div>
+
+          {/* Cambiar estrategia */}
+          {onStrategyChange && (
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {(['avalanche', 'snowball'] as PaymentStrategy[]).map((s) => (
+                <Button
+                  key={s}
+                  size="sm"
+                  variant={strategy === s ? 'primary' : 'ghost'}
+                  disabled={isGenerating}
+                  onClick={() => onStrategyChange(s)}
+                >
+                  {isGenerating && strategy === s ? '…' : STRATEGY_LABEL[s]}
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Savings hero */}
@@ -125,7 +152,7 @@ export const PlanSummaryCard: FC<PlanSummaryCardProps> = ({
                 color: 'var(--dz-text-faint)',
               }}
             >
-              Ahorro Total
+              Intereses Ahorrados
             </p>
             <p
               style={{
@@ -138,13 +165,13 @@ export const PlanSummaryCard: FC<PlanSummaryCardProps> = ({
                 color: 'var(--dz-signature)',
               }}
             >
-              {'$' + summary.totalSavingsVsMin.toLocaleString(locale)}
+              {fmt(summary.interestSaved)}
             </p>
           </div>
           <div style={{ paddingBottom: '4px' }}>
             <p
               style={{
-                margin: '0 0 1px',
+                margin: '0 0 2px',
                 fontFamily: 'var(--dz-font-mono)',
                 fontSize: '10px',
                 letterSpacing: '0.1em',
@@ -152,21 +179,22 @@ export const PlanSummaryCard: FC<PlanSummaryCardProps> = ({
                 color: 'var(--dz-text-faint)',
               }}
             >
-              VS pago mínimo
+              vs pago solo mínimos
             </p>
-            <p
-              style={{
-                margin: 0,
-                fontFamily: 'var(--dz-font-sans)',
-                fontSize: '13px',
-                fontWeight: 500,
-                color: 'var(--dz-text-muted)',
-                textDecoration: 'line-through',
-              }}
-            >
-              {'$' + (summary.totalSavingsVsMin + summary.totalInterest).toLocaleString(locale)} en
-              intereses
-            </p>
+            {summary.aiSummary && (
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: 'var(--dz-font-sans)',
+                  fontSize: '12.5px',
+                  color: 'var(--dz-text-muted)',
+                  maxWidth: '380px',
+                  lineHeight: 1.4,
+                }}
+              >
+                {summary.aiSummary}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -199,7 +227,7 @@ export const PlanSummaryCard: FC<PlanSummaryCardProps> = ({
               color: 'var(--dz-text-muted)',
             }}
           >
-            {summary.progressMonths} / {summary.totalMonths} meses
+            {summary.paidInstallments} / {summary.totalInstallments} cuotas
           </span>
         </div>
 
@@ -239,9 +267,6 @@ export const PlanSummaryCard: FC<PlanSummaryCardProps> = ({
               fontSize: '10px',
               color: 'var(--dz-text-muted)',
               letterSpacing: '0.08em',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
             }}
           >
             {summary.endLabel.toUpperCase()} · Deuda Zero 🎯
@@ -260,28 +285,16 @@ export const PlanSummaryCard: FC<PlanSummaryCardProps> = ({
       >
         {[
           {
-            label: 'Abono Mensual',
-            value: summary.monthlyPayment,
-            sub: 'mín + extra',
+            label: 'Meses Para Terminar',
+            text: `${summary.monthsToPayoff}`,
+            sub: 'desde hoy',
             accent: false,
           },
           {
-            label: 'Extra Sugerido',
-            value: summary.extraSuggested,
-            sub: 'de tu flujo',
+            label: 'Cuotas Pagadas',
+            text: `${summary.paidInstallments} / ${summary.totalInstallments}`,
+            sub: `${progressPct}% completado`,
             accent: true,
-          },
-          {
-            label: 'Tasa Promedio',
-            text: `${summary.avgRate}%/mes`,
-            sub: 'ponderada',
-            accent: false,
-          },
-          {
-            label: 'Deudas Restantes',
-            text: String(summary.debtsRemaining),
-            sub: `incluye ${summary.mainCreditor}`,
-            accent: false,
           },
         ].map((m, i) => (
           <div key={i} style={{ padding: '14px 16px', background: 'var(--dz-bg-surface)' }}>
@@ -298,31 +311,19 @@ export const PlanSummaryCard: FC<PlanSummaryCardProps> = ({
             >
               {m.label}
             </p>
-            {m.text ? (
-              <p
-                style={{
-                  margin: '0 0 2px',
-                  fontFamily: 'var(--dz-font-sans)',
-                  fontSize: '20px',
-                  fontWeight: 700,
-                  letterSpacing: '-0.02em',
-                  color: m.accent ? 'var(--dz-signature)' : 'var(--dz-text-primary)',
-                  lineHeight: 1,
-                }}
-              >
-                {m.text}
-              </p>
-            ) : (
-              <div style={{ marginBottom: '2px' }}>
-                <Money
-                  amount={m.value!}
-                  currency={currency}
-                  locale={locale}
-                  variant="h2"
-                  {...(m.accent && { accent: 'income' })}
-                />
-              </div>
-            )}
+            <p
+              style={{
+                margin: '0 0 2px',
+                fontFamily: 'var(--dz-font-sans)',
+                fontSize: '20px',
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
+                color: m.accent ? 'var(--dz-signature)' : 'var(--dz-text-primary)',
+                lineHeight: 1,
+              }}
+            >
+              {m.text}
+            </p>
             <p
               style={{
                 margin: 0,
