@@ -11,6 +11,7 @@ import { ProfilePage } from '@/features/profile/index.ts'
 import { DashboardLayout } from '@/shared/components/organisms/dashboard-layout/index.js'
 import { Sidebar } from '@/shared/components/organisms/sidebar/index.js'
 import { TopBar } from '@/shared/components/organisms/top-bar/index.js'
+import logo from '@/assets/logo.png'
 
 const HomeIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -54,22 +55,12 @@ const PlusIcon = () => (
     <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
 )
+
 const DZLogo = () => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-    <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden>
-      <circle cx="16" cy="16" r="13" stroke="rgb(232,238,245)" strokeWidth="2" />
-      <path d="M6.8 25.2L25.2 6.8" stroke="#5EE1E6" strokeWidth="2.6" strokeLinecap="round" />
-    </svg>
-    <span
-      style={{
-        fontFamily: 'var(--dz-font-sans)',
-        fontSize: '15px',
-        fontWeight: 700,
-        color: 'rgb(232,238,245)',
-        letterSpacing: '-0.2px',
-      }}
-    >
-      Deuda<span style={{ color: '#5EE1E6' }}>Zero</span>
+  <div className="flex items-center gap-2">
+    <img src={logo} alt="DeudaZero Logo" className="h-7 w-7 object-contain" />
+    <span className="font-sans text-[15px] font-bold text-[rgb(232,238,245)] tracking-[-0.2px]">
+      Deuda<span className="text-[#5EE1E6]">Zero</span>
     </span>
   </div>
 )

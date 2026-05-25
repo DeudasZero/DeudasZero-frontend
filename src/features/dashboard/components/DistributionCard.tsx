@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import { CARD } from './DashboardPage.tsx'
+import { Skeleton } from '@atoms/skeleton/index.ts'
 
 interface DistributionCardProps {
   expenses: number
@@ -7,7 +7,7 @@ interface DistributionCardProps {
   isLoading?: boolean
 }
 
-function cop(n: number) {
+function formatCOP(n: number) {
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
     currency: 'COP',
@@ -29,98 +29,46 @@ export const DistributionCard: FC<DistributionCardProps> = ({
   const avlPct = 100 - expPct
 
   return (
-    <div
-      style={{ ...CARD, padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}
-    >
-      <span
-        style={{
-          fontFamily: 'var(--dz-font-mono)',
-          fontSize: '11px',
-          fontWeight: 500,
-          letterSpacing: '1.54px',
-          textTransform: 'uppercase',
-          color: 'rgb(110, 121, 134)',
-        }}
-      >
+    <div className="bg-[rgb(20,28,36)] rounded-[10px] overflow-hidden p-6 flex flex-col gap-4">
+      <span className="font-mono text-[11px] font-medium tracking-[1.54px] uppercase text-[rgb(110,121,134)]">
         Distribución del Ingreso
       </span>
 
       {isLoading ? (
-        <div style={{ height: '8px', borderRadius: '4px', background: 'rgba(220,235,255,0.06)' }} />
+        <Skeleton width="100%" height="8px" rounded />
       ) : (
-        <>
-          {/* Bar */}
+        <div className="flex h-2 rounded overflow-hidden gap-0.5">
           <div
-            style={{
-              display: 'flex',
-              height: '8px',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              gap: '2px',
-            }}
-          >
-            <div
-              style={{
-                width: `${expPct}%`,
-                background: 'var(--dz-expense)',
-                transition: 'width 0.4s ease',
-              }}
-            />
-            <div
-              style={{ flex: 1, background: 'var(--dz-signature)', transition: 'flex 0.4s ease' }}
-            />
-          </div>
+            className="rounded-l transition-[width] duration-400 ease-in-out"
+            style={{ width: `${expPct}%`, background: 'var(--dz-expense)' }}
+          />
+          <div className="flex-1 rounded-r" style={{ background: 'var(--dz-signature)' }} />
+        </div>
+      )}
 
-          {/* Legend */}
-          <div style={{ display: 'flex', gap: '20px' }}>
-            {[
-              { label: 'Gastos', pct: expPct, amount: expenses, color: 'var(--dz-expense)' },
-              { label: 'Disponible', pct: avlPct, amount: available, color: 'var(--dz-signature)' },
-            ].map(({ label, pct, amount, color }) => (
-              <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span
-                    style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: color,
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontFamily: 'var(--dz-font-sans)',
-                      fontSize: '12px',
-                      color: 'rgb(172, 183, 196)',
-                    }}
-                  >
-                    {label}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: 'var(--dz-font-mono)',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      color,
-                    }}
-                  >
-                    {pct}%
-                  </span>
-                </div>
+      {!isLoading && (
+        <div className="flex gap-6">
+          {[
+            { label: 'Gastos', pct: expPct, amount: expenses, color: 'var(--dz-expense)' },
+            { label: 'Disponible', pct: avlPct, amount: available, color: 'var(--dz-signature)' },
+          ].map(({ label, pct, amount, color }) => (
+            <div key={label} className="flex flex-col gap-1">
+              <div className="flex items-center gap-1.5">
                 <span
-                  style={{
-                    fontFamily: 'var(--dz-font-mono)',
-                    fontSize: '13px',
-                    color: 'var(--dz-text-primary)',
-                  }}
-                >
-                  {cop(amount)}
+                  className="inline-block w-2 h-2 rounded-full shrink-0"
+                  style={{ background: color }}
+                />
+                <span className="font-sans text-xs text-(--dz-text-muted)">{label}</span>
+                <span className="font-mono text-[11.5px] font-semibold" style={{ color }}>
+                  {pct}%
                 </span>
               </div>
-            ))}
-          </div>
-        </>
+              <span className="font-mono text-[13px] tracking-tight text-(--dz-text-secondary)">
+                {formatCOP(amount)}
+              </span>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   )

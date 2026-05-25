@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import { CARD } from './DashboardPage.tsx'
+import { Skeleton } from '@atoms/skeleton/index.ts'
 
 interface FlowCardProps {
   label: string
@@ -8,58 +8,23 @@ interface FlowCardProps {
 }
 
 export const FlowCard: FC<FlowCardProps> = ({ label, value, isLoading = false }) => (
-  <div style={{ ...CARD, padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-    <span
-      style={{
-        fontFamily: 'var(--dz-font-mono)',
-        fontSize: '11px',
-        fontWeight: 500,
-        letterSpacing: '1.54px',
-        textTransform: 'uppercase',
-        color: 'var(--dz-signature)',
-      }}
-    >
+  <div className="bg-[rgb(20,28,36)] rounded-[10px] overflow-hidden p-6 flex flex-col gap-3">
+    <span className="font-mono text-[11px] font-medium tracking-[1.54px] uppercase text-(--dz-signature)">
       {label}
     </span>
 
     {isLoading ? (
-      <div
-        style={{
-          height: '72px',
-          width: '260px',
-          borderRadius: '6px',
-          background: 'rgba(220,235,255,0.06)',
-        }}
-      />
+      <Skeleton width="260px" height="72px" />
     ) : (
-      <div
-        style={{
-          fontFamily: 'var(--dz-font-display)',
-          fontSize: '72px',
-          fontWeight: 500,
-          lineHeight: 1,
-          letterSpacing: '-0.4px',
-          color: 'var(--dz-text-primary)',
-          fontVariantNumeric: 'tabular-nums',
-        }}
-      >
+      <div className="font-display text-[72px] font-medium leading-none tracking-tight text-(--dz-text-primary) tabular-nums">
         {value}
       </div>
     )}
 
     {!isLoading && (
-      <p
-        style={{
-          margin: 0,
-          fontFamily: 'var(--dz-font-sans)',
-          fontSize: '13.5px',
-          lineHeight: 1.5,
-          color: 'rgb(172, 183, 196)',
-        }}
-      >
+      <p className="m-0 font-sans text-[13.5px] leading-relaxed text-[rgb(172,183,196)]">
         Lo que te queda después de gastos del mes. La IA recomienda destinarlo a tu deuda con tasa
-        más alta — <span style={{ color: 'var(--dz-signature)' }}>Visa Bancolombia (3.1%/mes)</span>
-        .
+        más alta — <span className="text-(--dz-signature)">Visa Bancolombia (3.1%/mes)</span>.
       </p>
     )}
   </div>

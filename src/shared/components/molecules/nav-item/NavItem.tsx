@@ -1,4 +1,4 @@
-import type { CSSProperties, FC } from 'react'
+import type { FC } from 'react'
 import type { NavItemProps } from './NavItem.types.ts'
 
 export const NavItem: FC<NavItemProps> = ({
@@ -10,81 +10,39 @@ export const NavItem: FC<NavItemProps> = ({
   onClick,
   className,
 }) => {
-  const rootStyle: CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '8px 12px',
-    borderRadius: 'var(--dz-r-sm)',
-    fontFamily: 'var(--dz-font-sans)',
-    fontSize: 'var(--dz-fs-body)',
-    fontWeight: active ? 600 : 400,
-    letterSpacing: 'var(--dz-ls-normal)',
-    color: active ? 'var(--dz-text-primary)' : 'var(--dz-text-muted)',
-    background: active ? 'var(--dz-tint-signature)' : 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    textDecoration: 'none',
-    width: '100%',
-    textAlign: 'left',
-    transition: 'background var(--dz-transition-fast), color var(--dz-transition-fast)',
-  }
+  const rootClasses = [
+    'flex items-center gap-2.5 px-3 py-2',
+    'rounded-[var(--dz-r-sm)]',
+    'font-sans text-[length:var(--dz-fs-body)] tracking-[var(--dz-ls-normal)]',
+    'border-none cursor-pointer no-underline w-full text-left',
+    'transition-[background,color] duration-[var(--dz-transition-fast)]',
+    active
+      ? 'font-semibold text-[var(--dz-text-primary)] bg-[var(--dz-tint-signature)]'
+      : 'font-normal text-[var(--dz-text-muted)] bg-transparent',
+  ].join(' ')
 
-  const iconStyle: CSSProperties = {
-    flexShrink: 0,
-    lineHeight: 0,
-    color: active ? 'var(--dz-signature)' : 'var(--dz-text-muted)',
-    transition: 'color var(--dz-transition-fast)',
-  }
+  const iconClasses = [
+    'shrink-0 leading-none transition-colors duration-[var(--dz-transition-fast)]',
+    active ? 'text-[var(--dz-signature)]' : 'text-[var(--dz-text-muted)]',
+  ].join(' ')
 
   const inner = (
     <>
       {icon && (
-        <span aria-hidden style={iconStyle}>
+        <span aria-hidden className={iconClasses}>
           {icon}
         </span>
       )}
-
-      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-        {label}
-      </span>
-
+      <span className="flex-1 truncate">{label}</span>
       {badge !== undefined && badge > 0 && (
         <span
           aria-label={`${badge} notificaciones`}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minWidth: '18px',
-            height: '18px',
-            padding: '0 5px',
-            background: 'var(--dz-signature)',
-            borderRadius: 'var(--dz-r-pill)',
-            fontFamily: 'var(--dz-font-mono)',
-            fontSize: '10px',
-            fontWeight: 600,
-            color: 'var(--dz-bg-page)',
-            lineHeight: 1,
-            letterSpacing: '0',
-          }}
+          className="inline-flex items-center justify-center min-w-4.5 h-4.5 px-1.25 rounded-(--dz-r-pill) font-mono text-[10px] font-semibold leading-none tracking-normal text-(--dz-bg-page) bg-(--dz-signature)"
         >
           {badge > 99 ? '99+' : badge}
         </span>
       )}
-
-      {active && (
-        <span
-          aria-hidden
-          style={{
-            width: '4px',
-            height: '4px',
-            borderRadius: '50%',
-            background: 'var(--dz-signature)',
-            flexShrink: 0,
-          }}
-        />
-      )}
+      {active && <span aria-hidden className="w-1 h-1 rounded-full shrink-0 bg-(--dz-signature)" />}
     </>
   )
 
@@ -93,8 +51,7 @@ export const NavItem: FC<NavItemProps> = ({
       <a
         href={href}
         aria-current={active ? 'page' : undefined}
-        style={rootStyle}
-        className={className}
+        className={`${rootClasses} ${className ?? ''}`}
         onClick={onClick}
       >
         {inner}
@@ -106,8 +63,7 @@ export const NavItem: FC<NavItemProps> = ({
     <button
       type="button"
       aria-current={active ? 'page' : undefined}
-      style={rootStyle}
-      className={className}
+      className={`${rootClasses} ${className ?? ''}`}
       onClick={onClick}
     >
       {inner}
