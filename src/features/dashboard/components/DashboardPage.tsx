@@ -29,8 +29,9 @@ export const DashboardPage: FC = () => {
       {/* Fila 1: Flujo + Distribución */}
       <div className="grid grid-cols-2 gap-4">
         <FlowCard
-          label={`FLUJO DISPONIBLE · ${data?.currentMonth ?? 'JUNIO'}`}
+          label={`FLUJO DISPONIBLE · ${data?.currentMonth ?? ''}`}
           value={s ? cop(s.netBalance) : '—'}
+          worstDebt={s?.worstDebt ?? null}
           isLoading={isLoading}
         />
         <DistributionCard
@@ -93,8 +94,12 @@ export const DashboardPage: FC = () => {
 
       {/* Fila 3: Chart + Categorías */}
       <div className="grid gap-4" style={{ gridTemplateColumns: '1.6fr 1fr' }}>
-        <ChartCard isLoading={isLoading} />
-        <CategoryCard categories={data?.categorySpend ?? []} isLoading={isLoading} />
+        <ChartCard history={data?.monthlyHistory ?? []} isLoading={isLoading} />
+        <CategoryCard
+          categories={data?.categorySpend ?? []}
+          {...(data?.currentMonth ? { currentMonth: data.currentMonth } : {})}
+          isLoading={isLoading}
+        />
       </div>
 
       {/* Fila 4: Actividad reciente */}

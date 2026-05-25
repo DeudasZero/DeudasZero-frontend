@@ -32,7 +32,7 @@ export const ActivityTable: FC<ActivityTableProps> = ({ transactions, isLoading 
   <div className="bg-[rgb(20,28,36)] rounded-[10px] overflow-hidden">
     {/* Header */}
     <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
-      <span className="font-mono text-[11px] tracking-[1.4px] uppercase text-[rgb(110,121,134)]">
+      <span className="font-mono text-[11px] tracking-[1.4px] uppercase text-(--dz-text-faint)">
         ACTIVIDAD RECIENTE
       </span>
       <span className="font-sans text-[13.5px] font-semibold text-(--dz-text-primary)">

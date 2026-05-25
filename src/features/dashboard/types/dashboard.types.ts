@@ -27,6 +27,7 @@ export interface DashboardSummary {
   debtRatio: number
   incomeTrend: number
   expenseTrend: number
+  worstDebt: { name: string; monthlyRate: number } | null
 }
 
 export interface CategorySpend {
@@ -34,10 +35,17 @@ export interface CategorySpend {
   amount: number
 }
 
+export interface MonthlyPoint {
+  month: string
+  income: number
+  expense: number
+}
+
 export interface DashboardData {
   summary: DashboardSummary
   recentTransactions: Transaction[]
   categorySpend: CategorySpend[]
+  monthlyHistory: MonthlyPoint[]
   userName: string
   currentMonth: string
 }

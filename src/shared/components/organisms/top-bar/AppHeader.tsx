@@ -36,7 +36,7 @@ export const AppHeader: FC<AppHeaderProps> = ({ onRegister, userName }) => {
           style={{
             margin: '4px 0 0',
             fontSize: '13px',
-            color: 'rgb(110, 121, 134)',
+            color: 'var(--dz-text-faint)',
           }}
         >
           Bienvenido a DeudaZero

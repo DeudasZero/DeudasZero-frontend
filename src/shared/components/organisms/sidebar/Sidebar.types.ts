@@ -21,6 +21,11 @@ export interface SidebarUser {
   avatarSrc?: string
 }
 
+export interface SidebarAdvisorMessage {
+  text: string
+  onDetailClick?: () => void
+}
+
 export interface SidebarProps {
   groups: SidebarNavGroup[]
   activeItemId?: string
@@ -30,5 +35,6 @@ export interface SidebarProps {
   logo?: ReactNode
   collapsed?: boolean
   onToggleCollapse?: () => void
+  advisorMessage?: SidebarAdvisorMessage | undefined
   className?: string
 }
