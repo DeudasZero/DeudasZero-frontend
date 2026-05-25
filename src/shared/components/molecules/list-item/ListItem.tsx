@@ -1,4 +1,4 @@
-import type { CSSProperties, FC } from 'react'
+import type { FC } from 'react'
 import type { ListItemProps } from './ListItem.types.ts'
 
 export const ListItem: FC<ListItemProps> = ({
@@ -12,64 +12,31 @@ export const ListItem: FC<ListItemProps> = ({
 }) => {
   const isInteractive = Boolean(onClick)
 
-  const rootStyle: CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '12px 16px',
-    background: 'transparent',
-    border: 'none',
-    borderRadius: 'var(--dz-r-sm)',
-    width: '100%',
-    textAlign: 'left',
-    cursor: isInteractive && !disabled ? 'pointer' : 'default',
-    opacity: disabled ? 0.45 : 1,
-    transition: 'background var(--dz-transition-fast)',
-  }
+  const baseClasses = [
+    'flex items-center gap-3 px-4 py-3',
+    'bg-transparent border-none rounded-[var(--dz-r-sm)]',
+    'w-full text-left',
+    'transition-colors duration-[var(--dz-transition-fast)]',
+    isInteractive && !disabled ? 'cursor-pointer hover:bg-white/[0.03]' : 'cursor-default',
+    disabled ? 'opacity-45' : 'opacity-100',
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   const content = (
     <>
-      {leading && (
-        <span style={{ flexShrink: 0, lineHeight: 0, color: 'var(--dz-text-muted)' }}>
-          {leading}
-        </span>
-      )}
-
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p
-          style={{
-            margin: 0,
-            fontFamily: 'var(--dz-font-sans)',
-            fontSize: 'var(--dz-fs-body)',
-            fontWeight: 500,
-            color: 'var(--dz-text-primary)',
-            letterSpacing: 'var(--dz-ls-normal)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
+      {leading && <span className="shrink-0 leading-none text-(--dz-text-muted)">{leading}</span>}
+      <div className="flex-1 min-w-0">
+        <p className="m-0 font-sans text-(length:--dz-fs-body) font-medium text-(--dz-text-primary) tracking-(--dz-ls-normal) truncate">
           {title}
         </p>
         {subtitle && (
-          <p
-            style={{
-              margin: '2px 0 0',
-              fontFamily: 'var(--dz-font-sans)',
-              fontSize: 'var(--dz-fs-caption)',
-              color: 'var(--dz-text-muted)',
-              letterSpacing: '-0.005em',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <p className="m-0 mt-0.5 font-sans text-(length:--dz-fs-caption) text-(--dz-text-muted) tracking-(-0.005em) truncate">
             {subtitle}
           </p>
         )}
       </div>
-
-      {trailing && <span style={{ flexShrink: 0 }}>{trailing}</span>}
+      {trailing && <span className="shrink-0">{trailing}</span>}
     </>
   )
 
@@ -77,8 +44,7 @@ export const ListItem: FC<ListItemProps> = ({
     return (
       <button
         type="button"
-        style={rootStyle}
-        className={className}
+        className={`${baseClasses} ${className ?? ''}`}
         onClick={disabled ? undefined : onClick}
         disabled={disabled}
       >
@@ -87,9 +53,5 @@ export const ListItem: FC<ListItemProps> = ({
     )
   }
 
-  return (
-    <div style={rootStyle} className={className}>
-      {content}
-    </div>
-  )
+  return <div className={`${baseClasses} ${className ?? ''}`}>{content}</div>
 }

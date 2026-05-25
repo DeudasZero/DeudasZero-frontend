@@ -1,5 +1,6 @@
 import type { FC } from 'react'
-import { CARD } from './DashboardPage.tsx'
+import { Skeleton } from '@atoms/skeleton/index.ts'
+import { Button } from '@atoms/button/index.js'
 import type { CategorySpend } from '../types/dashboard.types.ts'
 
 interface CategoryCardProps {
@@ -7,7 +8,7 @@ interface CategoryCardProps {
   isLoading?: boolean
 }
 
-function cop(n: number) {
+function formatCOP(n: number) {
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
     currency: 'COP',
@@ -19,128 +20,67 @@ function cop(n: number) {
     .trim()
 }
 
+const CATEGORY_COLORS = [
+  'var(--dz-signature)',
+  'var(--dz-expense)',
+  'var(--dz-saving)',
+  'var(--dz-debt)',
+  'var(--dz-text-muted)',
+]
+
 export const CategoryCard: FC<CategoryCardProps> = ({ categories, isLoading = false }) => {
   const max = categories.length > 0 ? Math.max(...categories.map((c) => c.amount)) : 1
 
   return (
-    <div
-      style={{ ...CARD, padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}
-    >
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <span
-            style={{
-              fontFamily: 'var(--dz-font-mono)',
-              fontSize: '11px',
-              letterSpacing: '1.4px',
-              textTransform: 'uppercase',
-              color: 'rgb(110, 121, 134)',
-            }}
-          >
+    <div className="bg-[rgb(20,28,36)] rounded-[10px] overflow-hidden p-6 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-1">
+          <span className="font-mono text-[11px] tracking-[1.4px] uppercase text-[rgb(110,121,134)]">
             POR CATEGORÍA
           </span>
-          <div
-            style={{
-              fontFamily: 'var(--dz-font-sans)',
-              fontSize: '13.5px',
-              fontWeight: 500,
-              color: 'var(--dz-text-primary)',
-              marginTop: '4px',
-            }}
-          >
+          <span className="font-sans text-[13.5px] font-medium text-(--dz-text-primary)">
             Gastos · Junio
-          </div>
+          </span>
         </div>
-        <button
-          type="button"
-          style={{
-            fontFamily: 'var(--dz-font-sans)',
-            fontSize: '12px',
-            color: 'var(--dz-signature)',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
+        <Button variant="ghost" size="sm">
           Ver todo →
-        </button>
+        </Button>
       </div>
 
-      {/* Category rows */}
-      {isLoading
-        ? Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div
-                  style={{
-                    height: '12px',
-                    width: '80px',
-                    borderRadius: '3px',
-                    background: 'rgba(220,235,255,0.06)',
-                  }}
-                />
-                <div
-                  style={{
-                    height: '12px',
-                    width: '70px',
-                    borderRadius: '3px',
-                    background: 'rgba(220,235,255,0.06)',
-                  }}
-                />
-              </div>
-              <div
-                style={{ height: '4px', borderRadius: '2px', background: 'rgba(220,235,255,0.06)' }}
-              />
-            </div>
-          ))
-        : categories.map((cat) => {
-            const pct = (cat.amount / max) * 100
-            return (
-              <div key={cat.name} style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                <div
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                >
-                  <span
-                    style={{
-                      fontFamily: 'var(--dz-font-sans)',
-                      fontSize: '13px',
-                      fontWeight: 500,
-                      color: 'var(--dz-text-primary)',
-                    }}
-                  >
-                    {cat.name}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: 'var(--dz-font-mono)',
-                      fontSize: '12.5px',
-                      color: 'rgb(172, 183, 196)',
-                    }}
-                  >
-                    {cop(cat.amount)}
-                  </span>
+      <div className="flex flex-col gap-3">
+        {isLoading
+          ? Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex flex-col gap-1.5">
+                <div className="flex justify-between">
+                  <Skeleton width="80px" height="11px" />
+                  <Skeleton width="60px" height="11px" />
                 </div>
-                <div
-                  style={{
-                    height: '4px',
-                    borderRadius: '2px',
-                    background: 'rgba(220,235,255,0.08)',
-                  }}
-                >
-                  <div
-                    style={{
-                      height: '100%',
-                      width: `${pct}%`,
-                      borderRadius: '2px',
-                      background: 'var(--dz-expense)',
-                      transition: 'width 0.4s ease',
-                    }}
-                  />
-                </div>
+                <Skeleton width="100%" height="4px" rounded />
               </div>
-            )
-          })}
+            ))
+          : categories.map((cat, i) => {
+              const pct = Math.round((cat.amount / max) * 100)
+              const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length] ?? 'var(--dz-text-muted)'
+              return (
+                <div key={cat.name} className="flex flex-col gap-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-sans text-[12.5px] text-(--dz-text-primary)">
+                      {cat.name}
+                    </span>
+                    <span className="font-mono text-[12px] text-(--dz-text-muted)">
+                      {formatCOP(cat.amount)}
+                    </span>
+                  </div>
+                  <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-[width] duration-500 ease-out"
+                      style={{ width: `${pct}%`, background: color }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+      </div>
     </div>
   )
 }
