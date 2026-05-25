@@ -1,20 +1,15 @@
 import { useState, useRef, useEffect, type FC, type KeyboardEvent } from 'react'
-import type { NewTransactionForm, TxCategory, TxType } from '../types/transactions.types.ts'
+import type { NewTransactionForm, TxType } from '../types/transactions.types.ts'
 
-const EXPENSE_CATS: TxCategory[] = [
-  'Vivienda',
-  'Alimentos',
-  'Servicios',
-  'Transporte',
-  'Ocio',
-  'Otros',
-]
-const INCOME_CATS: TxCategory[] = ['Salario', 'Freelance', 'Otros']
+const INCOME_SOURCES = ['Salario', 'Freelance', 'Otros'] as const
+type IncomeSource = (typeof INCOME_SOURCES)[number]
 
 interface NewMovementModalProps {
   open: boolean
   onClose: () => void
   onSave: (form: NewTransactionForm) => void
+  isSaving?: boolean
+  saveError?: string | null
   defaultType?: TxType
 }
 
@@ -34,17 +29,51 @@ const XIcon = () => (
   </svg>
 )
 
+const SpinnerIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden
+    style={{ animation: 'spin 0.8s linear infinite' }}
+  >
+    <circle
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeDasharray="40"
+      strokeDashoffset="10"
+      strokeLinecap="round"
+    />
+    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+  </svg>
+)
+
 const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
   onClose,
   onSave,
+  isSaving = false,
+  saveError,
   defaultType = 'income',
 }) => {
   const [type, setType] = useState<TxType>(defaultType)
   const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState<TxCategory | ''>('')
-  const [name, setName] = useState('')
+  const [source, setSource] = useState<IncomeSource>('Salario')
+  const [description, setDescription] = useState('')
   const [date, setDate] = useState(today())
   const dialogRef = useRef<HTMLDivElement>(null)
+
+  const isIncome = type === 'income'
+  const amountColor = isIncome ? 'rgb(94,225,230)' : 'rgb(224,122,156)'
+
+  function handleTypeChange(next: TxType) {
+    setType(next)
+    setSource('Salario')
+    setDescription('')
+  }
 
   useEffect(() => {
     const handler = (e: globalThis.KeyboardEvent) => {
@@ -58,15 +87,11 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
     dialogRef.current?.focus()
   }, [])
 
-  const cats = type === 'income' ? INCOME_CATS : EXPENSE_CATS
-  const amountColor = type === 'income' ? 'rgb(94,225,230)' : 'rgb(224,122,156)'
-  const isIncome = type === 'income'
-
-  function handleSave() {
-    if (!amount || !category) return
-    onSave({ type, amount, category: category as TxCategory, name, date })
-    onClose()
-  }
+  const amountRaw = amount.replace(/\D/g, '')
+  const isValid =
+    amountRaw.length > 0 &&
+    parseInt(amountRaw, 10) > 0 &&
+    (isIncome || description.trim().length > 0)
 
   function handleAmountKey(e: KeyboardEvent<HTMLInputElement>) {
     const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab']
@@ -74,8 +99,64 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
     if (!/\d/.test(e.key)) e.preventDefault()
   }
 
+  function handleAmountChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setAmount(e.target.value.replace(/\D/g, ''))
+  }
+
+  function handleSave() {
+    if (!isValid || isSaving) return
+    const base = {
+      type,
+      amount: amountRaw,
+      description: description.trim() || (isIncome ? source : ''),
+      date,
+    }
+    const form: NewTransactionForm = isIncome ? { ...base, source } : base
+    onSave(form)
+  }
+
+  function handleBackdropClick(e: React.MouseEvent<HTMLDivElement>) {
+    if (e.target === e.currentTarget) onClose()
+  }
+
   function handleBackdropKey(e: KeyboardEvent<HTMLDivElement>) {
-    if (e.key === 'Enter' || e.key === ' ') onClose()
+    if (e.key === 'Enter') onClose()
+  }
+
+  const selectStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '10px 12px',
+    background: 'rgb(8,13,18)',
+    border: '1px solid rgba(220,235,255,0.08)',
+    borderRadius: '8px',
+    outline: 'none',
+    fontFamily: 'var(--dz-font-sans)',
+    fontSize: '13px',
+    color: 'rgb(232,238,245)',
+    boxSizing: 'border-box',
+    cursor: 'pointer',
+  }
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '10px 12px',
+    background: 'rgb(8,13,18)',
+    border: '1px solid rgba(220,235,255,0.08)',
+    borderRadius: '8px',
+    outline: 'none',
+    fontFamily: 'var(--dz-font-sans)',
+    fontSize: '13px',
+    color: 'rgb(232,238,245)',
+    boxSizing: 'border-box',
+  }
+
+  const fieldLabelStyle: React.CSSProperties = {
+    fontFamily: 'var(--dz-font-mono)',
+    fontSize: '10px',
+    letterSpacing: '1.4px',
+    textTransform: 'uppercase',
+    color: 'rgb(110,121,134)',
+    marginBottom: '8px',
   }
 
   return (
@@ -83,9 +164,7 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
       role="button"
       tabIndex={0}
       aria-label="Cerrar modal"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
+      onClick={handleBackdropClick}
       onKeyDown={handleBackdropKey}
       style={{
         position: 'fixed',
@@ -165,10 +244,7 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
               <button
                 key={t}
                 type="button"
-                onClick={() => {
-                  setType(t)
-                  setCategory('')
-                }}
+                onClick={() => handleTypeChange(t)}
                 aria-pressed={active}
                 style={{
                   padding: '6px 14px',
@@ -197,18 +273,9 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
           })}
         </div>
 
-        {/* Amount */}
+        {/* Monto */}
         <div style={{ padding: '0 20px 20px', textAlign: 'center' }}>
-          <div
-            style={{
-              color: 'rgb(110,121,134)',
-              fontFamily: 'var(--dz-font-sans)',
-              fontSize: '13px',
-              marginBottom: '8px',
-            }}
-          >
-            MONTO
-          </div>
+          <div style={fieldLabelStyle}>MONTO</div>
           <div
             style={{
               display: 'flex',
@@ -229,174 +296,105 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
               $
             </span>
             <input
+              id="modal-amount"
               type="text"
               inputMode="numeric"
               placeholder="0"
-              aria-label="Monto del movimiento"
               value={formatDisplay(amount)}
+              onChange={handleAmountChange}
               onKeyDown={handleAmountKey}
-              onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))}
               style={{
-                fontFamily: 'var(--dz-font-display)',
-                fontSize: '80px',
-                fontWeight: 500,
-                letterSpacing: '-2.4px',
-                color: amountColor,
                 background: 'transparent',
                 border: 'none',
                 outline: 'none',
+                fontFamily: 'var(--dz-font-display)',
+                fontSize: '40px',
+                fontWeight: 500,
+                color: amountColor,
+                width: '250px',
                 textAlign: 'center',
-                width: '100%',
-                lineHeight: 1,
                 caretColor: amountColor,
+                fontVariantNumeric: 'tabular-nums',
               }}
             />
           </div>
-          <div
-            style={{
-              fontFamily: 'var(--dz-font-sans)',
-              fontSize: '12px',
-              color: 'rgb(110,121,134)',
-              marginTop: '6px',
-            }}
-          >
-            Pesos colombianos
-          </div>
         </div>
 
-        {/* Category pills */}
-        <div style={{ padding: '0 20px 16px' }}>
-          <div
-            style={{
-              fontFamily: 'var(--dz-font-mono)',
-              fontSize: '10px',
-              letterSpacing: '1.4px',
-              textTransform: 'uppercase',
-              color: 'rgb(110,121,134)',
-              marginBottom: '10px',
-            }}
-          >
-            CATEGORÍA
-          </div>
-          <div
-            style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}
-            role="group"
-            aria-label="Categorías"
-          >
-            {cats.map((cat) => {
-              const active = category === cat
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setCategory(cat)}
-                  aria-pressed={active}
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: '6px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontFamily: 'var(--dz-font-sans)',
-                    fontSize: '12.5px',
-                    fontWeight: 600,
-                    transition: 'all 0.15s',
-                    background: active
-                      ? isIncome
-                        ? 'rgba(94,225,230,0.14)'
-                        : 'rgba(224,122,156,0.14)'
-                      : 'rgb(8,13,18)',
-                    color: active
-                      ? isIncome
-                        ? 'rgb(94,225,230)'
-                        : 'rgb(224,122,156)'
-                      : 'rgb(172,183,196)',
-                  }}
-                >
-                  {cat}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Description + Date row */}
         <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr auto',
-            gap: '10px',
-            padding: '0 20px 24px',
-          }}
+          style={{ padding: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: '14px' }}
         >
-          <div>
-            <div
-              style={{
-                fontFamily: 'var(--dz-font-mono)',
-                fontSize: '10px',
-                letterSpacing: '1.4px',
-                textTransform: 'uppercase',
-                color: 'rgb(110,121,134)',
-                marginBottom: '8px',
-              }}
-            >
-              DESCRIPCIÓN
+          {isIncome && (
+            <div>
+              <label htmlFor="modal-source" style={fieldLabelStyle}>
+                FUENTE
+              </label>
+              <select
+                id="modal-source"
+                value={source}
+                onChange={(e) => setSource(e.target.value as IncomeSource)}
+                style={selectStyle}
+              >
+                {INCOME_SOURCES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
             </div>
+          )}
+
+          {/* Descripción / nombre */}
+          <div>
+            <label htmlFor="modal-description" style={fieldLabelStyle}>
+              {isIncome ? 'DESCRIPCIÓN (OPCIONAL)' : 'DESCRIPCIÓN'}
+            </label>
             <input
+              id="modal-description"
               type="text"
               placeholder={isIncome ? 'Ej: Salario julio' : 'Ej: Almuerzo equipo'}
-              aria-label="Descripción del movimiento"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              style={
-                {
-                  width: '100%',
-                  padding: '10px 12px',
-                  background: 'rgb(8,13,18)',
-                  border: '1px solid rgba(220,235,255,0.08)',
-                  borderRadius: '8px',
-                  outline: 'none',
-                  fontFamily: 'var(--dz-font-sans)',
-                  fontSize: '13px',
-                  color: 'rgb(232,238,245)',
-                  boxSizing: 'border-box',
-                } as React.CSSProperties
-              }
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={120}
+              style={inputStyle}
             />
           </div>
-          <div>
-            <div
-              style={{
-                fontFamily: 'var(--dz-font-mono)',
-                fontSize: '10px',
-                letterSpacing: '1.4px',
-                textTransform: 'uppercase',
-                color: 'rgb(110,121,134)',
-                marginBottom: '8px',
-              }}
-            >
-              FECHA
+
+          {/* Fecha — visible para ambos tipos */}
+          {!isIncome && (
+            <div>
+              <label htmlFor="modal-date" style={fieldLabelStyle}>
+                FECHA
+              </label>
+              <input
+                id="modal-date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                max={today()}
+                style={{ ...inputStyle, colorScheme: 'dark' } as React.CSSProperties}
+              />
             </div>
-            <input
-              type="date"
-              aria-label="Fecha del movimiento"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              style={
-                {
-                  padding: '10px 12px',
-                  background: 'rgb(8,13,18)',
-                  border: '1px solid rgba(220,235,255,0.08)',
-                  borderRadius: '8px',
-                  outline: 'none',
-                  fontFamily: 'var(--dz-font-sans)',
-                  fontSize: '13px',
-                  color: 'rgb(232,238,245)',
-                  colorScheme: 'dark',
-                } as React.CSSProperties
-              }
-            />
-          </div>
+          )}
         </div>
+
+        {/* Error de guardado */}
+        {saveError && (
+          <div
+            role="alert"
+            style={{
+              margin: '0 20px 12px',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              background: 'rgba(224,122,156,0.1)',
+              border: '1px solid rgba(224,122,156,0.25)',
+              fontFamily: 'var(--dz-font-sans)',
+              fontSize: '12.5px',
+              color: 'rgb(224,122,156)',
+            }}
+          >
+            {saveError}
+          </div>
+        )}
 
         {/* Actions */}
         <div
@@ -410,12 +408,13 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
           <button
             type="button"
             onClick={onClose}
+            disabled={isSaving}
             style={{
               height: '48px',
               background: 'transparent',
               border: '1px solid rgba(220,235,255,0.1)',
               borderRadius: '8px',
-              cursor: 'pointer',
+              cursor: isSaving ? 'not-allowed' : 'pointer',
               fontFamily: 'var(--dz-font-sans)',
               fontSize: '14px',
               fontWeight: 500,
@@ -427,14 +426,18 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
           <button
             type="button"
             onClick={handleSave}
-            disabled={!amount || !category}
-            aria-disabled={!amount || !category}
+            disabled={!isValid || isSaving}
+            aria-busy={isSaving}
             style={{
               height: '48px',
-              background: !amount || !category ? 'rgba(94,225,230,0.3)' : 'rgb(94,225,230)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              background: !isValid || isSaving ? 'rgba(94,225,230,0.3)' : 'rgb(94,225,230)',
               border: 'none',
               borderRadius: '8px',
-              cursor: !amount || !category ? 'not-allowed' : 'pointer',
+              cursor: !isValid || isSaving ? 'not-allowed' : 'pointer',
               fontFamily: 'var(--dz-font-sans)',
               fontSize: '15px',
               fontWeight: 600,
@@ -442,7 +445,8 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
               transition: 'opacity 0.15s',
             }}
           >
-            {isIncome ? 'Guardar ingreso' : 'Guardar gasto'}
+            {isSaving && <SpinnerIcon />}
+            {isSaving ? 'Guardando…' : isIncome ? 'Guardar ingreso' : 'Guardar gasto'}
           </button>
         </div>
       </div>
