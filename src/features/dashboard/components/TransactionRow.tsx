@@ -122,7 +122,7 @@ export const TransactionRow: FC<TransactionRowProps> = ({ transaction }) => {
               style={{
                 fontFamily: 'var(--dz-font-sans)',
                 fontSize: '11.5px',
-                color: 'rgb(110, 121, 134)',
+                color: 'var(--dz-text-faint)',
               }}
             >
               {category}
@@ -172,7 +172,7 @@ export const TransactionRow: FC<TransactionRowProps> = ({ transaction }) => {
             fontFamily: 'var(--dz-font-mono)',
             fontSize: '12px',
             letterSpacing: '0.24px',
-            color: 'rgb(110, 121, 134)',
+            color: 'var(--dz-text-faint)',
           }}
         >
           {date}

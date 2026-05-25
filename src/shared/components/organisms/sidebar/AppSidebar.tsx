@@ -208,7 +208,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({
           fontWeight: 500,
           letterSpacing: '1.4px',
           textTransform: 'uppercase',
-          color: 'rgb(70, 80, 91)',
+          color: 'var(--dz-text-faint)',
           paddingLeft: '12px',
           marginBottom: '8px',
         }}
@@ -358,14 +358,14 @@ export const AppSidebar: FC<AppSidebarProps> = ({
               fontSize: '10.5px',
               letterSpacing: '0.42px',
               textTransform: 'uppercase',
-              color: 'rgb(110, 121, 134)',
+              color: 'var(--dz-text-faint)',
             }}
           >
             {userEmail}
           </span>
         </div>
 
-        <span style={{ color: 'rgb(110, 121, 134)', flexShrink: 0, lineHeight: 0 }}>
+        <span style={{ color: 'var(--dz-text-faint)', flexShrink: 0, lineHeight: 0 }}>
           <DotsIcon />
         </span>
       </button>

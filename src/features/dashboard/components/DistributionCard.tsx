@@ -30,7 +30,7 @@ export const DistributionCard: FC<DistributionCardProps> = ({
 
   return (
     <div className="bg-[rgb(20,28,36)] rounded-[10px] overflow-hidden p-6 flex flex-col gap-4">
-      <span className="font-mono text-[11px] font-medium tracking-[1.54px] uppercase text-[rgb(110,121,134)]">
+      <span className="font-mono text-[11px] font-medium tracking-[1.54px] uppercase text-(--dz-text-faint)">
         Distribución del Ingreso
       </span>
 

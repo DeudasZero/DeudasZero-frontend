@@ -1,7 +1,12 @@
 import type { CSSProperties, FC } from 'react'
 import { Avatar } from '@atoms/avatar/Avatar.tsx'
 import { Divider } from '@atoms/divider/Divider.tsx'
-import type { SidebarProps, SidebarNavGroup, SidebarNavItem } from './Sidebar.types.ts'
+import type {
+  SidebarProps,
+  SidebarNavGroup,
+  SidebarNavItem,
+  SidebarAdvisorMessage,
+} from './Sidebar.types.ts'
 
 const ArrowIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -15,7 +20,7 @@ const ArrowIcon = () => (
   </svg>
 )
 
-const AIAdvisorCard: FC = () => (
+const AIAdvisorCard: FC<{ message: SidebarAdvisorMessage }> = ({ message }) => (
   <div
     style={{
       background: 'rgb(20,28,36)',
@@ -50,27 +55,30 @@ const AIAdvisorCard: FC = () => (
         color: 'rgb(172,183,196)',
       }}
     >
-      Tu carga de deuda bajó 4% este mes. Sigue así.
+      {message.text}
     </p>
-    <button
-      type="button"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '5px',
-        alignSelf: 'flex-start',
-        padding: '3px 0',
-        background: 'transparent',
-        border: 'none',
-        cursor: 'pointer',
-        fontFamily: 'var(--dz-font-sans)',
-        fontSize: '12px',
-        fontWeight: 600,
-        color: 'var(--dz-signature)',
-      }}
-    >
-      Ver detalle <ArrowIcon />
-    </button>
+    {message.onDetailClick && (
+      <button
+        type="button"
+        onClick={message.onDetailClick}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '5px',
+          alignSelf: 'flex-start',
+          padding: '3px 0',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          fontFamily: 'var(--dz-font-sans)',
+          fontSize: '12px',
+          fontWeight: 600,
+          color: 'var(--dz-signature)',
+        }}
+      >
+        Ver detalle <ArrowIcon />
+      </button>
+    )}
   </div>
 )
 
@@ -191,6 +199,7 @@ export const Sidebar: FC<SidebarProps> = ({
   onUserClick,
   logo,
   collapsed = false,
+  advisorMessage,
   className,
 }) => {
   const initials = user?.name
@@ -263,7 +272,7 @@ export const Sidebar: FC<SidebarProps> = ({
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '1.4px',
-                  color: 'rgb(70, 80, 91)',
+                  color: 'var(--dz-text-faint)',
                   whiteSpace: 'nowrap',
                 }}
               >
@@ -285,7 +294,7 @@ export const Sidebar: FC<SidebarProps> = ({
         ))}
       </div>
 
-      {!collapsed && <AIAdvisorCard />}
+      {!collapsed && advisorMessage && <AIAdvisorCard message={advisorMessage} />}
 
       {user && (
         <button
@@ -323,36 +332,26 @@ export const Sidebar: FC<SidebarProps> = ({
             />
           ) : (
             <>
+              <Avatar
+                name={user.name}
+                size="sm"
+                accent="signature"
+                {...(user.avatarSrc ? { src: user.avatarSrc } : {})}
+              />
               <div
                 style={{
-                  flexShrink: 0,
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  background: 'var(--dz-signature)',
+                  flex: 1,
+                  minWidth: 0,
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  flexDirection: 'column',
+                  gap: '1px',
+                  textAlign: 'left',
                 }}
               >
                 <span
                   style={{
                     fontFamily: 'var(--dz-font-sans)',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    color: 'rgb(13,20,25)',
-                    lineHeight: 1,
-                  }}
-                >
-                  {initials}
-                </span>
-              </div>
-              <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                <p
-                  style={{
-                    margin: 0,
-                    fontFamily: 'var(--dz-font-sans)',
-                    fontSize: '12.5px',
+                    fontSize: '13px',
                     fontWeight: 600,
                     color: 'rgb(232,238,245)',
                     overflow: 'hidden',
@@ -361,26 +360,31 @@ export const Sidebar: FC<SidebarProps> = ({
                   }}
                 >
                   {user.name}
-                </p>
-                <p
-                  style={{
-                    margin: '2px 0 0',
-                    fontFamily: 'var(--dz-font-mono)',
-                    fontSize: '10.5px',
-                    letterSpacing: '0.42px',
-                    textTransform: 'uppercase',
-                    color: 'rgb(110,121,134)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Editar perfil
-                </p>
+                </span>
+                {user.email && (
+                  <span
+                    style={{
+                      fontFamily: 'var(--dz-font-sans)',
+                      fontSize: '11px',
+                      color: 'var(--dz-text-faint)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {user.email}
+                  </span>
+                )}
               </div>
             </>
           )}
         </button>
+      )}
+
+      {collapsed && (
+        <span aria-hidden style={{ display: 'none' }}>
+          {initials}
+        </span>
       )}
     </aside>
   )
