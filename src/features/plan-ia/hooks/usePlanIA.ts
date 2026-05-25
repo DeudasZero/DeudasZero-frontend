@@ -8,6 +8,7 @@ import {
   sendMessage,
   setStrategy,
   clearMessages,
+  resetChat,
 } from '../store/plan-ia.slice.ts'
 import type {
   PaymentStrategy,
@@ -122,6 +123,11 @@ export function usePlanIA() {
     dispatch(clearMessages())
   }
 
+  function resetChatHistory() {
+    dispatch(resetChat())
+    dispatch(loadAiReport())
+  }
+
   return {
     strategy,
     plan,
@@ -140,5 +146,6 @@ export function usePlanIA() {
     markPaid,
     sendChat,
     dismiss,
+    resetChatHistory,
   }
 }

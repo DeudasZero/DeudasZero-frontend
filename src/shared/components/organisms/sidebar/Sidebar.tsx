@@ -14,13 +14,6 @@ const ArrowIcon = () => (
     />
   </svg>
 )
-const DotsIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <circle cx="5" cy="12" r="1.5" fill="currentColor" />
-    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-    <circle cx="19" cy="12" r="1.5" fill="currentColor" />
-  </svg>
-)
 
 const AIAdvisorCard: FC = () => (
   <div
@@ -385,9 +378,6 @@ export const Sidebar: FC<SidebarProps> = ({
                   Editar perfil
                 </p>
               </div>
-              <span style={{ color: 'rgb(110,121,134)', flexShrink: 0, lineHeight: 0 }}>
-                <DotsIcon />
-              </span>
             </>
           )}
         </button>

@@ -313,11 +313,11 @@ const TxRow: FC<TxRowProps> = ({ tx, isDeleting, onDelete }) => {
           title="Eliminar"
           style={{
             background: 'transparent',
-            border: '1px solid rgba(220,235,255,0.08)',
+            border: '1px solid rgba(220,235,255,0.5)',
             borderRadius: '6px',
             padding: '6px',
             cursor: isDeleting ? 'not-allowed' : 'pointer',
-            color: 'rgb(110,121,134)',
+            color: 'rgba(220,235,255,0.5)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -328,12 +328,12 @@ const TxRow: FC<TxRowProps> = ({ tx, isDeleting, onDelete }) => {
           onMouseEnter={(e) => {
             if (!isDeleting) {
               ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(224,122,156,0.4)'
-              ;(e.currentTarget as HTMLButtonElement).style.color = 'rgb(224,122,156)'
+              ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--dz-expense)'
             }
           }}
           onMouseLeave={(e) => {
-            ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(220,235,255,0.08)'
-            ;(e.currentTarget as HTMLButtonElement).style.color = 'rgb(110,121,134)'
+            ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(220,235,255,0.5)'
+            ;(e.currentTarget as HTMLButtonElement).style.color = 'rgba(220,235,255,0.5)'
           }}
         >
           <TrashIcon />
