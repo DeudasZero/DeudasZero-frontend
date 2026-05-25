@@ -1,47 +1,144 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store/hookStore.ts'
-import { fetchPlanIA, setStrategy, addMessage } from '../store/plan-ia.slice.ts'
-import { buildSchedule, calcPlanSummary } from '../utils/plan.utils.ts'
-import { generateAIReply, makeUserMessage, makeAIMessage } from '../utils/chat.utils.ts'
-import { MOCK_PLAN_DEBTS } from '../services/plan-ia.mock.ts'
-import type { PaymentStrategy } from '../types/plan-ia.types.ts'
+import {
+  fetchActivePlan,
+  createPlan,
+  markInstallmentPaid,
+  loadAiReport,
+  sendMessage,
+  setStrategy,
+  clearMessages,
+} from '../store/plan-ia.slice.ts'
+import type {
+  PaymentStrategy,
+  ScheduleRow,
+  ScheduleRowStatus,
+  PlanSummary,
+  InstallmentResponseDTO,
+} from '../types/plan-ia.types.ts'
+import { STRATEGY_TO_API } from '../types/plan-ia.types.ts'
+
+function formatMonthLabel(isoDate: string): string {
+  const d = new Date(isoDate + 'T00:00:00')
+  return d
+    .toLocaleString('es-CO', { month: 'short', year: 'numeric' })
+    .toUpperCase()
+    .replace('.', '')
+}
+
+function formatDueDate(isoDate: string): string {
+  const d = new Date(isoDate + 'T00:00:00')
+  const day = d.getDate()
+  const mon = d.toLocaleString('es-CO', { month: 'short' }).replace('.', '').toUpperCase()
+  return `${day} ${mon}`
+}
+
+function installmentToRow(inst: InstallmentResponseDTO, paidInstallments: number): ScheduleRow {
+  let status: ScheduleRowStatus = 'pending'
+  if (inst.paid) {
+    status = 'paid'
+  } else if (inst.monthNumber === paidInstallments + 1) {
+    status = 'current'
+  }
+
+  return {
+    installmentId: inst.id,
+    debtId: inst.debtId,
+    debtName: inst.debtName,
+    month: inst.monthNumber,
+    date: formatMonthLabel(inst.dueDate),
+    dueDate: formatDueDate(inst.dueDate),
+    totalPayment: inst.paymentAmount + inst.extraPayment,
+    extraPayment: inst.extraPayment,
+    status,
+  }
+}
+
+function buildPlanSummary(plan: import('../types/plan-ia.types.ts').PlanResponseDTO): PlanSummary {
+  const firstInst = plan.installments[0]
+  const lastInst = plan.installments[plan.installments.length - 1]
+
+  return {
+    planId: plan.id,
+    strategy: plan.strategy === 'AVALANCHE' ? 'avalanche' : 'snowball',
+    aiSummary: plan.aiSummary,
+    interestSaved: plan.interestSaved,
+    monthsToPayoff: plan.monthsToPayoff,
+    paidInstallments: plan.paidInstallments,
+    totalInstallments: plan.totalInstallments,
+    startLabel: firstInst ? formatMonthLabel(firstInst.dueDate) : '—',
+    endLabel: lastInst ? formatMonthLabel(lastInst.dueDate) : '—',
+  }
+}
 
 export function usePlanIA() {
   const dispatch = useAppDispatch()
-  const { strategy, monthlyBudget, messages, isLoading, error } = useAppSelector((s) => s.planIA)
+  const {
+    strategy,
+    plan,
+    messages,
+    isLoadingPlan,
+    isGenerating,
+    isSendingChat,
+    isMarkingPaid,
+    planError,
+    chatError,
+    successMessage,
+  } = useAppSelector((s) => s.planIA)
 
   useEffect(() => {
-    dispatch(fetchPlanIA())
+    dispatch(fetchActivePlan())
+    dispatch(loadAiReport())
   }, [dispatch])
 
-  const summary = calcPlanSummary(MOCK_PLAN_DEBTS, strategy, monthlyBudget, 2)
-  const schedule = buildSchedule(MOCK_PLAN_DEBTS, strategy, monthlyBudget, 2)
+  const summary = useMemo<PlanSummary | null>(() => (plan ? buildPlanSummary(plan) : null), [plan])
+
+  const schedule = useMemo<ScheduleRow[]>(
+    () =>
+      plan ? plan.installments.map((inst) => installmentToRow(inst, plan.paidInstallments)) : [],
+    [plan],
+  )
 
   function changeStrategy(s: PaymentStrategy) {
     dispatch(setStrategy(s))
   }
 
-  function sendChatMessage(text: string) {
-    if (!text.trim()) return
-    dispatch(addMessage(makeUserMessage(text)))
-    setTimeout(
-      () => {
-        const { content, tag } = generateAIReply(text)
-        dispatch(addMessage(makeAIMessage(content, tag)))
-      },
-      1100 + Math.random() * 600,
-    )
+  async function generate(s?: PaymentStrategy) {
+    const target = s ?? strategy
+    dispatch(setStrategy(target))
+    await dispatch(createPlan(STRATEGY_TO_API[target]))
+  }
+
+  async function markPaid(installmentId: string) {
+    await dispatch(markInstallmentPaid(installmentId))
+  }
+
+  async function sendChat(text: string) {
+    if (!text.trim() || isSendingChat) return
+    await dispatch(sendMessage(text.trim()))
+  }
+
+  function dismiss() {
+    dispatch(clearMessages())
   }
 
   return {
     strategy,
-    monthlyBudget,
-    messages,
-    isLoading,
-    error,
+    plan,
     summary,
     schedule,
+    messages,
+    isLoadingPlan,
+    isGenerating,
+    isSendingChat,
+    isMarkingPaid,
+    planError,
+    chatError,
+    successMessage,
     changeStrategy,
-    sendChatMessage,
+    generate,
+    markPaid,
+    sendChat,
+    dismiss,
   }
 }

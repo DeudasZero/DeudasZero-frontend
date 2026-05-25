@@ -8,6 +8,8 @@ type TabView = 'cronograma' | 'historial'
 interface PlanScheduleProps {
   rows: ScheduleRow[]
   isLoading?: boolean
+  isMarkingPaid?: string | null
+  onMarkPaid?: (installmentId: string) => void
 }
 
 const CheckIcon = () => (
@@ -37,36 +39,22 @@ function fmtCOP(n: number, locale = 'es-CO') {
   return '$' + Math.round(n).toLocaleString(locale)
 }
 
-export const PlanSchedule: FC<PlanScheduleProps> = ({ rows, isLoading = false }) => {
+export const PlanSchedule: FC<PlanScheduleProps> = ({
+  rows,
+  isLoading = false,
+  isMarkingPaid = null,
+  onMarkPaid,
+}) => {
   const [tab, setTab] = useState<TabView>('cronograma')
   const [filter, setFilter] = useState<string>('all')
-  const [markedPaid, setMarkedPaid] = useState<Set<string>>(new Set())
 
   const debtOptions = Array.from(new Set(rows.map((r) => r.debtId))).map((id) => ({
     id,
     name: rows.find((r) => r.debtId === id)?.debtName ?? id,
   }))
 
-  function rowKey(r: ScheduleRow) {
-    return `${r.month}-${r.debtId}`
-  }
-  function isPaid(r: ScheduleRow) {
-    return r.status === 'paid' || markedPaid.has(rowKey(r))
-  }
-  function isCurrent(r: ScheduleRow) {
-    return r.status === 'current' && !markedPaid.has(rowKey(r))
-  }
-
-  function handleMarkPaid(key: string) {
-    setMarkedPaid((prev) => {
-      const n = new Set(prev)
-      n.add(key)
-      return n
-    })
-  }
-
   const displayed = rows.filter((r) => {
-    if (tab === 'historial') return isPaid(r)
+    if (tab === 'historial') return r.status === 'paid'
     if (filter !== 'all') return r.debtId === filter
     return true
   })
@@ -79,7 +67,6 @@ export const PlanSchedule: FC<PlanScheduleProps> = ({ rows, isLoading = false })
           border: '1px solid var(--dz-border-base)',
           borderRadius: 'var(--dz-r-lg)',
           padding: '20px',
-          marginTop: '14px',
         }}
       >
         {[0, 1, 2, 3].map((i) => (
@@ -114,7 +101,6 @@ export const PlanSchedule: FC<PlanScheduleProps> = ({ rows, isLoading = false })
         border: '1px solid var(--dz-border-base)',
         borderRadius: 'var(--dz-r-lg)',
         overflow: 'hidden',
-        marginTop: '14px',
       }}
     >
       <div
@@ -187,7 +173,7 @@ export const PlanSchedule: FC<PlanScheduleProps> = ({ rows, isLoading = false })
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '56px 1fr 120px 100px 90px 110px',
+          gridTemplateColumns: '56px 1fr 120px 100px 110px',
           padding: '8px 20px',
           background: 'var(--dz-bg-raised)',
           borderBottom: '1px solid var(--dz-border-soft)',
@@ -195,10 +181,9 @@ export const PlanSchedule: FC<PlanScheduleProps> = ({ rows, isLoading = false })
       >
         {[
           { label: 'Mes', align: 'left' },
-          { label: 'Deuda · Fecha', align: 'left' },
-          { label: 'Pago', align: 'right' },
-          { label: 'Capital', align: 'right' },
-          { label: 'Interés', align: 'right' },
+          { label: 'Deuda · Vencimiento', align: 'left' },
+          { label: 'Pago Total', align: 'right' },
+          { label: 'Extra', align: 'right' },
           { label: '', align: 'right' },
         ].map((h, i) => (
           <span
@@ -229,28 +214,28 @@ export const PlanSchedule: FC<PlanScheduleProps> = ({ rows, isLoading = false })
               color: 'var(--dz-text-faint)',
             }}
           >
-            {tab === 'historial' ? 'Sin pagos registrados aún' : 'Sin pagos en este período'}
+            {tab === 'historial' ? 'Sin pagos registrados aún' : 'Sin cuotas pendientes'}
           </div>
         ) : (
           displayed.map((row) => {
-            const key = rowKey(row)
-            const paid = isPaid(row)
-            const current = isCurrent(row)
+            const isPaid = row.status === 'paid'
+            const isCurrent = row.status === 'current'
+            const isBusy = isMarkingPaid === row.installmentId
 
             return (
               <div
-                key={key}
+                key={row.installmentId}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '56px 1fr 120px 100px 90px 110px',
+                  gridTemplateColumns: '56px 1fr 120px 100px 110px',
                   padding: '14px 20px',
                   alignItems: 'center',
                   borderBottom: '1px solid var(--dz-border-soft)',
-                  background: current ? 'rgba(94,225,230,0.04)' : 'transparent',
-                  transition: 'background var(--dz-transition-fast)',
+                  background: isCurrent ? 'rgba(94,225,230,0.04)' : 'transparent',
+                  opacity: isBusy ? 0.6 : 1,
+                  transition: 'background var(--dz-transition-fast), opacity 0.2s',
                 }}
               >
-                {/* Month circle */}
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <div
                     style={{
@@ -264,60 +249,47 @@ export const PlanSchedule: FC<PlanScheduleProps> = ({ rows, isLoading = false })
                       fontSize: '12px',
                       fontWeight: 700,
                       flexShrink: 0,
-                      background: paid
+                      background: isPaid
                         ? 'var(--dz-signature)'
-                        : current
+                        : isCurrent
                           ? 'rgba(94,225,230,0.15)'
                           : 'var(--dz-bg-raised)',
-                      border: `1.5px solid ${paid ? 'var(--dz-signature)' : current ? 'var(--dz-signature)' : 'var(--dz-border-strong)'}`,
-                      color: paid
+                      border: `1.5px solid ${isPaid ? 'var(--dz-signature)' : isCurrent ? 'var(--dz-signature)' : 'var(--dz-border-strong)'}`,
+                      color: isPaid
                         ? 'var(--dz-bg-page)'
-                        : current
+                        : isCurrent
                           ? 'var(--dz-signature)'
                           : 'var(--dz-text-muted)',
                     }}
                   >
-                    {paid ? <CheckIcon /> : row.month}
+                    {isPaid ? <CheckIcon /> : row.month}
                   </div>
                 </div>
 
-                {/* Debt name + date */}
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span
-                      style={{
-                        width: '6px',
-                        height: '6px',
-                        borderRadius: '50%',
-                        background: row.debtColor,
-                        flexShrink: 0,
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontFamily: 'var(--dz-font-sans)',
-                        fontSize: '13.5px',
-                        fontWeight: 500,
-                        color: 'var(--dz-text-primary)',
-                      }}
-                    >
-                      {row.debtName}
-                    </span>
-                  </div>
+                  <span
+                    style={{
+                      fontFamily: 'var(--dz-font-sans)',
+                      fontSize: '13.5px',
+                      fontWeight: 500,
+                      color: 'var(--dz-text-primary)',
+                      display: 'block',
+                    }}
+                  >
+                    {row.debtName}
+                  </span>
                   <span
                     style={{
                       fontFamily: 'var(--dz-font-mono)',
                       fontSize: '10.5px',
                       color: 'var(--dz-text-faint)',
                       letterSpacing: '0.03em',
-                      marginLeft: '12px',
                     }}
                   >
                     {row.date} · DUE {row.dueDate}
                   </span>
                 </div>
 
-                {/* Total */}
                 <div style={{ textAlign: 'right' }}>
                   <span
                     style={{
@@ -330,80 +302,30 @@ export const PlanSchedule: FC<PlanScheduleProps> = ({ rows, isLoading = false })
                   >
                     {fmtCOP(row.totalPayment)}
                   </span>
-                  <span
-                    style={{
-                      fontFamily: 'var(--dz-font-mono)',
-                      fontSize: '9.5px',
-                      color: 'var(--dz-text-faint)',
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    pago total
-                  </span>
                 </div>
 
-                {/* Capital */}
                 <div style={{ textAlign: 'right' }}>
                   <span
                     style={{
                       fontFamily: 'var(--dz-font-sans)',
-                      fontSize: '13.5px',
-                      fontWeight: 600,
-                      color: 'var(--dz-signature)',
-                      display: 'block',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      color: row.extraPayment > 0 ? 'var(--dz-signature)' : 'var(--dz-text-faint)',
                     }}
                   >
-                    {fmtCOP(row.capital)}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: 'var(--dz-font-mono)',
-                      fontSize: '9.5px',
-                      color: 'var(--dz-text-faint)',
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    capital
+                    {row.extraPayment > 0 ? `+${fmtCOP(row.extraPayment)}` : '—'}
                   </span>
                 </div>
 
-                {/* Interest */}
-                <div style={{ textAlign: 'right' }}>
-                  <span
-                    style={{
-                      fontFamily: 'var(--dz-font-sans)',
-                      fontSize: '13.5px',
-                      fontWeight: 600,
-                      color: row.interest > 0 ? 'var(--dz-expense)' : 'var(--dz-text-faint)',
-                      display: 'block',
-                    }}
-                  >
-                    {fmtCOP(row.interest)}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: 'var(--dz-font-mono)',
-                      fontSize: '9.5px',
-                      color: 'var(--dz-text-faint)',
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    interés
-                  </span>
-                </div>
-
-                {/* Action */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  {paid ? (
+                  {isPaid ? (
                     <Badge accent="income" size="xs">
                       Pagado
                     </Badge>
-                  ) : current ? (
+                  ) : isCurrent ? (
                     <button
-                      onClick={() => handleMarkPaid(key)}
+                      onClick={() => onMarkPaid?.(row.installmentId)}
+                      disabled={isBusy}
                       style={{
                         padding: '6px 12px',
                         borderRadius: 'var(--dz-r-sm)',
@@ -413,30 +335,24 @@ export const PlanSchedule: FC<PlanScheduleProps> = ({ rows, isLoading = false })
                         fontSize: '12px',
                         fontWeight: 600,
                         color: 'var(--dz-bg-page)',
-                        cursor: 'pointer',
+                        cursor: isBusy ? 'not-allowed' : 'pointer',
                         whiteSpace: 'nowrap',
                         transition: 'opacity var(--dz-transition-fast)',
                       }}
                     >
-                      Marcar pagado
+                      {isBusy ? '…' : 'Marcar pagado'}
                     </button>
                   ) : (
-                    <button
+                    <span
                       style={{
-                        padding: '6px 12px',
-                        borderRadius: 'var(--dz-r-sm)',
-                        border: '1px solid var(--dz-border-base)',
-                        background: 'transparent',
-                        fontFamily: 'var(--dz-font-sans)',
-                        fontSize: '12px',
-                        fontWeight: 500,
-                        color: 'var(--dz-text-muted)',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
+                        fontFamily: 'var(--dz-font-mono)',
+                        fontSize: '10.5px',
+                        color: 'var(--dz-text-faint)',
+                        letterSpacing: '0.05em',
                       }}
                     >
-                      Detalle
-                    </button>
+                      PENDIENTE
+                    </span>
                   )}
                 </div>
               </div>
