@@ -51,11 +51,11 @@ export const LoginPage = () => (
           overflow: 'hidden',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          width: '460px',
+          width: '650px',
           flexShrink: 0,
           background: 'var(--dz-bg-sidebar)',
           borderRight: '1px solid var(--dz-border-soft)',
-          padding: '48px 40px',
+          padding: '48px 120px',
         }}
       >
         <DecoGrid />

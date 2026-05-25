@@ -25,11 +25,6 @@ const DecoGrid = () => (
   </svg>
 )
 
-const stats = [
-  { value: '$720k', label: 'Ahorro promedio' },
-  { value: '9 meses', label: 'Liquidación típica' },
-]
-
 export const RegisterPage = () => (
   <>
     <style>{`
@@ -56,11 +51,11 @@ export const RegisterPage = () => (
           overflow: 'hidden',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          width: '460px',
+          width: '650px',
           flexShrink: 0,
           background: 'var(--dz-bg-sidebar)',
           borderRight: '1px solid var(--dz-border-soft)',
-          padding: '48px 40px',
+          padding: '48px 120px',
         }}
       >
         <DecoGrid />
@@ -80,38 +75,47 @@ export const RegisterPage = () => (
           </span>
         </div>
 
-        <div className="relative flex flex-col gap-5">
-          <p
-            className="uppercase tracking-widest text-xs"
+        <div
+          style={{ display: 'flex', flexDirection: 'column', gap: '28px', position: 'relative' }}
+        >
+          <span
             style={{
               fontFamily: 'var(--dz-font-mono)',
-              color: 'var(--dz-signature)',
+              fontSize: 'var(--dz-fs-eyebrow)',
+              fontWeight: 500,
+              textTransform: 'uppercase',
               letterSpacing: 'var(--dz-ls-eyebrow)',
+              color: 'var(--dz-signature)',
             }}
           >
             Consejero financiero
-          </p>
-          <h2
+          </span>
+
+          <h1
             style={{
+              margin: 0,
               fontFamily: 'var(--dz-font-sans)',
-              fontSize: 'var(--dz-fs-display)',
-              fontWeight: 700,
-              color: 'var(--dz-text-primary)',
-              lineHeight: 1.1,
+              fontSize: '44px',
+              fontWeight: 600,
+              lineHeight: 1.05,
               letterSpacing: 'var(--dz-ls-tight)',
+              color: 'var(--dz-text-primary)',
             }}
           >
             Tu deuda
             <br />
-            al <span style={{ color: 'var(--dz-signature)' }}>cero</span>
+            al <em style={{ fontStyle: 'italic', color: 'var(--dz-signature)' }}>cero,</em>
             <br />
             con plan.
-          </h2>
+          </h1>
+
           <p
-            className="text-sm leading-relaxed"
             style={{
+              margin: 0,
               fontFamily: 'var(--dz-font-sans)',
-              color: 'var(--dz-text-secondary)',
+              fontSize: 'var(--dz-fs-body)',
+              color: 'var(--dz-text-muted)',
+              lineHeight: 'var(--dz-lh-body)',
               maxWidth: '320px',
             }}
           >
@@ -119,9 +123,12 @@ export const RegisterPage = () => (
             ahorras en intereses.
           </p>
 
-          <div className="flex gap-8 pt-2">
-            {stats.map((s) => (
-              <div key={s.label} className="flex flex-col gap-0.5">
+          <div style={{ display: 'flex', gap: '32px' }}>
+            {[
+              { value: '$720k', label: 'Ahorro promedio' },
+              { value: '9 meses', label: 'Liquidación típica' },
+            ].map((s) => (
+              <div key={s.label} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span
                   style={{
                     fontFamily: 'var(--dz-font-mono)',
@@ -148,7 +155,7 @@ export const RegisterPage = () => (
           </div>
         </div>
 
-        <div className="relative flex justify-between">
+        <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative' }}>
           {['DeudaZero · MVP 2026', 'Hackathon · 4 días'].map((t) => (
             <span
               key={t}
