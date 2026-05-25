@@ -1,5 +1,6 @@
 export type ApiDebtType = 'CARD' | 'LOAN'
 export type ApiDebtStatus = 'ACTIVE' | 'PAID'
+export type FetchStatus = 'ACTIVE' | 'PAID' | 'ALL'
 
 export interface DebtRequestDTO {
   name: string
@@ -66,6 +67,7 @@ export interface DebtsState {
   error: string | null
   saveError: string | null
   successMessage: string | null
+  currentStatus: FetchStatus
 }
 
 export interface DebtFormValues {

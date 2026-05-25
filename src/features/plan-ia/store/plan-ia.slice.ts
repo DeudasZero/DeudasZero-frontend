@@ -6,6 +6,7 @@ import {
   sendChatMessage as apiSendChat,
   getWhatIfAnalysis,
   getAiReport,
+  getPlanHistory,
 } from '../services/plan-ia.service.ts'
 import type {
   PlanIAState,
@@ -18,8 +19,10 @@ import { makeUserMessage, makeAIMessage } from '../utils/chat.utils.ts'
 const initialState: PlanIAState = {
   strategy: 'avalanche',
   plan: null,
+  history: [],
   messages: [],
   isLoadingPlan: false,
+  isLoadingHistory: false,
   isGenerating: false,
   isSendingChat: false,
   isMarkingPaid: null,
@@ -36,6 +39,19 @@ export const fetchActivePlan = createAsyncThunk(
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error'
       if (msg.includes('404') || msg.toLowerCase().includes('not found')) return null
+      return rejectWithValue(msg)
+    }
+  },
+)
+
+export const fetchPlanHistory = createAsyncThunk(
+  'planIA/fetchHistory',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await getPlanHistory()
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error'
+      if (msg.includes('404') || msg.toLowerCase().includes('not found')) return []
       return rejectWithValue(msg)
     }
   },
@@ -195,9 +211,22 @@ const planIASlice = createSlice({
     // loadAiReport
     builder.addCase(loadAiReport.fulfilled, (s, a) => {
       if (s.messages.length === 0) {
-        s.messages.push(makeAIMessage(`${a.payload.diagnosis}\n\n${a.payload.context}`))
+        s.messages.push(makeAIMessage(`${a.payload.diagnosis}`))
       }
     })
+
+    // fetchPlanHistory
+    builder
+      .addCase(fetchPlanHistory.pending, (s) => {
+        s.isLoadingHistory = true
+      })
+      .addCase(fetchPlanHistory.fulfilled, (s, a) => {
+        s.isLoadingHistory = false
+        s.history = a.payload
+      })
+      .addCase(fetchPlanHistory.rejected, (s) => {
+        s.isLoadingHistory = false
+      })
 
     // sendMessage
     builder

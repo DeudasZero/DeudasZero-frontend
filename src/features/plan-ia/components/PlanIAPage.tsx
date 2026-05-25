@@ -76,8 +76,10 @@ export const PlanIAPage: FC = () => {
     strategy,
     summary,
     schedule,
+    historyRows,
     messages,
     isLoadingPlan,
+    isLoadingHistory,
     isGenerating,
     isSendingChat,
     isMarkingPaid,
@@ -129,7 +131,9 @@ export const PlanIAPage: FC = () => {
               />
               <PlanSchedule
                 rows={schedule}
+                historyRows={historyRows}
                 isLoading={isLoadingPlan}
+                isLoadingHistory={isLoadingHistory}
                 isMarkingPaid={isMarkingPaid}
                 onMarkPaid={markPaid}
               />

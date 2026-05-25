@@ -167,7 +167,7 @@ function AppShell() {
   const dispatch = useAppDispatch()
 
   useEffect(() => {
-    dispatch(fetchDebts())
+    dispatch(fetchDebts('ALL'))
   }, [dispatch])
 
   const user = useAppSelector((s) => s.auth.user)
