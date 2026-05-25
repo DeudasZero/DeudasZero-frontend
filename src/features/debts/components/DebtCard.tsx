@@ -229,7 +229,7 @@ export const DebtCard: FC<DebtCardProps> = ({
                 <span style={{ color: 'var(--dz-income)', fontWeight: 600 }}>LIQUIDADA</span>
               ) : (
                 <>
-                  Saldo pendiente · Interés mensual estimado:{' '}
+                  Interés mensual estimado:{' '}
                   <span style={{ color: 'var(--dz-expense)', fontWeight: 600 }}>
                     {fmt(debt.monthlyInterest)}
                   </span>

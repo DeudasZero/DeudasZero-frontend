@@ -74,7 +74,7 @@ const SummaryCards: FC<{ data: ReturnType<typeof useTransactions>['data'] }> = (
             fontWeight: 500,
             letterSpacing: '1.2px',
             textTransform: 'uppercase',
-            color: 'rgb(110,121,134)',
+            color: 'var(--dz-text-faint)',
             marginBottom: '8px',
           }}
         >
@@ -103,7 +103,7 @@ const SummaryCards: FC<{ data: ReturnType<typeof useTransactions>['data'] }> = (
                   justifyContent: 'space-between',
                   fontFamily: 'var(--dz-font-sans)',
                   fontSize: '12px',
-                  color: 'rgb(110,121,134)',
+                  color: 'var(--dz-text-faint)',
                 }}
               >
                 <span>{label}</span>
@@ -133,7 +133,7 @@ const SummaryCards: FC<{ data: ReturnType<typeof useTransactions>['data'] }> = (
               fontWeight: 500,
               letterSpacing: '1.2px',
               textTransform: 'uppercase',
-              color: 'rgb(110,121,134)',
+              color: 'var(--dz-text-faint)',
             }}
           >
             GASTOS · {summary.month}
@@ -256,7 +256,7 @@ const TxRow: FC<TxRowProps> = ({ tx, isDeleting, onDelete }) => {
               style={{
                 fontFamily: 'var(--dz-font-sans)',
                 fontSize: '11.5px',
-                color: 'rgb(110,121,134)',
+                color: 'var(--dz-text-faint)',
                 marginTop: '2px',
               }}
             >
@@ -282,7 +282,11 @@ const TxRow: FC<TxRowProps> = ({ tx, isDeleting, onDelete }) => {
       {/* Fecha */}
       <td style={{ padding: '14px 24px', verticalAlign: 'middle' }}>
         <span
-          style={{ fontFamily: 'var(--dz-font-mono)', fontSize: '12px', color: 'rgb(110,121,134)' }}
+          style={{
+            fontFamily: 'var(--dz-font-mono)',
+            fontSize: '12px',
+            color: 'var(--dz-text-faint)',
+          }}
         >
           {tx.date}
         </span>
@@ -503,7 +507,7 @@ export const TransactionsPage: FC = () => {
                     fontWeight: 600,
                     transition: 'all 0.15s',
                     background: active ? 'rgb(20,28,36)' : 'transparent',
-                    color: active ? 'rgb(232,238,245)' : 'rgb(110,121,134)',
+                    color: active ? 'rgb(232,238,245)' : 'var(--dz-text-faint)',
                   }}
                 >
                   {label}
@@ -578,7 +582,7 @@ export const TransactionsPage: FC = () => {
                       fontWeight: 600,
                       letterSpacing: '0.8px',
                       textTransform: 'uppercase',
-                      color: 'rgb(110,121,134)',
+                      color: 'var(--dz-text-faint)',
                       textAlign: i === 2 ? 'right' : i === 3 ? 'right' : 'left',
                     }}
                   >
@@ -599,7 +603,7 @@ export const TransactionsPage: FC = () => {
                       textAlign: 'center',
                       fontFamily: 'var(--dz-font-sans)',
                       fontSize: '13.5px',
-                      color: 'rgb(110,121,134)',
+                      color: 'var(--dz-text-faint)',
                     }}
                   >
                     {data ? 'Sin movimientos registrados' : 'Cargando…'}

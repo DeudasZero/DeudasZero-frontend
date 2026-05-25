@@ -155,7 +155,7 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
     fontSize: '10px',
     letterSpacing: '1.4px',
     textTransform: 'uppercase',
-    color: 'rgb(110,121,134)',
+    color: 'var(--dz-text-faint)',
     marginBottom: '8px',
   }
 
@@ -213,7 +213,7 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
               fontWeight: 500,
               letterSpacing: '1.4px',
               textTransform: 'uppercase',
-              color: 'rgb(110,121,134)',
+              color: 'var(--dz-text-faint)',
             }}
           >
             Nuevo movimiento
@@ -226,7 +226,7 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              color: 'rgb(110,121,134)',
+              color: 'var(--dz-text-faint)',
               lineHeight: 0,
               padding: '4px',
             }}
@@ -263,7 +263,7 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
                     ? t === 'income'
                       ? 'rgb(94,225,230)'
                       : 'rgb(224,122,156)'
-                    : 'rgb(110,121,134)',
+                    : 'var(--dz-text-faint)',
                   transition: 'all 0.15s',
                 }}
               >

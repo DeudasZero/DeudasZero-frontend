@@ -110,7 +110,7 @@ export const TransactionTable: FC<TransactionTableProps> = ({
           fontSize: '11px',
           letterSpacing: '1.4px',
           textTransform: 'uppercase',
-          color: 'rgb(110, 121, 134)',
+          color: 'var(--dz-text-faint)',
         }}
       >
         {isLoading ? '...' : `${transactions.length} registros`}
@@ -134,7 +134,7 @@ export const TransactionTable: FC<TransactionTableProps> = ({
                   fontWeight: 500,
                   letterSpacing: '1.4px',
                   textTransform: 'uppercase',
-                  color: 'rgb(70, 80, 91)',
+                  color: 'var(--dz-text-faint)',
                 }}
               >
                 {label}
@@ -153,7 +153,7 @@ export const TransactionTable: FC<TransactionTableProps> = ({
                     margin: 0,
                     fontFamily: 'var(--dz-font-sans)',
                     fontSize: '13.5px',
-                    color: 'rgb(110, 121, 134)',
+                    color: 'var(--dz-text-faint)',
                   }}
                 >
                   No hay transacciones recientes

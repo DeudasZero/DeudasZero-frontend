@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useState, useMemo, type ReactNode } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/hookStore.ts'
 import { addTransaction } from '@/features/transactions/store/transactions.slice.ts'
@@ -15,6 +15,7 @@ import { DashboardLayout } from '@/shared/components/organisms/dashboard-layout/
 import { Sidebar } from '@/shared/components/organisms/sidebar/index.js'
 import { TopBar } from '@/shared/components/organisms/top-bar/index.js'
 import type { NewTransactionForm } from '@/features/transactions/types/transactions.types.ts'
+import type { SidebarAdvisorMessage } from '@/shared/components/organisms/sidebar/Sidebar.types.ts'
 import logo from '@/assets/logo.png'
 
 const HomeIcon = () => (
@@ -98,6 +99,63 @@ function month() {
   return new Date().toLocaleString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()
 }
 
+function fmt(n: number): string {
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `$${new Intl.NumberFormat('es-CO').format(Math.round(n))}`
+  return `$${n}`
+}
+
+function buildAdvisorMessage(
+  dashboardSummary:
+    | { totalIncome: number; totalDebts: number; debtRatio: number }
+    | null
+    | undefined,
+  debtsSummary:
+    | {
+        loadScore: number
+        scoreLabel: string
+        totalMonthlyInterest: number
+        minPaymentTotal: number
+        activeCount: number
+      }
+    | null
+    | undefined,
+  worstDebt: { name: string; monthlyRate: number } | null | undefined,
+): string {
+  if (!dashboardSummary && !debtsSummary) {
+    return 'Cargando tu resumen financiero…'
+  }
+
+  const activeCount = debtsSummary?.activeCount ?? 0
+  const loadScore = debtsSummary?.loadScore ?? dashboardSummary?.debtRatio ?? 0
+  const monthlyInterest = debtsSummary?.totalMonthlyInterest ?? 0
+  const minPayment = debtsSummary?.minPaymentTotal ?? 0
+
+  if (activeCount === 0) {
+    return '¡Sin deudas activas! Tu situación financiera está en zona saludable. Sigue así.'
+  }
+
+  if (loadScore >= 50) {
+    const worstMsg = worstDebt
+      ? ` Prioriza "${worstDebt.name}" (${worstDebt.monthlyRate}%/mes).`
+      : ''
+    return `Tu carga de deuda es del ${loadScore}% — zona de riesgo. Pagas ${fmt(monthlyInterest)}/mes en intereses.${worstMsg}`
+  }
+
+  if (loadScore >= 30) {
+    const worstMsg = worstDebt
+      ? ` Enfoca pagos extra en "${worstDebt.name}" (${worstDebt.monthlyRate}%/mes).`
+      : ''
+    return `Carga al ${loadScore}% — zona de alerta. Tu pago mínimo mensual es ${fmt(minPayment)}.${worstMsg}`
+  }
+
+  if (monthlyInterest > 0) {
+    return `Carga al ${loadScore}% — zona saludable. Pagas ${fmt(monthlyInterest)}/mes en intereses. ¡Buen ritmo!`
+  }
+
+  return `Tu carga de deuda es del ${loadScore}%. Sigue manteniendo este control financiero.`
+}
+
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated)
   const hasToken =
@@ -109,8 +167,13 @@ function AppShell() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const dispatch = useAppDispatch()
+
   const user = useAppSelector((s) => s.auth.user)
-  const firstName = user?.name?.split(' ')[0] ?? 'Mariana'
+  const dashboardSummary = useAppSelector((s) => s.dashboard.data?.summary)
+  const debtsSummary = useAppSelector((s) => s.debts.data?.summary)
+  const worstDebt = useAppSelector((s) => s.dashboard.data?.summary?.worstDebt)
+
+  const firstName = user?.name?.split(' ')[0] ?? 'Usuario'
 
   const [txModalOpen, setTxModalOpen] = useState(false)
   const [debtModalOpen, setDebtModalOpen] = useState(false)
@@ -118,6 +181,14 @@ function AppShell() {
   const activeId =
     NAV_GROUPS[0]!.items.find((i) => pathname.startsWith(i.href ?? ''))?.id ?? 'dashboard'
   const meta = ROUTE_META[pathname] ?? ROUTE_META['/dashboard']!
+
+  const advisorMessage = useMemo(
+    (): SidebarAdvisorMessage => ({
+      text: buildAdvisorMessage(dashboardSummary, debtsSummary, worstDebt),
+      onDetailClick: () => navigate('/ai'),
+    }),
+    [dashboardSummary, debtsSummary, worstDebt, navigate],
+  )
 
   function handleCtaClick() {
     if (pathname.startsWith('/debts')) return setDebtModalOpen(true)
@@ -139,8 +210,9 @@ function AppShell() {
             onItemClick={(item) => item.href && navigate(item.href)}
             onUserClick={() => navigate('/profile')}
             logo={<DZLogo />}
+            advisorMessage={advisorMessage}
             user={{
-              name: user?.name ?? 'Mariana López',
+              name: user?.name ?? 'Usuario',
               email: user?.email ?? 'usuario@deudazero.com',
             }}
           />
@@ -177,7 +249,6 @@ function AppShell() {
         </Routes>
       </DashboardLayout>
 
-      {/* Global modals */}
       <NewMovementModal
         open={txModalOpen}
         onClose={() => setTxModalOpen(false)}
