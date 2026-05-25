@@ -1,21 +1,92 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { getDebts } from '../services/debts.service.ts'
-import type { DebtsState } from '../types/debts.types.ts'
+import {
+  getDebts,
+  createDebt,
+  updateDebt,
+  markDebtPaid,
+  deleteDebt,
+} from '../services/debts.service.ts'
+import type { DebtsState, DebtFormValues } from '../types/debts.types.ts'
 
-const initialState: DebtsState = { data: null, isLoading: false, error: null }
+const initialState: DebtsState = {
+  data: null,
+  isLoading: false,
+  isSaving: false,
+  isPatching: null,
+  isDeleting: null,
+  error: null,
+  saveError: null,
+  successMessage: null,
+}
 
 export const fetchDebts = createAsyncThunk('debts/fetch', async (_, { rejectWithValue }) => {
   try {
     return await getDebts()
   } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Error')
+    return rejectWithValue(err instanceof Error ? err.message : 'Error al cargar deudas')
   }
 })
+
+export const addDebt = createAsyncThunk(
+  'debts/add',
+  async (values: DebtFormValues, { dispatch, rejectWithValue }) => {
+    try {
+      await createDebt(values)
+      return await dispatch(fetchDebts())
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Error al registrar deuda')
+    }
+  },
+)
+
+export const editDebt = createAsyncThunk(
+  'debts/edit',
+  async ({ id, values }: { id: string; values: DebtFormValues }, { dispatch, rejectWithValue }) => {
+    try {
+      await updateDebt(id, values)
+      return await dispatch(fetchDebts())
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Error al actualizar deuda')
+    }
+  },
+)
+
+export const payDebt = createAsyncThunk(
+  'debts/pay',
+  async (id: string, { dispatch, rejectWithValue }) => {
+    try {
+      await markDebtPaid(id)
+      await dispatch(fetchDebts())
+      return id
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Error al liquidar deuda')
+    }
+  },
+)
+
+export const removeDebt = createAsyncThunk(
+  'debts/remove',
+  async (id: string, { dispatch, rejectWithValue }) => {
+    try {
+      await deleteDebt(id)
+      await dispatch(fetchDebts())
+      return id
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Error al eliminar deuda')
+    }
+  },
+)
 
 const debtsSlice = createSlice({
   name: 'debts',
   initialState,
-  reducers: {},
+  reducers: {
+    clearMessages(s) {
+      s.successMessage = null
+      s.saveError = null
+      s.error = null
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchDebts.pending, (s) => {
@@ -30,7 +101,70 @@ const debtsSlice = createSlice({
         s.isLoading = false
         s.error = a.payload as string
       })
+
+    // add
+    builder
+      .addCase(addDebt.pending, (s) => {
+        s.isSaving = true
+        s.saveError = null
+        s.successMessage = null
+      })
+      .addCase(addDebt.fulfilled, (s) => {
+        s.isSaving = false
+        s.successMessage = 'Deuda registrada correctamente.'
+      })
+      .addCase(addDebt.rejected, (s, a) => {
+        s.isSaving = false
+        s.saveError = a.payload as string
+      })
+
+    // edit
+    builder
+      .addCase(editDebt.pending, (s) => {
+        s.isSaving = true
+        s.saveError = null
+        s.successMessage = null
+      })
+      .addCase(editDebt.fulfilled, (s) => {
+        s.isSaving = false
+        s.successMessage = 'Deuda actualizada correctamente.'
+      })
+      .addCase(editDebt.rejected, (s, a) => {
+        s.isSaving = false
+        s.saveError = a.payload as string
+      })
+
+    // pay
+    builder
+      .addCase(payDebt.pending, (s, a) => {
+        s.isPatching = a.meta.arg
+        s.successMessage = null
+      })
+      .addCase(payDebt.fulfilled, (s) => {
+        s.isPatching = null
+        s.successMessage = 'Deuda liquidada correctamente. ¡Felicitaciones! 🎉'
+      })
+      .addCase(payDebt.rejected, (s, a) => {
+        s.isPatching = null
+        s.error = a.payload as string
+      })
+
+    // remove
+    builder
+      .addCase(removeDebt.pending, (s, a) => {
+        s.isDeleting = a.meta.arg
+        s.successMessage = null
+      })
+      .addCase(removeDebt.fulfilled, (s) => {
+        s.isDeleting = null
+        s.successMessage = 'Deuda eliminada correctamente.'
+      })
+      .addCase(removeDebt.rejected, (s, a) => {
+        s.isDeleting = null
+        s.error = a.payload as string
+      })
   },
 })
 
+export const { clearMessages } = debtsSlice.actions
 export default debtsSlice.reducer

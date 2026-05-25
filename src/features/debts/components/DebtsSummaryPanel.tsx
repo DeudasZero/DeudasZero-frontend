@@ -2,10 +2,11 @@ import type { FC } from 'react'
 import { Badge } from '@atoms/badge/Badge.tsx'
 import { Skeleton } from '@atoms/skeleton/Skeleton.tsx'
 import { LoadScoreGauge } from './LoadScoreGauge.tsx'
-import type { DebtsSummary } from '../types/debts.types.ts'
+import type { Debt, DebtsSummary } from '../types/debts.types.ts'
 
 interface DebtsSummaryPanelProps {
   summary: DebtsSummary | undefined
+  debts: Debt[] | undefined
   isLoading: boolean
 }
 
@@ -30,7 +31,38 @@ const KPI: FC<{ label: string; sublabel?: string; children: React.ReactNode }> =
   </div>
 )
 
-export const DebtsSummaryPanel: FC<DebtsSummaryPanelProps> = ({ summary, isLoading }) => {
+function buildRecommendation(debts: Debt[], totalMonthlyInterest: number): string {
+  const active = debts.filter((d) => d.status === 'active')
+  if (active.length === 0) {
+    return `Pagas $${new Intl.NumberFormat('es-CO').format(totalMonthlyInterest)}/mes en intereses.`
+  }
+
+  const worst = [...active].sort((a, b) => b.monthlyRate - a.monthlyRate)[0]!
+
+  const estimatedMonths =
+    worst.balance > 0 && worst.minPayment > worst.monthlyInterest
+      ? Math.ceil(
+          Math.log(worst.minPayment / (worst.minPayment - worst.monthlyInterest)) /
+            Math.log(1 + worst.monthlyRate / 100),
+        )
+      : null
+
+  const interestFmt = `$${new Intl.NumberFormat('es-CO').format(totalMonthlyInterest)}`
+  const base = `Pagas ${interestFmt}/mes en intereses.`
+
+  if (active.length === 1) {
+    return `${base} Enfoca tus pagos extra en "${worst.name}" (${worst.monthlyRate}%/mes) para liquidarla más rápido.`
+  }
+
+  const monthsText =
+    estimatedMonths && isFinite(estimatedMonths) && estimatedMonths < 999
+      ? ` en ~${estimatedMonths} meses`
+      : ''
+
+  return `${base} Liquida "${worst.name}" primero (${worst.monthlyRate}%/mes) y ahorra intereses${monthsText}.`
+}
+
+export const DebtsSummaryPanel: FC<DebtsSummaryPanelProps> = ({ summary, debts, isLoading }) => {
   if (isLoading || !summary) {
     return (
       <div
@@ -43,6 +75,8 @@ export const DebtsSummaryPanel: FC<DebtsSummaryPanelProps> = ({ summary, isLoadi
       </div>
     )
   }
+
+  const recommendation = buildRecommendation(debts ?? [], summary.totalMonthlyInterest)
 
   return (
     <div
@@ -75,13 +109,7 @@ export const DebtsSummaryPanel: FC<DebtsSummaryPanelProps> = ({ summary, isLoadi
           className="font-sans m-0"
           style={{ fontSize: '13px', color: 'var(--dz-text-muted)', lineHeight: 1.55 }}
         >
-          Pagas{' '}
-          <span style={{ color: 'var(--dz-expense)', fontWeight: 600 }}>
-            ${new Intl.NumberFormat('es-CO').format(summary.totalMonthlyInterest)}
-          </span>
-          /mes en intereses. Si liquidas la{' '}
-          <span style={{ color: 'var(--dz-signature)', fontWeight: 500 }}>Visa Bancolombia</span>{' '}
-          primero (3.1%/mes), ahorras ~$690k en 9 meses.
+          {recommendation}
         </p>
       </div>
 

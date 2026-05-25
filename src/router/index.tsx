@@ -2,6 +2,8 @@ import { useState, type ReactNode } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/hookStore.ts'
 import { addTransaction } from '@/features/transactions/store/transactions.slice.ts'
+import { addDebt } from '@/features/debts/store/debts.slice.ts'
+import type { DebtFormValues } from '@/features/debts/types/debts.types.ts'
 import { LoginPage } from '@/features/auth/components/LoginPage.tsx'
 import { RegisterPage } from '@/features/auth/components/RegisterPage.tsx'
 import { DashboardPage } from '@/features/dashboard/index.ts'
@@ -184,12 +186,8 @@ function AppShell() {
       <RegisterDebtModal
         open={debtModalOpen}
         onClose={() => setDebtModalOpen(false)}
-        onSaveCard={(v) => {
-          console.log('card', v)
-          setDebtModalOpen(false)
-        }}
-        onSaveLoan={(v) => {
-          console.log('loan', v)
+        onSave={async (values: DebtFormValues) => {
+          await dispatch(addDebt(values))
           setDebtModalOpen(false)
         }}
       />

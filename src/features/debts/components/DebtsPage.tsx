@@ -1,5 +1,6 @@
-import { useState, useMemo, type FC } from 'react'
+import { useState, useMemo, useEffect, useRef, type FC } from 'react'
 import { Button } from '@atoms/button/Button.tsx'
+import { Alert } from '@/shared/components/molecules/alert/index.ts'
 import { EmptyState } from '@molecules/empty-state/EmptyState.tsx'
 import { SegmentedControl } from '@molecules/segmented-control/SegmentedControl.tsx'
 import { Skeleton } from '@atoms/skeleton/Skeleton.tsx'
@@ -8,7 +9,7 @@ import { DebtsSummaryPanel } from './DebtsSummaryPanel.tsx'
 import { AIAdvisorBanner } from './AIAdvisorBanner.tsx'
 import { DebtCard } from './DebtCard.tsx'
 import { RegisterDebtModal } from './RegisterDebtModal.tsx'
-import type { Debt, DebtStatus } from '../types/debts.types.ts'
+import type { Debt, DebtStatus, DebtFormValues } from '../types/debts.types.ts'
 
 type StatusFilter = 'active' | 'paid' | 'all'
 type SortMode = 'rate' | 'balance' | 'name'
@@ -30,17 +31,6 @@ const PlusIcon = () => (
     <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
 )
-const ExportIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M12 3v13M7 11l5 5 5-5M4 20h16"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 
 function sortDebts(debts: Debt[], mode: SortMode): Debt[] {
   return [...debts].sort((a, b) => {
@@ -50,11 +40,48 @@ function sortDebts(debts: Debt[], mode: SortMode): Debt[] {
   })
 }
 
+function debtToFormValues(debt: Debt): DebtFormValues {
+  return {
+    name: debt.name,
+    type: debt.kind === 'card' ? 'CARD' : 'LOAN',
+    balance: String(debt.balance),
+    monthlyRate: String(debt.monthlyRate),
+    minPayment: String(debt.minPayment),
+  }
+}
+
 export const DebtsPage: FC = () => {
-  const { data, isLoading } = useDebts()
+  const {
+    data,
+    isLoading,
+    isSaving,
+    isPatching,
+    isDeleting,
+    error,
+    saveError,
+    successMessage,
+    save,
+    update,
+    pay,
+    remove,
+    dismiss,
+  } = useDebts()
+
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [sortMode, setSortMode] = useState<SortMode>('rate')
-  const [modalOpen, setModalOpen] = useState(false)
+
+  const [modalDebt, setModalDebt] = useState<Debt | null | 'new'>(null)
+  const editingIdRef = useRef<string | null>(null)
+
+  const modalOpen = modalDebt !== null
+  const isEditMode = modalDebt !== null && modalDebt !== 'new'
+  const initialValues = isEditMode ? debtToFormValues(modalDebt) : undefined
+
+  useEffect(() => {
+    if (!successMessage && !error) return
+    const timer = setTimeout(dismiss, 4000)
+    return () => clearTimeout(timer)
+  }, [successMessage, error, dismiss])
 
   const filtered = useMemo(() => {
     if (!data) return []
@@ -65,16 +92,58 @@ export const DebtsPage: FC = () => {
     return sortDebts(list, sortMode)
   }, [data, statusFilter, sortMode])
 
-  function handleLiquidar(id: string) {
-    console.log('liquidar', id)
+  async function handleSave(values: DebtFormValues) {
+    if (isEditMode && editingIdRef.current) {
+      await update(editingIdRef.current, values)
+    } else {
+      await save(values)
+    }
+    setModalDebt(null)
+    editingIdRef.current = null
+  }
+
+  function handleOpenEdit(debt: Debt) {
+    editingIdRef.current = debt.id
+    setModalDebt(debt)
+  }
+
+  function handleCloseModal() {
+    setModalDebt(null)
+    editingIdRef.current = null
+    dismiss()
+  }
+
+  async function handlePay(id: string) {
+    if (!confirm('¿Marcar esta deuda como liquidada? Esta acción no se puede deshacer.')) return
+    await pay(id)
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('¿Eliminar esta deuda permanentemente?')) return
+    await remove(id)
   }
 
   return (
     <div className="flex flex-col gap-5">
-      <DebtsSummaryPanel summary={data?.summary} isLoading={isLoading} />
+      {successMessage && (
+        <Alert variant="success" onDismiss={dismiss}>
+          {successMessage}
+        </Alert>
+      )}
+      {(error ?? saveError) && (
+        <Alert variant="danger" onDismiss={dismiss}>
+          {error ?? saveError}
+        </Alert>
+      )}
 
-      {!isLoading && data && (
-        <AIAdvisorBanner onGeneratePlan={() => console.log('generate plan')} />
+      <DebtsSummaryPanel summary={data?.summary} debts={data?.debts} isLoading={isLoading} />
+
+      {!isLoading && data && data.debts.some((d) => d.status === 'active') && (
+        <AIAdvisorBanner
+          summary={data.summary}
+          debts={data.debts}
+          onGeneratePlan={() => console.log('generate plan')}
+        />
       )}
 
       <div className="flex flex-col gap-3">
@@ -111,15 +180,11 @@ export const DebtsPage: FC = () => {
               ))}
             </select>
 
-            <Button variant="ghost" size="sm" iconLeft={<ExportIcon />}>
-              Exportar
-            </Button>
-
             <Button
               variant="primary"
               size="sm"
               iconLeft={<PlusIcon />}
-              onClick={() => setModalOpen(true)}
+              onClick={() => setModalDebt('new')}
             >
               Registrar deuda
             </Button>
@@ -148,7 +213,7 @@ export const DebtsPage: FC = () => {
                 : 'Las deudas que liquides aparecerán aquí.'
             }
             {...(statusFilter === 'active' && {
-              action: { label: 'Registrar deuda', onClick: () => setModalOpen(true) },
+              action: { label: 'Registrar deuda', onClick: () => setModalDebt('new') },
             })}
           />
         ) : (
@@ -157,7 +222,11 @@ export const DebtsPage: FC = () => {
               <div key={debt.id} role="listitem">
                 <DebtCard
                   debt={debt}
-                  onLiquidar={handleLiquidar}
+                  isPatching={isPatching === debt.id}
+                  isDeleting={isDeleting === debt.id}
+                  onLiquidar={handlePay}
+                  onEdit={handleOpenEdit}
+                  onDelete={handleDelete}
                   {...(sortMode === 'rate' && debt.status === 'active' && { priority: idx + 1 })}
                 />
               </div>
@@ -168,15 +237,12 @@ export const DebtsPage: FC = () => {
 
       <RegisterDebtModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSaveCard={(v) => {
-          console.log('card', v)
-          setModalOpen(false)
-        }}
-        onSaveLoan={(v) => {
-          console.log('loan', v)
-          setModalOpen(false)
-        }}
+        onClose={handleCloseModal}
+        onSave={handleSave}
+        {...(initialValues !== undefined && { initialValues })}
+        isSaving={isSaving}
+        saveError={saveError}
+        defaultKind={isEditMode ? modalDebt.kind : 'card'}
       />
     </div>
   )
