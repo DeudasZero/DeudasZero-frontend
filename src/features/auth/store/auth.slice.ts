@@ -9,9 +9,46 @@ import type {
 } from '../types/auth.types.ts'
 import type { RootState } from '../../../store/rootReducer.ts'
 
+const USER_KEY = 'dz_user'
+
+function persistUser(user: AuthUser, storage: Storage): void {
+  try {
+    storage.setItem(USER_KEY, JSON.stringify(user))
+  } catch {
+    // quota exceeded – silently ignore
+  }
+}
+
+function clearUser(): void {
+  localStorage.removeItem(USER_KEY)
+  sessionStorage.removeItem(USER_KEY)
+}
+
+function readPersistedUser(): AuthUser | null {
+  try {
+    const hasLocal = Boolean(localStorage.getItem('token'))
+    const hasSession = Boolean(sessionStorage.getItem('token'))
+
+    if (hasLocal) {
+      const raw = localStorage.getItem(USER_KEY)
+      if (raw) return JSON.parse(raw) as AuthUser
+    }
+
+    if (hasSession) {
+      const raw = sessionStorage.getItem(USER_KEY)
+      if (raw) return JSON.parse(raw) as AuthUser
+    }
+  } catch {
+    // malformed JSON – treat as logged-out
+  }
+  return null
+}
+
+const persistedUser = readPersistedUser()
+
 const initialState: AuthState = {
-  user: null,
-  isAuthenticated: false,
+  user: persistedUser,
+  isAuthenticated: persistedUser !== null,
   isLoading: false,
   error: null,
 }
@@ -21,20 +58,16 @@ export const login = createAsyncThunk(
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
       const response = await loginUser(credentials)
+      const storage = credentials.rememberMe ? localStorage : sessionStorage
 
-      if (credentials.rememberMe) {
-        localStorage.setItem('token', response.token)
-      } else {
-        sessionStorage.setItem('token', response.token)
-      }
+      storage.setItem('token', response.token)
 
-      return {
-        name: response.name,
-        email: response.email,
-      }
+      const user: AuthUser = { name: response.name, email: response.email }
+      persistUser(user, storage)
+
+      return user
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error al iniciar sesión'
-
       return rejectWithValue(message)
     }
   },
@@ -48,13 +81,12 @@ export const register = createAsyncThunk(
 
       localStorage.setItem('token', response.token)
 
-      return {
-        name: response.name,
-        email: response.email,
-      }
+      const user: AuthUser = { name: response.name, email: response.email }
+      persistUser(user, localStorage)
+
+      return user
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error al crear la cuenta'
-
       return rejectWithValue(message)
     }
   },
@@ -70,6 +102,7 @@ const authSlice = createSlice({
       state.error = null
       localStorage.removeItem('token')
       sessionStorage.removeItem('token')
+      clearUser()
     },
     clearError(state) {
       state.error = null

@@ -16,17 +16,37 @@ export const DashboardLayout: FC<DashboardLayoutProps> = ({
   const [tabletCollapsed, setTabletCollapsed] = useState(true)
   const effectiveCollapsed = isDesktop ? sidebarCollapsedProp : tabletCollapsed
 
-  const sidebarWrapStyle: CSSProperties = { flexShrink: 0 }
-
   const contentPadding = isNarrow ? '16px' : isCompact ? '20px 24px' : 'var(--dz-content-pad)'
 
+  const rootStyle: CSSProperties = {
+    display: 'flex',
+    height: '100vh',
+    overflow: 'hidden',
+    background: 'var(--dz-bg-page)',
+  }
+
+  const sidebarColStyle: CSSProperties = {
+    flexShrink: 0,
+    height: '100%',
+    overflowY: 'auto',
+    scrollbarWidth: 'none',
+  }
+
+  const rightColStyle: CSSProperties = {
+    flex: 1,
+    minWidth: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    paddingBottom: mobileNav && isNarrow ? 'var(--dz-mobile-nav-h)' : undefined,
+  }
+
   return (
-    <div
-      className={`flex min-h-screen bg-(--dz-bg-page) ${className ?? ''}`}
-      style={{ alignItems: 'flex-start' }}
-    >
+    <div className={className ?? ''} style={rootStyle}>
       {sidebar && (
-        <div className="hidden lg:block" style={{ ...sidebarWrapStyle, alignSelf: 'flex-start' }}>
+        <div className="hidden lg:block" style={sidebarColStyle}>
           {isValidElement(sidebar)
             ? cloneElement(sidebar as ReactElement<{ collapsed?: boolean }>, {
                 collapsed: effectiveCollapsed,
@@ -49,10 +69,7 @@ export const DashboardLayout: FC<DashboardLayoutProps> = ({
         />
       )}
 
-      <div
-        className="flex flex-col flex-1 min-w-0"
-        style={{ paddingBottom: mobileNav && isNarrow ? 'var(--dz-mobile-nav-h)' : undefined }}
-      >
+      <div style={rightColStyle}>
         {topBar}
         <main
           id="main-content"
