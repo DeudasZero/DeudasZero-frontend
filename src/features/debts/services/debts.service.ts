@@ -8,6 +8,7 @@ import type {
   DebtsSummary,
   ScoreLabel,
   DebtFormValues,
+  FetchStatus,
 } from '../types/debts.types.ts'
 
 function calcAnnualRate(monthlyRate: number): number {
@@ -60,8 +61,8 @@ function buildSummary(debts: DebtResponseDTO[], loadScore: number): DebtsSummary
   }
 }
 
-export async function getDebts(): Promise<DebtsData> {
-  const res = await http.get<DebtListResponseDTO>('/debts')
+export async function getDebts(status: FetchStatus = 'ALL'): Promise<DebtsData> {
+  const res = await http.get<DebtListResponseDTO>('/debts', { params: { status } })
   const { debts: raw, debtLoadScore } = res.data
 
   return {

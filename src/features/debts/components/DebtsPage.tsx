@@ -9,7 +9,7 @@ import { DebtsSummaryPanel } from './DebtsSummaryPanel.tsx'
 import { AIAdvisorBanner } from './AIAdvisorBanner.tsx'
 import { DebtCard } from './DebtCard.tsx'
 import { RegisterDebtModal } from './RegisterDebtModal.tsx'
-import type { Debt, DebtStatus, DebtFormValues } from '../types/debts.types.ts'
+import type { Debt, DebtFormValues, FetchStatus } from '../types/debts.types.ts'
 
 type StatusFilter = 'active' | 'paid' | 'all'
 type SortMode = 'rate' | 'balance' | 'name'
@@ -25,6 +25,12 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: 'balance', label: 'Mayor saldo' },
   { value: 'name', label: 'Nombre A–Z' },
 ]
+
+const STATUS_MAP: Record<StatusFilter, FetchStatus> = {
+  active: 'ACTIVE',
+  paid: 'PAID',
+  all: 'ALL',
+}
 
 const PlusIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -51,6 +57,11 @@ function debtToFormValues(debt: Debt): DebtFormValues {
 }
 
 export const DebtsPage: FC = () => {
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
+  const [sortMode, setSortMode] = useState<SortMode>('rate')
+
+  const apiStatus = STATUS_MAP[statusFilter]
+
   const {
     data,
     isLoading,
@@ -65,10 +76,7 @@ export const DebtsPage: FC = () => {
     pay,
     remove,
     dismiss,
-  } = useDebts()
-
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
-  const [sortMode, setSortMode] = useState<SortMode>('rate')
+  } = useDebts(apiStatus)
 
   const [modalDebt, setModalDebt] = useState<Debt | null | 'new'>(null)
   const editingIdRef = useRef<string | null>(null)
@@ -83,14 +91,11 @@ export const DebtsPage: FC = () => {
     return () => clearTimeout(timer)
   }, [successMessage, error, dismiss])
 
+  // API already returns filtered debts — only sort client-side
   const filtered = useMemo(() => {
     if (!data) return []
-    const list =
-      statusFilter === 'all'
-        ? data.debts
-        : data.debts.filter((d) => d.status === (statusFilter as DebtStatus))
-    return sortDebts(list, sortMode)
-  }, [data, statusFilter, sortMode])
+    return sortDebts(data.debts, sortMode)
+  }, [data, sortMode])
 
   async function handleSave(values: DebtFormValues) {
     if (isEditMode && editingIdRef.current) {
@@ -206,11 +211,19 @@ export const DebtsPage: FC = () => {
         ) : filtered.length === 0 ? (
           <EmptyState
             icon="💳"
-            title={statusFilter === 'paid' ? 'Sin deudas liquidadas' : 'Sin deudas activas'}
+            title={
+              statusFilter === 'paid'
+                ? 'Sin deudas liquidadas'
+                : statusFilter === 'all'
+                  ? 'Sin deudas registradas'
+                  : 'Sin deudas activas'
+            }
             description={
               statusFilter === 'active'
-                ? 'Registra tus deudas para ver tu plan de pago.'
-                : 'Las deudas que liquides aparecerán aquí.'
+                ? 'No cuentas con deudas activas. ¡Felicitaciones! 🎉'
+                : statusFilter === 'all'
+                  ? 'Aún no tienes deudas registradas.'
+                  : 'Las deudas que liquides aparecerán aquí.'
             }
             {...(statusFilter === 'active' && {
               action: { label: 'Registrar deuda', onClick: () => setModalDebt('new') },
