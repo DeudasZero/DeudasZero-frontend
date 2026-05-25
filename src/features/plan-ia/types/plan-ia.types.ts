@@ -47,7 +47,6 @@ export interface AiAdviceResponseDTO {
 }
 export interface AiReportResponseDTO {
   diagnosis: string
-  context: string
 }
 
 export type PaymentStrategy = 'avalanche' | 'snowball'
@@ -88,6 +87,18 @@ export interface PlanSummary {
   endLabel: string
 }
 
+export type PlanHistoryResponseDTO = PlanResponseDTO & { active: boolean }
+
+export interface HistoryRow {
+  planId: string
+  strategy: PaymentStrategy
+  createdAt: string
+  monthsToPayoff: number
+  totalInstallments: number
+  interestSaved: number
+  active: boolean
+}
+
 export type ChatRole = 'user' | 'ai'
 export type ChatMessageTag = 'WHAT-IF' | 'INFO' | 'RECALCULO'
 
@@ -107,8 +118,10 @@ export interface QuickReply {
 export interface PlanIAState {
   strategy: PaymentStrategy
   plan: PlanResponseDTO | null
+  history: PlanHistoryResponseDTO[]
   messages: ChatMessage[]
   isLoadingPlan: boolean
+  isLoadingHistory: boolean
   isGenerating: boolean
   isSendingChat: boolean
   isMarkingPaid: string | null

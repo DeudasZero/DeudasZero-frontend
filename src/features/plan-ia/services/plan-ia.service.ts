@@ -7,10 +7,16 @@ import type {
   AiAdviceResponseDTO,
   AiReportResponseDTO,
   ApiStrategy,
+  PlanHistoryResponseDTO,
 } from '../types/plan-ia.types.ts'
 
 export async function getActivePlan(): Promise<PlanResponseDTO> {
   const res = await http.get<PlanResponseDTO>('/plans/active')
+  return res.data
+}
+
+export async function getPlanHistory(): Promise<PlanHistoryResponseDTO[]> {
+  const res = await http.get<PlanHistoryResponseDTO[]>('/plans/history')
   return res.data
 }
 

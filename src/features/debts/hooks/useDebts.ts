@@ -8,16 +8,16 @@ import {
   removeDebt,
   clearMessages,
 } from '../store/debts.slice.ts'
-import type { DebtFormValues } from '../types/debts.types.ts'
+import type { DebtFormValues, FetchStatus } from '../types/debts.types.ts'
 
-export function useDebts() {
+export function useDebts(status: FetchStatus = 'ALL') {
   const dispatch = useAppDispatch()
   const { data, isLoading, isSaving, isPatching, isDeleting, error, saveError, successMessage } =
     useAppSelector((s) => s.debts)
 
   useEffect(() => {
-    dispatch(fetchDebts())
-  }, [dispatch])
+    dispatch(fetchDebts(status))
+  }, [dispatch, status])
 
   async function save(values: DebtFormValues) {
     await dispatch(addDebt(values))

@@ -9,6 +9,7 @@ import {
   setStrategy,
   clearMessages,
   resetChat,
+  fetchPlanHistory,
 } from '../store/plan-ia.slice.ts'
 import type {
   PaymentStrategy,
@@ -16,6 +17,8 @@ import type {
   ScheduleRowStatus,
   PlanSummary,
   InstallmentResponseDTO,
+  HistoryRow,
+  PlanHistoryResponseDTO,
 } from '../types/plan-ia.types.ts'
 import { STRATEGY_TO_API } from '../types/plan-ia.types.ts'
 
@@ -72,13 +75,27 @@ function buildPlanSummary(plan: import('../types/plan-ia.types.ts').PlanResponse
   }
 }
 
+function planToHistoryRow(plan: PlanHistoryResponseDTO): HistoryRow {
+  return {
+    planId: plan.id,
+    strategy: plan.strategy === 'AVALANCHE' ? 'avalanche' : 'snowball',
+    createdAt: formatMonthLabel(plan.createdAt.split('T')[0] ?? plan.createdAt),
+    monthsToPayoff: plan.monthsToPayoff,
+    totalInstallments: plan.totalInstallments,
+    interestSaved: plan.interestSaved,
+    active: plan.active,
+  }
+}
+
 export function usePlanIA() {
   const dispatch = useAppDispatch()
   const {
     strategy,
     plan,
+    history,
     messages,
     isLoadingPlan,
+    isLoadingHistory,
     isGenerating,
     isSendingChat,
     isMarkingPaid,
@@ -90,6 +107,7 @@ export function usePlanIA() {
   useEffect(() => {
     dispatch(fetchActivePlan())
     dispatch(loadAiReport())
+    dispatch(fetchPlanHistory())
   }, [dispatch])
 
   const summary = useMemo<PlanSummary | null>(() => (plan ? buildPlanSummary(plan) : null), [plan])
@@ -99,6 +117,8 @@ export function usePlanIA() {
       plan ? plan.installments.map((inst) => installmentToRow(inst, plan.paidInstallments)) : [],
     [plan],
   )
+
+  const historyRows = useMemo<HistoryRow[]>(() => history.map(planToHistoryRow), [history])
 
   function changeStrategy(s: PaymentStrategy) {
     dispatch(setStrategy(s))
@@ -133,8 +153,10 @@ export function usePlanIA() {
     plan,
     summary,
     schedule,
+    historyRows,
     messages,
     isLoadingPlan,
+    isLoadingHistory,
     isGenerating,
     isSendingChat,
     isMarkingPaid,

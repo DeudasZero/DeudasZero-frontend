@@ -6,7 +6,11 @@ import {
   markDebtPaid,
   deleteDebt,
 } from '../services/debts.service.ts'
-import type { DebtsState, DebtFormValues } from '../types/debts.types.ts'
+import type { DebtsState, DebtFormValues, FetchStatus } from '../types/debts.types.ts'
+
+interface RootStateDebts {
+  debts: DebtsState
+}
 
 const initialState: DebtsState = {
   data: null,
@@ -17,22 +21,27 @@ const initialState: DebtsState = {
   error: null,
   saveError: null,
   successMessage: null,
+  currentStatus: 'ALL',
 }
 
-export const fetchDebts = createAsyncThunk('debts/fetch', async (_, { rejectWithValue }) => {
-  try {
-    return await getDebts()
-  } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Error al cargar deudas')
-  }
-})
+export const fetchDebts = createAsyncThunk(
+  'debts/fetch',
+  async (status: FetchStatus = 'ALL', { rejectWithValue }) => {
+    try {
+      return await getDebts(status)
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Error al cargar deudas')
+    }
+  },
+)
 
 export const addDebt = createAsyncThunk(
   'debts/add',
-  async (values: DebtFormValues, { dispatch, rejectWithValue }) => {
+  async (values: DebtFormValues, { dispatch, getState, rejectWithValue }) => {
     try {
       await createDebt(values)
-      return await dispatch(fetchDebts())
+      const status = (getState() as RootStateDebts).debts.currentStatus
+      return await dispatch(fetchDebts(status))
     } catch (err) {
       return rejectWithValue(err instanceof Error ? err.message : 'Error al registrar deuda')
     }
@@ -41,10 +50,14 @@ export const addDebt = createAsyncThunk(
 
 export const editDebt = createAsyncThunk(
   'debts/edit',
-  async ({ id, values }: { id: string; values: DebtFormValues }, { dispatch, rejectWithValue }) => {
+  async (
+    { id, values }: { id: string; values: DebtFormValues },
+    { dispatch, getState, rejectWithValue },
+  ) => {
     try {
       await updateDebt(id, values)
-      return await dispatch(fetchDebts())
+      const status = (getState() as RootStateDebts).debts.currentStatus
+      return await dispatch(fetchDebts(status))
     } catch (err) {
       return rejectWithValue(err instanceof Error ? err.message : 'Error al actualizar deuda')
     }
@@ -53,10 +66,11 @@ export const editDebt = createAsyncThunk(
 
 export const payDebt = createAsyncThunk(
   'debts/pay',
-  async (id: string, { dispatch, rejectWithValue }) => {
+  async (id: string, { dispatch, getState, rejectWithValue }) => {
     try {
       await markDebtPaid(id)
-      await dispatch(fetchDebts())
+      const status = (getState() as RootStateDebts).debts.currentStatus
+      await dispatch(fetchDebts(status))
       return id
     } catch (err) {
       return rejectWithValue(err instanceof Error ? err.message : 'Error al liquidar deuda')
@@ -66,10 +80,11 @@ export const payDebt = createAsyncThunk(
 
 export const removeDebt = createAsyncThunk(
   'debts/remove',
-  async (id: string, { dispatch, rejectWithValue }) => {
+  async (id: string, { dispatch, getState, rejectWithValue }) => {
     try {
       await deleteDebt(id)
-      await dispatch(fetchDebts())
+      const status = (getState() as RootStateDebts).debts.currentStatus
+      await dispatch(fetchDebts(status))
       return id
     } catch (err) {
       return rejectWithValue(err instanceof Error ? err.message : 'Error al eliminar deuda')
@@ -89,9 +104,10 @@ const debtsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchDebts.pending, (s) => {
+      .addCase(fetchDebts.pending, (s, a) => {
         s.isLoading = true
         s.error = null
+        if (a.meta.arg) s.currentStatus = a.meta.arg
       })
       .addCase(fetchDebts.fulfilled, (s, a) => {
         s.isLoading = false
