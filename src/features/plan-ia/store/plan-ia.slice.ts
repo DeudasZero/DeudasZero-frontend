@@ -125,6 +125,10 @@ const planIASlice = createSlice({
       state.chatError = null
       state.planError = null
     },
+    resetChat(state) {
+      state.messages = []
+      state.chatError = null
+    },
   },
   extraReducers: (builder) => {
     // fetchActivePlan
@@ -213,5 +217,5 @@ const planIASlice = createSlice({
   },
 })
 
-export const { setStrategy, addMessage, clearMessages } = planIASlice.actions
+export const { setStrategy, addMessage, clearMessages, resetChat } = planIASlice.actions
 export default planIASlice.reducer
