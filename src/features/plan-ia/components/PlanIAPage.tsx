@@ -89,6 +89,7 @@ export const PlanIAPage: FC = () => {
     markPaid,
     sendChat,
     dismiss,
+    resetChatHistory,
   } = usePlanIA()
 
   useEffect(() => {
@@ -142,7 +143,12 @@ export const PlanIAPage: FC = () => {
           )}
         </div>
 
-        <AIAdvisorChat messages={messages} onSend={sendChat} isTyping={isSendingChat} />
+        <AIAdvisorChat
+          messages={messages}
+          onSend={sendChat}
+          isTyping={isSendingChat}
+          onReset={resetChatHistory}
+        />
       </div>
     </div>
   )

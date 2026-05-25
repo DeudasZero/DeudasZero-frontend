@@ -6,6 +6,7 @@ interface AIAdvisorChatProps {
   messages: ChatMessage[]
   onSend: (text: string) => void
   isTyping?: boolean
+  onReset?: () => void
 }
 
 const SendIcon = () => (
@@ -19,11 +20,31 @@ const SendIcon = () => (
     />
   </svg>
 )
+
 const DotsIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
     <circle cx="5" cy="12" r="1.5" fill="currentColor" />
     <circle cx="12" cy="12" r="1.5" fill="currentColor" />
     <circle cx="19" cy="12" r="1.5" fill="currentColor" />
+  </svg>
+)
+
+const RefreshIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="M1 4v6h6M23 20v-6h-6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 )
 
@@ -110,8 +131,14 @@ const TypingIndicator: FC = () => (
   </div>
 )
 
-export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({ messages, onSend, isTyping = false }) => {
+export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({
+  messages,
+  onSend,
+  isTyping = false,
+  onReset,
+}) => {
   const [input, setInput] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -124,6 +151,11 @@ export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({ messages, onSend, isTypi
     if (!text.trim() || isTyping) return
     onSend(text.trim())
     setInput('')
+  }
+
+  function handleReset() {
+    onReset?.()
+    setMenuOpen(false)
   }
 
   return (
@@ -207,19 +239,83 @@ export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({ messages, onSend, isTypi
             </p>
           </div>
         </div>
-        <button
-          style={{
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'var(--dz-text-faint)',
-            padding: '4px',
-            borderRadius: 'var(--dz-r-xs)',
-          }}
-          aria-label="Opciones"
-        >
-          <DotsIcon />
-        </button>
+
+        {/* Dots button con dropdown */}
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: menuOpen ? 'var(--dz-text-secondary)' : '#fff',
+              padding: '4px',
+              borderRadius: 'var(--dz-r-xs)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'color var(--dz-transition-fast)',
+            }}
+            aria-label="Opciones del chat"
+            aria-expanded={menuOpen}
+            aria-haspopup="menu"
+          >
+            <DotsIcon />
+          </button>
+
+          {menuOpen && (
+            <>
+              <div
+                style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+                onClick={() => setMenuOpen(false)}
+                aria-hidden
+              />
+
+              {/* Dropdown menu */}
+              <div
+                role="menu"
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 'calc(100% + 6px)',
+                  background: 'var(--dz-bg-raised)',
+                  border: '1px solid var(--dz-border-base)',
+                  borderRadius: 'var(--dz-r-sm)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
+                  zIndex: 20,
+                  minWidth: '164px',
+                  overflow: 'hidden',
+                }}
+              >
+                <button
+                  role="menuitem"
+                  onClick={handleReset}
+                  style={{
+                    width: '100%',
+                    padding: '9px 13px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontFamily: 'var(--dz-font-sans)',
+                    fontSize: '12.5px',
+                    fontWeight: 500,
+                    color: 'var(--dz-text-secondary)',
+                    textAlign: 'left',
+                    transition: 'background var(--dz-transition-fast)',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--dz-bg-surface)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <RefreshIcon />
+                  Reiniciar chat
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Messages */}

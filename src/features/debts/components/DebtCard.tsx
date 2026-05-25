@@ -80,11 +80,11 @@ const IconButton: FC<{
     title={title}
     style={{
       background: 'transparent',
-      border: '1px solid rgba(220,235,255,0.08)',
+      border: '1px solid rgba(220,235,255,0.5)',
       borderRadius: '6px',
       padding: '4px 6px',
       cursor: disabled ? 'not-allowed' : 'pointer',
-      color: 'var(--dz-text-faint)',
+      color: 'rgba(220,235,255,0.5)',
       display: 'inline-flex',
       alignItems: 'center',
       lineHeight: 0,
