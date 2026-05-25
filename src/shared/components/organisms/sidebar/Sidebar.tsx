@@ -20,6 +20,18 @@ const ArrowIcon = () => (
   </svg>
 )
 
+const LogoutIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
 const AIAdvisorCard: FC<{ message: SidebarAdvisorMessage }> = ({ message }) => (
   <div
     style={{
@@ -132,7 +144,6 @@ const NavBtn: FC<{
         flexShrink: 0,
       }}
     />
-
     {item.icon && (
       <span
         aria-hidden
@@ -146,13 +157,11 @@ const NavBtn: FC<{
         {item.icon}
       </span>
     )}
-
     {!collapsed && (
       <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {item.label}
       </span>
     )}
-
     {!collapsed && item.badge !== undefined && item.badge > 0 && (
       <span
         aria-label={`${item.badge} notificaciones`}
@@ -191,12 +200,65 @@ const NavBtn: FC<{
   </button>
 )
 
+const LogoutButton: FC<{ collapsed: boolean; onLogout?: () => void }> = ({
+  collapsed,
+  onLogout,
+}) => (
+  <div
+    style={{
+      flexShrink: 0,
+      marginBottom: '4px',
+    }}
+  >
+    {!collapsed && <Divider spacing="sm" />}
+    <button
+      type="button"
+      onClick={onLogout}
+      aria-label="Cerrar sesión"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: collapsed ? 'center' : 'flex-start',
+        gap: '10px',
+        width: '100%',
+        height: '38px',
+        padding: collapsed ? '0' : '0 12px',
+        background: 'var(--dz-tint-expense)',
+        border: '1px solid rgba(224,122,156,0.18)',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        fontFamily: 'var(--dz-font-sans)',
+        fontSize: '13px',
+        fontWeight: 600,
+        color: 'var(--dz-expense)',
+        transition: 'background 0.15s ease, border-color 0.15s ease',
+        outline: 'none',
+        marginTop: collapsed ? '8px' : '6px',
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLButtonElement
+        el.style.background = 'rgba(224,122,156,0.22)'
+        el.style.borderColor = 'rgba(224,122,156,0.35)'
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLButtonElement
+        el.style.background = 'var(--dz-tint-expense)'
+        el.style.borderColor = 'rgba(224,122,156,0.18)'
+      }}
+    >
+      <LogoutIcon />
+      {!collapsed && <span>Cerrar sesión</span>}
+    </button>
+  </div>
+)
+
 export const Sidebar: FC<SidebarProps> = ({
   groups,
   activeItemId,
   onItemClick,
   user,
   onUserClick,
+  onLogout,
   logo,
   collapsed = false,
   advisorMessage,
@@ -214,17 +276,14 @@ export const Sidebar: FC<SidebarProps> = ({
   const sidebarStyle: CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    height: '100vh',
-    position: 'sticky',
-    top: 0,
-    overflowY: 'auto',
-    scrollbarWidth: 'none' as const,
+    height: '100%',
     width: collapsed ? '64px' : '240px',
     background: 'rgb(9, 16, 23)',
     borderRight: '1px solid rgba(220, 235, 255, 0.05)',
     padding: collapsed ? '24px 8px' : '24px 16px',
     transition: 'width var(--dz-transition-base), padding var(--dz-transition-base)',
     flexShrink: 0,
+    scrollbarWidth: 'none' as const,
   }
 
   return (
@@ -246,7 +305,10 @@ export const Sidebar: FC<SidebarProps> = ({
             overflow: 'hidden',
           }}
         >
-          {logo}
+          {logo}{' '}
+          <span className="font-sans text-[15px] font-bold text-[rgb(232,238,245)] tracking-[-0.2px]">
+            Deuda<span className="text-[#5EE1E6]">Zero</span>
+          </span>
         </div>
       )}
 
@@ -256,7 +318,9 @@ export const Sidebar: FC<SidebarProps> = ({
           display: 'flex',
           flexDirection: 'column',
           gap: '4px',
-          overflow: 'hidden',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          scrollbarWidth: 'none',
         }}
       >
         {groups.map((group: SidebarNavGroup, gi: number) => (
@@ -296,6 +360,8 @@ export const Sidebar: FC<SidebarProps> = ({
 
       {!collapsed && advisorMessage && <AIAdvisorCard message={advisorMessage} />}
 
+      <LogoutButton collapsed={collapsed} {...(onLogout ? { onLogout } : {})} />
+
       {user && (
         <button
           type="button"
@@ -307,7 +373,7 @@ export const Sidebar: FC<SidebarProps> = ({
             gap: collapsed ? 0 : '10px',
             justifyContent: collapsed ? 'center' : 'flex-start',
             width: '100%',
-            marginTop: '12px',
+            marginTop: '4px',
             padding: collapsed ? '8px 0' : '10px 12px',
             background: 'transparent',
             border: 'none',

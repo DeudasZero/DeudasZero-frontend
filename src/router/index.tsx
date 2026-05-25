@@ -1,8 +1,9 @@
-import { useState, useMemo, type ReactNode } from 'react'
+import { useState, useMemo, useEffect, type ReactNode } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/hookStore.ts'
+import { logout } from '@/features/auth/store/auth.slice.ts'
 import { addTransaction } from '@/features/transactions/store/transactions.slice.ts'
-import { addDebt } from '@/features/debts/store/debts.slice.ts'
+import { addDebt, fetchDebts } from '@/features/debts/store/debts.slice.ts'
 import type { DebtFormValues } from '@/features/debts/types/debts.types.ts'
 import { LoginPage } from '@/features/auth/components/LoginPage.tsx'
 import { RegisterPage } from '@/features/auth/components/RegisterPage.tsx'
@@ -28,33 +29,34 @@ const HomeIcon = () => (
     />
   </svg>
 )
-const TxIcon = () => (
+const TrendingUpIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
     <path
-      d="M4 8H16M12 4L16 8L12 12M20 16H8M12 20L8 16L12 12"
+      d="M3 17L9 11L13 15L21 7M21 7H15M21 7V13"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
   </svg>
 )
-const DebtIcon = () => (
+const CreditCardIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" strokeWidth="1.8" />
-    <path d="M3 10h18" stroke="currentColor" strokeWidth="1.8" />
+    <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M2 10h20" stroke="currentColor" strokeWidth="1.8" />
   </svg>
 )
-const AIIcon = () => (
+const SparklesIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
     <path
-      d="M12 3L14 9L20 9L15 13L17 19L12 15L7 19L9 13L4 9L10 9Z"
+      d="M12 3L13.5 8.5H19L14.5 12L16 17.5L12 14L8 17.5L9.5 12L5 8.5H10.5L12 3Z"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1.8"
       strokeLinejoin="round"
     />
   </svg>
 )
+
 const PlusIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
     <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -62,47 +64,43 @@ const PlusIcon = () => (
 )
 
 const DZLogo = () => (
-  <div className="flex items-center gap-2">
-    <img src={logo} alt="DeudaZero Logo" className="h-7 w-7 object-contain" />
-    <span className="font-sans text-[15px] font-bold text-[rgb(232,238,245)] tracking-[-0.2px]">
-      Deuda<span className="text-[#5EE1E6]">Zero</span>
-    </span>
-  </div>
+  <img src={logo} alt="DeudaZero" style={{ height: '20px', width: 'auto', display: 'block' }} />
 )
 
 const NAV_GROUPS = [
   {
     id: 'main',
-    label: 'Menú',
     items: [
-      { id: 'dashboard', label: 'Inicio', icon: <HomeIcon />, href: '/dashboard' },
-      { id: 'transactions', label: 'Ingresos & Gastos', icon: <TxIcon />, href: '/transactions' },
-      { id: 'debts', label: 'Mis deudas', icon: <DebtIcon />, href: '/debts' },
-      { id: 'ai', label: 'Plan IA', icon: <AIIcon />, href: '/ai' },
+      { id: 'dashboard', label: 'Dashboard', icon: <HomeIcon />, href: '/dashboard' },
+      { id: 'transactions', label: 'Movimientos', icon: <TrendingUpIcon />, href: '/transactions' },
+      { id: 'debts', label: 'Deudas', icon: <CreditCardIcon />, href: '/debts' },
+      { id: 'ai', label: 'Plan IA', icon: <SparklesIcon />, href: '/ai' },
     ],
   },
 ]
 
-const ROUTE_META: Record<string, { eyebrow: string; title: (n: string) => string; cta: string }> = {
-  '/dashboard': { eyebrow: 'PANEL', title: (n) => `Hola, ${n}`, cta: 'Registrar movimiento' },
-  '/transactions': {
-    eyebrow: 'MIS TRANSACCIONES',
-    title: () => 'Ingresos & Gastos',
-    cta: 'Nuevo movimiento',
-  },
-  '/debts': { eyebrow: 'MIS DEUDAS', title: () => 'Mis deudas', cta: 'Registrar deuda' },
-  '/ai': { eyebrow: 'PLAN IA', title: () => 'Plan de liquidación · Consejero IA', cta: '' },
-  '/profile': { eyebrow: 'CUENTA', title: () => 'Mi perfil', cta: '' },
+const month = () =>
+  new Date()
+    .toLocaleDateString('es-CO', { month: 'long', year: 'numeric' })
+    .replace(/^\w/, (c) => c.toUpperCase())
+
+const ROUTE_META: Record<
+  string,
+  { eyebrow: string; title: (name: string) => string; cta?: string }
+> = {
+  '/dashboard': { eyebrow: 'Resumen', title: (n) => `Hola, ${n}`, cta: 'Nuevo movimiento' },
+  '/transactions': { eyebrow: 'Historial', title: () => 'Movimientos', cta: 'Agregar movimiento' },
+  '/debts': { eyebrow: 'Deudas', title: () => 'Mis deudas', cta: 'Registrar deuda' },
+  '/ai': { eyebrow: 'Inteligencia', title: () => 'Plan IA' },
+  '/profile': { eyebrow: 'Cuenta', title: () => 'Mi perfil' },
 }
 
-function month() {
-  return new Date().toLocaleString('es-CO', { month: 'long', year: 'numeric' }).toUpperCase()
-}
-
-function fmt(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000) return `$${new Intl.NumberFormat('es-CO').format(Math.round(n))}`
-  return `$${n}`
+function fmt(n: number) {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0,
+  }).format(n)
 }
 
 function buildAdvisorMessage(
@@ -168,6 +166,10 @@ function AppShell() {
   const { pathname } = useLocation()
   const dispatch = useAppDispatch()
 
+  useEffect(() => {
+    dispatch(fetchDebts())
+  }, [dispatch])
+
   const user = useAppSelector((s) => s.auth.user)
   const dashboardSummary = useAppSelector((s) => s.dashboard.data?.summary)
   const debtsSummary = useAppSelector((s) => s.debts.data?.summary)
@@ -200,6 +202,11 @@ function AppShell() {
     setTxModalOpen(false)
   }
 
+  function handleLogout() {
+    dispatch(logout())
+    navigate('/login')
+  }
+
   return (
     <>
       <DashboardLayout
@@ -209,6 +216,7 @@ function AppShell() {
             activeItemId={activeId}
             onItemClick={(item) => item.href && navigate(item.href)}
             onUserClick={() => navigate('/profile')}
+            onLogout={handleLogout}
             logo={<DZLogo />}
             advisorMessage={advisorMessage}
             user={{

@@ -32,6 +32,7 @@ export interface SidebarProps {
   onItemClick?: (item: SidebarNavItem) => void
   user?: SidebarUser
   onUserClick?: () => void
+  onLogout?: () => void
   logo?: ReactNode
   collapsed?: boolean
   onToggleCollapse?: () => void
