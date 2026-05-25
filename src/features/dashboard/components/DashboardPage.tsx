@@ -1,8 +1,9 @@
 import type { FC } from 'react'
 import { useDashboard } from '../hooks/useDashboard.ts'
+import { StatCard } from '@molecules/stat-card/index.ts'
+import { Money } from '@atoms/money/index.js'
 import { FlowCard } from './FlowCard.tsx'
 import { DistributionCard } from './DistributionCard.tsx'
-import { StatCard } from './StatCard.tsx'
 import { ChartCard } from './ChartCard.tsx'
 import { CategoryCard } from './CategoryCard.tsx'
 import { ActivityTable } from './ActivityTable.tsx'
@@ -19,19 +20,14 @@ function cop(n: number) {
     .trim()
 }
 
-export const CARD: React.CSSProperties = {
-  background: 'rgb(20, 28, 36)',
-  borderRadius: '10px',
-  overflow: 'hidden',
-}
-
 export const DashboardPage: FC = () => {
   const { data, isLoading } = useDashboard()
   const s = data?.summary
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+    <div className="flex flex-col gap-4">
+      {/* Fila 1: Flujo + Distribución */}
+      <div className="grid grid-cols-2 gap-4">
         <FlowCard
           label={`FLUJO DISPONIBLE · ${data?.currentMonth ?? 'JUNIO'}`}
           value={s ? cop(s.netBalance) : '—'}
@@ -44,39 +40,64 @@ export const DashboardPage: FC = () => {
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+      {/* Fila 2: Stats */}
+      <div className="grid grid-cols-3 gap-4">
         <StatCard
           label="Ingresos del mes"
-          value={s ? cop(s.totalIncome) : '—'}
-          trend={s ? `↑ ${s.incomeTrend}%` : undefined}
-          trendLabel="vs mes ant."
-          trendUp
-          isLoading={isLoading}
+          value={
+            <Money
+              amount={s?.totalIncome ?? 0}
+              currency="COP"
+              locale="es-CO"
+              variant="h2"
+              accent="income"
+            />
+          }
+          {...(s ? { trend: 'up' as const, trendLabel: `↑ ${s.incomeTrend}% vs mes ant.` } : {})}
+          accent="income"
+          loading={isLoading}
         />
         <StatCard
           label="Gastos del mes"
-          value={s ? cop(s.totalExpenses) : '—'}
-          trend={s ? `↓ ${Math.abs(s.expenseTrend)}%` : undefined}
-          trendLabel="ahorraste"
-          trendUp
-          isLoading={isLoading}
+          value={
+            <Money
+              amount={s?.totalExpenses ?? 0}
+              currency="COP"
+              locale="es-CO"
+              variant="h2"
+              accent="expense"
+            />
+          }
+          {...(s
+            ? { trend: 'up' as const, trendLabel: `↓ ${Math.abs(s.expenseTrend)}% ahorraste` }
+            : {})}
+          accent="expense"
+          loading={isLoading}
         />
         <StatCard
           label="Carga de deuda"
-          value={s ? cop(s.totalDebts) : '—'}
-          badge={s ? `${s.debtRatio}%` : undefined}
-          trend={s ? '↓ 4%' : undefined}
-          trendLabel="bajó"
-          trendUp
-          isLoading={isLoading}
+          value={
+            <Money
+              amount={s?.totalDebts ?? 0}
+              currency="COP"
+              locale="es-CO"
+              variant="h2"
+              accent="debt"
+            />
+          }
+          {...(s ? { trend: 'down' as const, trendLabel: `${s.debtRatio}% del ingreso` } : {})}
+          accent="debt"
+          loading={isLoading}
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '16px' }}>
+      {/* Fila 3: Chart + Categorías */}
+      <div className="grid gap-4" style={{ gridTemplateColumns: '1.6fr 1fr' }}>
         <ChartCard isLoading={isLoading} />
         <CategoryCard categories={data?.categorySpend ?? []} isLoading={isLoading} />
       </div>
 
+      {/* Fila 4: Actividad reciente */}
       <ActivityTable transactions={data?.recentTransactions ?? []} isLoading={isLoading} />
     </div>
   )
