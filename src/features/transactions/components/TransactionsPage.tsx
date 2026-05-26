@@ -172,7 +172,7 @@ export const TransactionsPage: FC = () => {
                 transition: 'opacity 0.15s',
               }}
             >
-              + Gasto
+              - Gasto
             </button>
             <button
               type="button"
