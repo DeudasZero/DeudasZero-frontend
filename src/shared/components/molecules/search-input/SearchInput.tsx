@@ -1,19 +1,8 @@
-import { useId, useRef, useState } from 'react'
+﻿import { useId, useRef, useState } from 'react'
 import type { FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { SearchIcon, ClearIcon } from '@/assets/icons/index.ts'
 import type { SearchInputProps } from './SearchInput.types.ts'
-
-const SearchIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-    <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.4" />
-    <path d="M10.5 10.5L13 13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-  </svg>
-)
-
-const ClearIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-    <path d="M3 3l8 8M11 3L3 11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-  </svg>
-)
 
 export const SearchInput: FC<SearchInputProps> = ({
   value,
@@ -65,7 +54,7 @@ export const SearchInput: FC<SearchInputProps> = ({
           transition: 'color var(--dz-transition-fast)',
         }}
       >
-        {loading ? <SpinnerMini /> : <SearchIcon />}
+        {loading ? <SpinnerMini /> : <Icon as={SearchIcon} size={16} />}
       </span>
 
       <input
@@ -116,7 +105,7 @@ export const SearchInput: FC<SearchInputProps> = ({
             padding: 0,
           }}
         >
-          <ClearIcon />
+          <Icon as={ClearIcon} size={14} />
         </button>
       )}
     </div>

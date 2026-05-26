@@ -1,4 +1,6 @@
-import { useState, useMemo, useEffect, type FC } from 'react'
+﻿import { useState, useMemo, useEffect, type FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { IncomeIcon, ExpenseIcon, TrashIcon } from '@/assets/icons/index.ts'
 import { useTransactions } from '../hooks/useTransactions.ts'
 import { NewMovementModal } from './NewMovementModal.tsx'
 import { Alert } from '@/shared/components/molecules/alert/index.ts'
@@ -23,42 +25,6 @@ const CAT_COLOR: Record<string, string> = {
   Otros: 'rgb(154,160,166)',
   Gasto: 'rgb(224,122,156)',
 }
-
-const IncomeArrow = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M7 17L17 7M17 7H10M17 7V14"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const ExpenseArrow = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M17 7L7 17M7 17H14M7 17V10"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const TrashIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 
 const SummaryCards: FC<{ data: ReturnType<typeof useTransactions>['data'] }> = ({ data }) => {
   if (!data) return null
@@ -239,7 +205,7 @@ const TxRow: FC<TxRowProps> = ({ tx, isDeleting, onDelete }) => {
               flexShrink: 0,
             }}
           >
-            {isIncome ? <IncomeArrow /> : <ExpenseArrow />}
+            {isIncome ? <Icon as={IncomeIcon} size={14} /> : <Icon as={ExpenseIcon} size={14} />}
           </div>
           <div>
             <span
@@ -340,7 +306,7 @@ const TxRow: FC<TxRowProps> = ({ tx, isDeleting, onDelete }) => {
             ;(e.currentTarget as HTMLButtonElement).style.color = 'rgba(220,235,255,0.5)'
           }}
         >
-          <TrashIcon />
+          <Icon as={TrashIcon} size={13} />
         </button>
       </td>
     </tr>

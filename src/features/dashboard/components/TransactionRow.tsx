@@ -1,35 +1,11 @@
-import type { FC } from 'react'
+﻿import type { FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { IncomeIcon, ExpenseIcon } from '@/assets/icons/index.ts'
 import type { Transaction } from '../types/dashboard.types.ts'
 
 interface TransactionRowProps {
   transaction: Transaction
 }
-
-// Icono ↑ ingresos
-const IncomeIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M7 17L17 7M17 7H10M17 7V14"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-// Icono ↓ gastos/deudas
-const ExpenseIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M17 7L7 17M7 17H14M7 17V10"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 
 const ICON_STYLE: Record<Transaction['type'], { bg: string; color: string }> = {
   income: { bg: 'rgba(94, 225, 230, 0.12)', color: '#5EE1E6' },
@@ -100,7 +76,7 @@ export const TransactionRow: FC<TransactionRowProps> = ({ transaction }) => {
               justifyContent: 'center',
             }}
           >
-            {isIncome ? <IncomeIcon /> : <ExpenseIcon />}
+            {isIncome ? <Icon as={IncomeIcon} size={14} /> : <Icon as={ExpenseIcon} size={14} />}
           </div>
 
           {/* Texto */}

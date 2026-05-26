@@ -1,36 +1,14 @@
-import type { CSSProperties, FC } from 'react'
+﻿import type { CSSProperties, FC } from 'react'
 import { Avatar } from '@atoms/avatar/Avatar.tsx'
 import { Divider } from '@atoms/divider/Divider.tsx'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { ArrowRightIcon, LogoutIcon } from '@/assets/icons/index.ts'
 import type {
   SidebarProps,
   SidebarNavGroup,
   SidebarNavItem,
   SidebarAdvisorMessage,
 } from './Sidebar.types.ts'
-
-const ArrowIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M5 12h14M13 6l6 6-6 6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const LogoutIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 
 const AIAdvisorCard: FC<{ message: SidebarAdvisorMessage }> = ({ message }) => (
   <div
@@ -88,7 +66,7 @@ const AIAdvisorCard: FC<{ message: SidebarAdvisorMessage }> = ({ message }) => (
           color: 'var(--dz-signature)',
         }}
       >
-        Ver detalle <ArrowIcon />
+        Ver detalle <Icon as={ArrowRightIcon} size={13} />
       </button>
     )}
   </div>
@@ -246,7 +224,7 @@ const LogoutButton: FC<{ collapsed: boolean; onLogout?: () => void }> = ({
         el.style.borderColor = 'rgba(224,122,156,0.18)'
       }}
     >
-      <LogoutIcon />
+      <Icon as={LogoutIcon} size={15} />
       {!collapsed && <span>Cerrar sesión</span>}
     </button>
   </div>

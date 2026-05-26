@@ -1,50 +1,10 @@
-import type { FC } from 'react'
+﻿import type { FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { IncomeIcon, ExpenseIcon, SavingIcon, CreditCardIcon } from '@/assets/icons/index.ts'
 import { Money } from '@atoms/money/Money.tsx'
 import { ProgressBar } from '@atoms/progress-bar/ProgressBar.tsx'
 import { StatCard } from '@molecules/stat-card/StatCard.tsx'
 import type { BudgetOverviewProps, BudgetCategory } from './BudgetOverview.types.ts'
-
-const IncomeIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-    <path
-      d="M9 14V4M4 9l5-5 5 5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-const ExpenseIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-    <path
-      d="M9 4v10M14 9l-5 5-5-5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-const SavingIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-    <circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.5" />
-    <path
-      d="M6.5 9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5S10.38 7 9 7"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-    />
-    <path d="M9 5.5V7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-  </svg>
-)
-const DebtIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-    <rect x="2.5" y="4.5" width="13" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-    <path d="M2.5 7.5h13" stroke="currentColor" strokeWidth="1.5" />
-    <path d="M6 11h2M10 11h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-  </svg>
-)
 
 export const BudgetOverview: FC<BudgetOverviewProps> = ({
   income,
@@ -94,7 +54,7 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
             />
           }
           accent="income"
-          icon={<IncomeIcon />}
+          icon={<Icon as={IncomeIcon} size={18} />}
           loading={loading}
         />
         <StatCard
@@ -111,7 +71,7 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
           trend={expenseRate > 80 ? 'up' : 'neutral'}
           trendLabel={`${expenseRate}% ing.`}
           accent="expense"
-          icon={<ExpenseIcon />}
+          icon={<Icon as={ExpenseIcon} size={18} />}
           loading={loading}
         />
         <StatCard
@@ -128,7 +88,7 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
           trend={savingsRate >= 20 ? 'up' : savingsRate >= 10 ? 'neutral' : 'down'}
           trendLabel={`${savingsRate}% ing.`}
           accent="saving"
-          icon={<SavingIcon />}
+          icon={<Icon as={SavingIcon} size={18} />}
           loading={loading}
         />
         <StatCard
@@ -139,7 +99,7 @@ export const BudgetOverview: FC<BudgetOverviewProps> = ({
           trend={debtRate > 30 ? 'down' : 'neutral'}
           trendLabel={`${debtRate}% ing.`}
           accent="debt"
-          icon={<DebtIcon />}
+          icon={<Icon as={CreditCardIcon} size={18} />}
           loading={loading}
         />
       </div>

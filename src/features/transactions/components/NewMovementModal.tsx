@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect, type FC, type KeyboardEvent } from 'react'
+﻿import { useState, useRef, useEffect, type FC, type KeyboardEvent } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { XIcon, SpinnerIcon } from '@/assets/icons/index.ts'
 import type { NewTransactionForm, TxType } from '../types/transactions.types.ts'
 
 const INCOME_SOURCES = ['Salario', 'Freelance', 'Otros'] as const
@@ -22,35 +24,6 @@ function formatDisplay(raw: string): string {
   if (!n) return ''
   return new Intl.NumberFormat('es-CO').format(n)
 }
-
-const XIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-)
-
-const SpinnerIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden
-    style={{ animation: 'spin 0.8s linear infinite' }}
-  >
-    <circle
-      cx="12"
-      cy="12"
-      r="10"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeDasharray="40"
-      strokeDashoffset="10"
-      strokeLinecap="round"
-    />
-    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-  </svg>
-)
 
 const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
   onClose,
@@ -231,7 +204,7 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
               padding: '4px',
             }}
           >
-            <XIcon />
+            <Icon as={XIcon} size={16} />
           </button>
         </div>
 
@@ -445,7 +418,7 @@ const ModalContent: FC<Omit<NewMovementModalProps, 'open'>> = ({
               transition: 'opacity 0.15s',
             }}
           >
-            {isSaving && <SpinnerIcon />}
+            {isSaving && <Icon as={SpinnerIcon} size={16} />}
             {isSaving ? 'Guardando…' : isIncome ? 'Guardar ingreso' : 'Guardar gasto'}
           </button>
         </div>

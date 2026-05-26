@@ -1,4 +1,6 @@
-import type { FC } from 'react'
+﻿import type { FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { PlusIcon } from '@/assets/icons/index.ts'
 import { DebtRow } from '@molecules/debt-row/DebtRow.tsx'
 import { EmptyState } from '@molecules/empty-state/EmptyState.tsx'
 import { SegmentedControl } from '@molecules/segmented-control/SegmentedControl.tsx'
@@ -13,12 +15,6 @@ const FILTER_OPTIONS: { value: DebtListFilterStatus; label: string }[] = [
   { value: 'paused', label: 'Pausadas' },
   { value: 'paid', label: 'Pagadas' },
 ]
-
-const AddIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-    <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-  </svg>
-)
 
 function DebtListSkeleton({ rows = 3 }: { rows?: number }) {
   return (
@@ -128,7 +124,7 @@ export const DebtList: FC<DebtListProps> = ({
             <Button
               variant="primary"
               size="sm"
-              iconLeft={<AddIcon />}
+              iconLeft={<Icon as={PlusIcon} size={16} />}
               onClick={onAddDebt}
               fullWidth={isNarrow && !onFilterChange}
             >

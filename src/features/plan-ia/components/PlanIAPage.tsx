@@ -1,4 +1,6 @@
-import { useEffect, type FC } from 'react'
+﻿import { useEffect, type FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { SparkleIcon } from '@/assets/icons/index.ts'
 import { Alert } from '@/shared/components/molecules/alert/index.ts'
 import { Button } from '@atoms/button/Button.tsx'
 import { usePlanIA } from '../hooks/usePlanIA.ts'
@@ -11,17 +13,6 @@ const STRATEGY_LABEL: Record<PaymentStrategy, string> = {
   avalanche: 'Avalancha',
   snowball: 'Bola de Nieve',
 }
-
-const SparkleIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M12 3l1.5 5.5H19l-4.5 3.3 1.5 5.5L12 14l-4 3.3 1.5-5.5L5 8.5h5.5z"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 
 const EmptyPlan: FC<{
   strategy: PaymentStrategy
@@ -37,7 +28,7 @@ const EmptyPlan: FC<{
     }}
   >
     <div style={{ color: 'var(--dz-signature)', opacity: 0.6 }}>
-      <SparkleIcon />
+      <Icon as={SparkleIcon} size={14} />
     </div>
     <div className="flex flex-col gap-2">
       <p

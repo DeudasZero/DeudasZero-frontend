@@ -1,4 +1,6 @@
-import { useState, type FC } from 'react'
+﻿import { useState, type FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { CheckIcon, FilterIcon } from '@/assets/icons/index.ts'
 import { Badge } from '@atoms/badge/Badge.tsx'
 import { Skeleton } from '@atoms/skeleton/Skeleton.tsx'
 import type { ScheduleRow, HistoryRow } from '../types/plan-ia.types.ts'
@@ -13,29 +15,6 @@ interface PlanScheduleProps {
   isMarkingPaid?: string | null
   onMarkPaid?: (installmentId: string) => void
 }
-
-const CheckIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M5 13l4 4L19 7"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const FilterIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M3 6h18M7 12h10M11 18h2"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-    />
-  </svg>
-)
 
 function fmtCOP(n: number, locale = 'es-CO') {
   return '$' + Math.round(n).toLocaleString(locale)
@@ -145,7 +124,7 @@ export const PlanSchedule: FC<PlanScheduleProps> = ({
 
         {tab === 'cronograma' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FilterIcon />
+            <Icon as={FilterIcon} size={14} />
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
@@ -278,7 +257,7 @@ export const PlanSchedule: FC<PlanScheduleProps> = ({
                               : 'var(--dz-text-muted)',
                         }}
                       >
-                        {isPaid ? <CheckIcon /> : row.month}
+                        {isPaid ? <Icon as={CheckIcon} size={13} /> : row.month}
                       </div>
                     </div>
 

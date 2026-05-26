@@ -1,4 +1,6 @@
-import { useState, type FC } from 'react'
+﻿import { useState, type FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { AIIcon, SaveIcon } from '@/assets/icons/index.ts'
 import { Input } from '@atoms/input/Input.tsx'
 import { Button } from '@atoms/button/Button.tsx'
 import { Badge } from '@atoms/badge/Badge.tsx'
@@ -21,38 +23,6 @@ const FREQUENCY_OPTIONS: { value: IncomeFrequency; label: string }[] = [
   { value: 'biweekly', label: 'Quincenal' },
   { value: 'weekly', label: 'Semanal' },
 ]
-
-const AIIcon = () => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path d="M12 3L14 9L20 9L15 13L17 19L12 15L7 19L9 13L4 9L10 9Z" fill="currentColor" />
-  </svg>
-)
-
-const SaveIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <polyline
-      points="17 21 17 13 7 13 7 21"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <polyline
-      points="7 3 7 8 15 8"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 
 function parseMoney(raw: string): number {
   return parseInt(raw.replace(/\D/g, ''), 10) || 0
@@ -136,7 +106,7 @@ export const FinancialBaseSection: FC<FinancialBaseSectionProps> = ({
           </h3>
         </div>
         <Badge accent="signature" size="sm">
-          <AIIcon /> Usa el consejero IA
+          <Icon as={AIIcon} size={11} /> Usa el consejero IA
         </Badge>
       </div>
 
@@ -230,7 +200,7 @@ export const FinancialBaseSection: FC<FinancialBaseSectionProps> = ({
             size="md"
             loading={isSaving}
             disabled={!dirty}
-            iconLeft={<SaveIcon />}
+            iconLeft={<Icon as={SaveIcon} size={14} />}
           >
             Guardar cambios
           </Button>
