@@ -1,4 +1,5 @@
 import type { FC } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Skeleton } from '@atoms/skeleton/index.ts'
 import { Button } from '@atoms/button/index.js'
 import type { CategorySpend } from '../types/dashboard.types.ts'
@@ -34,6 +35,7 @@ export const CategoryCard: FC<CategoryCardProps> = ({
   currentMonth,
   isLoading = false,
 }) => {
+  const navigate = useNavigate()
   const max = categories.length > 0 ? Math.max(...categories.map((c) => c.amount)) : 1
 
   const monthLabel = currentMonth
@@ -51,7 +53,11 @@ export const CategoryCard: FC<CategoryCardProps> = ({
             Gastos · {monthLabel}
           </span>
         </div>
-        <Button variant="ghost" size="sm">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/transactions', { state: { tab: 'expense' } })}
+        >
           Ver todo →
         </Button>
       </div>

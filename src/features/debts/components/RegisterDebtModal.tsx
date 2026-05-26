@@ -103,6 +103,7 @@ export const RegisterDebtModal: FC<RegisterDebtModalProps> = ({
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    if (isSaving) return
     const errs = validate()
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
