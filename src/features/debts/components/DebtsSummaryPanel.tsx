@@ -2,6 +2,7 @@ import type { FC } from 'react'
 import { Badge } from '@atoms/badge/Badge.tsx'
 import { Skeleton } from '@atoms/skeleton/Skeleton.tsx'
 import { LoadScoreGauge } from './LoadScoreGauge.tsx'
+import { DebtKPI } from './DebtKPI.tsx'
 import type { Debt, DebtsSummary } from '../types/debts.types.ts'
 
 interface DebtsSummaryPanelProps {
@@ -9,27 +10,6 @@ interface DebtsSummaryPanelProps {
   debts: Debt[] | undefined
   isLoading: boolean
 }
-
-const KPI: FC<{ label: string; sublabel?: string; children: React.ReactNode }> = ({
-  label,
-  sublabel,
-  children,
-}) => (
-  <div className="flex flex-col gap-1">
-    <span
-      className="font-mono uppercase"
-      style={{ fontSize: '9.5px', letterSpacing: '1.33px', color: 'var(--dz-text-faint)' }}
-    >
-      {label}
-    </span>
-    <div className="leading-none">{children}</div>
-    {sublabel && (
-      <span className="font-sans" style={{ fontSize: '11px', color: 'var(--dz-text-faint)' }}>
-        {sublabel}
-      </span>
-    )}
-  </div>
-)
 
 function buildRecommendation(debts: Debt[], totalMonthlyInterest: number): string {
   const active = debts.filter((d) => d.status === 'active')
@@ -91,7 +71,7 @@ export const DebtsSummaryPanel: FC<DebtsSummaryPanelProps> = ({ summary, debts, 
       <LoadScoreGauge score={summary.loadScore} label={summary.scoreLabel} />
 
       <div className="flex flex-col gap-3">
-        <KPI label="DEUDA TOTAL ACTIVA">
+        <DebtKPI label="DEUDA TOTAL ACTIVA">
           <span
             className="font-sans tabular-nums leading-none"
             style={{
@@ -103,7 +83,7 @@ export const DebtsSummaryPanel: FC<DebtsSummaryPanelProps> = ({ summary, debts, 
           >
             ${new Intl.NumberFormat('es-CO').format(summary.totalActiveDebt)}
           </span>
-        </KPI>
+        </DebtKPI>
 
         <p
           className="font-sans m-0"
@@ -114,7 +94,7 @@ export const DebtsSummaryPanel: FC<DebtsSummaryPanelProps> = ({ summary, debts, 
       </div>
 
       <div className="flex flex-col gap-5">
-        <KPI label="PAGO MÍNIMO MENSUAL" sublabel={`${summary.loadScore}% de ingresos`}>
+        <DebtKPI label="PAGO MÍNIMO MENSUAL" sublabel={`${summary.loadScore}% de ingresos`}>
           <span
             className="font-sans"
             style={{
@@ -126,25 +106,25 @@ export const DebtsSummaryPanel: FC<DebtsSummaryPanelProps> = ({ summary, debts, 
           >
             ${new Intl.NumberFormat('es-CO').format(summary.minPaymentTotal)}
           </span>
-        </KPI>
+        </DebtKPI>
 
-        <KPI label="INTERÉS MENSUAL" sublabel="se va en humo">
+        <DebtKPI label="INTERÉS MENSUAL" sublabel="se va en humo">
           <span
             className="font-sans"
             style={{ fontSize: '13px', fontWeight: 600, color: 'var(--dz-expense)' }}
           >
             ${new Intl.NumberFormat('es-CO').format(summary.totalMonthlyInterest)}
           </span>
-        </KPI>
+        </DebtKPI>
 
-        <KPI
+        <DebtKPI
           label="DEUDAS ACTIVAS"
           sublabel={`${summary.paidCount} liquidada${summary.paidCount !== 1 ? 's' : ''}`}
         >
           <Badge accent="signature" size="sm">
             {summary.activeCount}
           </Badge>
-        </KPI>
+        </DebtKPI>
       </div>
     </div>
   )
