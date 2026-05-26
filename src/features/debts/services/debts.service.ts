@@ -20,15 +20,16 @@ function calcMonthlyInterest(balance: number, monthlyRate: number): number {
 }
 
 function mapDebt(dto: DebtResponseDTO): Debt {
+  const monthlyRatePct = +(dto.monthlyRate * 100).toFixed(4)
   return {
     id: dto.id,
     kind: dto.type === 'CARD' ? 'card' : 'loan',
     name: dto.name,
     balance: dto.balance,
-    monthlyRate: dto.monthlyRate,
-    annualRate: calcAnnualRate(dto.monthlyRate),
+    monthlyRate: monthlyRatePct,
+    annualRate: calcAnnualRate(monthlyRatePct),
     minPayment: dto.minPayment,
-    monthlyInterest: calcMonthlyInterest(dto.balance, dto.monthlyRate),
+    monthlyInterest: calcMonthlyInterest(dto.balance, monthlyRatePct),
     status: dto.status === 'ACTIVE' ? 'active' : 'paid',
   }
 }
@@ -45,7 +46,7 @@ function buildSummary(debts: DebtResponseDTO[], loadScore: number): DebtsSummary
 
   const totalActiveDebt = active.reduce((acc, d) => acc + d.balance, 0)
   const totalMonthlyInterest = active.reduce(
-    (acc, d) => acc + calcMonthlyInterest(d.balance, d.monthlyRate),
+    (acc, d) => acc + calcMonthlyInterest(d.balance, +(d.monthlyRate * 100).toFixed(4)),
     0,
   )
   const minPaymentTotal = active.reduce((acc, d) => acc + d.minPayment, 0)

@@ -117,12 +117,15 @@ export const DebtsSummaryPanel: FC<DebtsSummaryPanelProps> = ({ summary, debts, 
           </span>
         </DebtKPI>
 
-        <DebtKPI
-          label="DEUDAS ACTIVAS"
-          sublabel={`${summary.paidCount} liquidada${summary.paidCount !== 1 ? 's' : ''}`}
-        >
+        <DebtKPI label="DEUDAS ACTIVAS">
           <Badge accent="signature" size="sm">
             {summary.activeCount}
+          </Badge>
+        </DebtKPI>
+
+        <DebtKPI label="DEUDAS LIQUIDADAS">
+          <Badge accent="income" size="sm">
+            {summary.paidCount}
           </Badge>
         </DebtKPI>
       </div>
