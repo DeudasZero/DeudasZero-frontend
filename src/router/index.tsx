@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, type ReactNode } from 'react'
+﻿import { useState, useMemo, useEffect, type ReactNode } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/hookStore.ts'
 import { logout } from '@/features/auth/store/auth.slice.ts'
@@ -19,49 +19,14 @@ import type { NewTransactionForm } from '@/features/transactions/types/transacti
 import type { SidebarAdvisorMessage } from '@/shared/components/organisms/sidebar/Sidebar.types.ts'
 import logo from '@/assets/logo.png'
 
-const HomeIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M4 11L12 4L20 11V20H14V14H10V20H4Z"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-const TrendingUpIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M3 17L9 11L13 15L21 7M21 7H15M21 7V13"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-const CreditCardIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" />
-    <path d="M2 10h20" stroke="currentColor" strokeWidth="1.8" />
-  </svg>
-)
-const SparklesIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M12 3L13.5 8.5H19L14.5 12L16 17.5L12 14L8 17.5L9.5 12L5 8.5H10.5L12 3Z"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const PlusIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-)
+import { Icon } from '@atoms/icon/Icon.tsx'
+import {
+  HomeIcon,
+  TransactionsIcon,
+  CreditCardIcon,
+  SparklesIcon,
+  PlusIcon,
+} from '@/assets/icons/index.ts'
 
 const DZLogo = () => (
   <img src={logo} alt="DeudaZero" style={{ height: '20px', width: 'auto', display: 'block' }} />
@@ -71,10 +36,25 @@ const NAV_GROUPS = [
   {
     id: 'main',
     items: [
-      { id: 'dashboard', label: 'Dashboard', icon: <HomeIcon />, href: '/dashboard' },
-      { id: 'transactions', label: 'Movimientos', icon: <TrendingUpIcon />, href: '/transactions' },
-      { id: 'debts', label: 'Deudas', icon: <CreditCardIcon />, href: '/debts' },
-      { id: 'ai', label: 'Plan IA', icon: <SparklesIcon />, href: '/ai' },
+      {
+        id: 'dashboard',
+        label: 'Dashboard',
+        icon: <Icon as={HomeIcon} size={16} />,
+        href: '/dashboard',
+      },
+      {
+        id: 'transactions',
+        label: 'Movimientos',
+        icon: <Icon as={TransactionsIcon} size={16} />,
+        href: '/transactions',
+      },
+      {
+        id: 'debts',
+        label: 'Deudas',
+        icon: <Icon as={CreditCardIcon} size={16} />,
+        href: '/debts',
+      },
+      { id: 'ai', label: 'Plan IA', icon: <Icon as={SparklesIcon} size={16} />, href: '/ai' },
     ],
   },
 ]
@@ -241,7 +221,7 @@ function AppShell() {
                   color: 'rgb(13,20,25)',
                 }}
               >
-                <PlusIcon /> {meta.cta}
+                <Icon as={PlusIcon} size={14} /> {meta.cta}
               </button>
             )}
           </TopBar>

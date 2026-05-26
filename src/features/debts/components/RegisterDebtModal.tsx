@@ -1,26 +1,10 @@
-import { useState, useEffect, useCallback, type FC, type FormEvent } from 'react'
+﻿import { useState, useEffect, useCallback, type FC, type FormEvent } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { XIcon, CardIcon, LoanIcon } from '@/assets/icons/index.ts'
 import { Input } from '@atoms/input/Input.tsx'
 import { Button } from '@atoms/button/Button.tsx'
 import { Alert } from '@/shared/components/molecules/alert/index.ts'
 import type { DebtKind, ApiDebtType, DebtFormValues, DebtFormErrors } from '../types/debts.types.ts'
-
-const XIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-)
-const CardTabIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" />
-    <path d="M2 10h20" stroke="currentColor" strokeWidth="1.8" />
-  </svg>
-)
-const LoanTabIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
-    <path d="M12 8v4l3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-  </svg>
-)
 
 function calcPreview(balance: number, monthlyRate: number, minPayment: number) {
   const interest = Math.round((balance * monthlyRate) / 100)
@@ -291,7 +275,7 @@ export const RegisterDebtModal: FC<RegisterDebtModalProps> = ({
                 lineHeight: 0,
               }}
             >
-              <XIcon />
+              <Icon as={XIcon} size={16} />
             </button>
           </div>
 
@@ -316,7 +300,11 @@ export const RegisterDebtModal: FC<RegisterDebtModalProps> = ({
                       opacity: isEditMode && !active ? 0.4 : 1,
                     }}
                   >
-                    {k === 'card' ? <CardTabIcon /> : <LoanTabIcon />}
+                    {k === 'card' ? (
+                      <Icon as={CardIcon} size={14} />
+                    ) : (
+                      <Icon as={LoanIcon} size={14} />
+                    )}
                     {k === 'card' ? 'Tarjeta de crédito' : 'Crédito / préstamo'}
                   </button>
                 )

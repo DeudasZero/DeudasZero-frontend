@@ -1,19 +1,9 @@
-import type { CSSProperties, FC } from 'react'
+﻿import type { CSSProperties, FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { CheckIcon } from '@/assets/icons/index.ts'
 import { Button } from '@atoms/button/Button.tsx'
 import { ProgressBar } from '@atoms/progress-bar/ProgressBar.tsx'
 import type { OnboardingWizardProps, WizardStep } from './OnboardingWizard.types.ts'
-
-const CheckIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
-    <path
-      d="M2.5 7l3 3L11.5 4"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 
 export const OnboardingWizard: FC<OnboardingWizardProps> = ({
   steps,
@@ -117,7 +107,7 @@ export const OnboardingWizard: FC<OnboardingWizardProps> = ({
                   aria-label={`Paso ${i + 1}: ${step.title}${isDone ? ' (completado)' : isCurrent ? ' (actual)' : ''}`}
                   onClick={() => isReachable && onStepChange(i)}
                 >
-                  {isDone ? <CheckIcon /> : i + 1}
+                  {isDone ? <Icon as={CheckIcon} size={13} /> : i + 1}
                 </button>
                 {i < steps.length - 1 && (
                   <div

@@ -1,17 +1,8 @@
-import type { FC } from 'react'
+﻿import type { FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { MenuIcon } from '@/assets/icons/index.ts'
 import { SearchInput } from '@molecules/search-input/SearchInput.tsx'
 import type { TopBarProps, TopBarAction } from './TopBar.types.ts'
-
-const MenuIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-    <path
-      d="M2.5 4.5h13M2.5 9h13M2.5 13.5h13"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-  </svg>
-)
 
 export const TopBar: FC<TopBarProps> = ({
   title,
@@ -45,7 +36,7 @@ export const TopBar: FC<TopBarProps> = ({
           className="xl:hidden flex items-center justify-center w-9 h-9 shrink-0 rounded-(--dz-r-sm) border-none cursor-pointer"
           style={{ background: 'transparent', color: 'var(--dz-text-muted)' }}
         >
-          <MenuIcon />
+          <Icon as={MenuIcon} size={18} />
         </button>
       )}
 

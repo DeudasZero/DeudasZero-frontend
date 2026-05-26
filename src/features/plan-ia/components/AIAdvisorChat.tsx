@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect, type FC } from 'react'
+﻿import { useState, useRef, useEffect, type FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { SendIcon, DotsIcon, RefreshIcon } from '@/assets/icons/index.ts'
 import { QUICK_REPLIES } from '../utils/chat.utils.ts'
 import type { ChatMessage } from '../types/plan-ia.types.ts'
 
@@ -8,45 +10,6 @@ interface AIAdvisorChatProps {
   isTyping?: boolean
   onReset?: () => void
 }
-
-const SendIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const DotsIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <circle cx="5" cy="12" r="1.5" fill="currentColor" />
-    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-    <circle cx="19" cy="12" r="1.5" fill="currentColor" />
-  </svg>
-)
-
-const RefreshIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M1 4v6h6M23 20v-6h-6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 
 function parseBold(text: string) {
   return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
@@ -260,7 +223,7 @@ export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({
             aria-expanded={menuOpen}
             aria-haspopup="menu"
           >
-            <DotsIcon />
+            <Icon as={DotsIcon} size={15} />
           </button>
 
           {menuOpen && (
@@ -309,7 +272,7 @@ export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({
                   onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--dz-bg-surface)')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                 >
-                  <RefreshIcon />
+                  <Icon as={RefreshIcon} size={13} />
                   Reiniciar chat
                 </button>
               </div>
@@ -444,7 +407,7 @@ export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({
             transition: 'background var(--dz-transition-fast), color var(--dz-transition-fast)',
           }}
         >
-          <SendIcon />
+          <Icon as={SendIcon} size={16} />
         </button>
       </div>
     </div>
