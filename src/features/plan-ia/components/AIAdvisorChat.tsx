@@ -1,6 +1,10 @@
-import { useState, useRef, useEffect, type FC } from 'react'
+﻿import { useState, useRef, useEffect, type FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { SendIcon, DotsIcon, RefreshIcon } from '@/assets/icons/index.ts'
 import { QUICK_REPLIES } from '../utils/chat.utils.ts'
 import type { ChatMessage } from '../types/plan-ia.types.ts'
+import { MessageBubble } from './MessageBubble.tsx'
+import { TypingIndicator } from './TypingIndicator.tsx'
 
 interface AIAdvisorChatProps {
   messages: ChatMessage[]
@@ -8,128 +12,6 @@ interface AIAdvisorChatProps {
   isTyping?: boolean
   onReset?: () => void
 }
-
-const SendIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const DotsIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <circle cx="5" cy="12" r="1.5" fill="currentColor" />
-    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-    <circle cx="19" cy="12" r="1.5" fill="currentColor" />
-  </svg>
-)
-
-const RefreshIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M1 4v6h6M23 20v-6h-6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-function parseBold(text: string) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith('**') && part.endsWith('**') ? (
-      <strong key={i} style={{ color: 'var(--dz-text-primary)', fontWeight: 700 }}>
-        {part.slice(2, -2)}
-      </strong>
-    ) : (
-      part
-    ),
-  )
-}
-
-const MessageBubble: FC<{ msg: ChatMessage }> = ({ msg }) => {
-  const isAI = msg.role === 'ai'
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: isAI ? 'flex-start' : 'flex-end',
-        gap: '4px',
-        marginBottom: '10px',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '88%',
-          padding: '10px 13px',
-          borderRadius: isAI ? '4px 12px 12px 12px' : '12px 4px 12px 12px',
-          background: isAI ? 'var(--dz-bg-raised)' : 'var(--dz-signature)',
-          color: isAI ? 'var(--dz-text-secondary)' : 'var(--dz-bg-page)',
-          fontFamily: 'var(--dz-font-sans)',
-          fontSize: '13.5px',
-          lineHeight: 1.55,
-          fontWeight: isAI ? 400 : 500,
-          whiteSpace: 'pre-wrap',
-        }}
-      >
-        {isAI ? parseBold(msg.content) : msg.content}
-      </div>
-      <div
-        style={{
-          fontFamily: 'var(--dz-font-mono)',
-          fontSize: '10px',
-          color: 'var(--dz-text-faint)',
-          letterSpacing: '0.05em',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-        }}
-      >
-        {isAI && '★ IA '}
-        {msg.timestamp}
-        {msg.tag && (
-          <span style={{ color: 'var(--dz-signature)', fontWeight: 600, letterSpacing: '0.1em' }}>
-            · {msg.tag}
-          </span>
-        )}
-      </div>
-    </div>
-  )
-}
-
-const TypingIndicator: FC = () => (
-  <div style={{ display: 'flex', gap: '4px', padding: '10px 0', marginBottom: '8px' }}>
-    <style>{`
-      @keyframes dzTyping { 0%,80%,100%{transform:scale(1);opacity:.4} 40%{transform:scale(1.3);opacity:1} }
-    `}</style>
-    {[0, 1, 2].map((i) => (
-      <span
-        key={i}
-        style={{
-          width: '6px',
-          height: '6px',
-          borderRadius: '50%',
-          background: 'var(--dz-text-faint)',
-          animation: `dzTyping 1.2s ease-in-out ${i * 0.2}s infinite`,
-        }}
-      />
-    ))}
-  </div>
-)
 
 export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({
   messages,
@@ -260,7 +142,7 @@ export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({
             aria-expanded={menuOpen}
             aria-haspopup="menu"
           >
-            <DotsIcon />
+            <Icon as={DotsIcon} size={15} />
           </button>
 
           {menuOpen && (
@@ -309,7 +191,7 @@ export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({
                   onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--dz-bg-surface)')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                 >
-                  <RefreshIcon />
+                  <Icon as={RefreshIcon} size={13} />
                   Reiniciar chat
                 </button>
               </div>
@@ -444,7 +326,7 @@ export const AIAdvisorChat: FC<AIAdvisorChatProps> = ({
             transition: 'background var(--dz-transition-fast), color var(--dz-transition-fast)',
           }}
         >
-          <SendIcon />
+          <Icon as={SendIcon} size={16} />
         </button>
       </div>
     </div>

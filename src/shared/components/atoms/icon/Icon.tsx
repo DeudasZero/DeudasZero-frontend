@@ -15,11 +15,13 @@ const COLOR_MAP: Record<TextColor, string> = {
 }
 
 export const Icon: FC<IconProps> = ({
+  as: Svg,
   children,
   size = 20,
   color = 'inherit',
   label,
   className,
+  style,
 }) => {
   const resolvedColor =
     color === 'inherit' ? 'currentColor' : (COLOR_MAP[color as TextColor] ?? 'currentColor')
@@ -40,9 +42,10 @@ export const Icon: FC<IconProps> = ({
         lineHeight: 0,
         width: px,
         height: px,
+        ...style,
       }}
     >
-      {children}
+      {Svg ? <Svg width={px} height={px} /> : children}
     </span>
   )
 }

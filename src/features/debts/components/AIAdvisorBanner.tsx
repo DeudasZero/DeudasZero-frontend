@@ -1,4 +1,6 @@
-import type { FC } from 'react'
+﻿import type { FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { SparkleIcon } from '@/assets/icons/index.ts'
 import { Button } from '@atoms/button/Button.tsx'
 import type { Debt, DebtsSummary } from '../types/debts.types.ts'
 
@@ -7,17 +9,6 @@ interface AIAdvisorBannerProps {
   debts: Debt[]
   onGeneratePlan?: () => void
 }
-
-const SparkleIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M12 3l1.5 5.5H19l-4.5 3.3 1.5 5.5L12 14l-4 3.3 1.5-5.5L5 8.5h5.5z"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 
 function fmt(n: number) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`
@@ -101,7 +92,7 @@ export const AIAdvisorBanner: FC<AIAdvisorBannerProps> = ({ summary, debts, onGe
     >
       <div className="flex items-start gap-3 min-w-0">
         <span className="mt-0.5 shrink-0" style={{ color: 'var(--dz-signature)' }}>
-          <SparkleIcon />
+          <Icon as={SparkleIcon} size={14} />
         </span>
         <div className="flex flex-col gap-0.5 min-w-0">
           <span

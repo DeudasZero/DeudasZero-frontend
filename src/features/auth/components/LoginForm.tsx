@@ -3,65 +3,11 @@ import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { useLogin } from '../hooks/useLogin.ts'
 import { Spinner } from '@shared/components/atoms/spinner/Spinner.tsx'
+import { FormField } from '@molecules/form-field/FormField.tsx'
+import { Input } from '@atoms/input/Input.tsx'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { EyeOpenIcon, EyeClosedIcon, ArrowRightIcon } from '@/assets/icons/index.ts'
 import type { LoginCredentials } from '../types/auth.types.ts'
-
-const EyeOpen = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-    <path
-      d="M1.5 8s2.5-4.5 6.5-4.5S14.5 8 14.5 8s-2.5 4.5-6.5 4.5S1.5 8 1.5 8Z"
-      stroke="currentColor"
-      strokeWidth="1.3"
-    />
-    <circle cx="8" cy="8" r="1.75" stroke="currentColor" strokeWidth="1.3" />
-  </svg>
-)
-const EyeClosed = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-    <path
-      d="M2 2l12 12M6.8 6.9A1.75 1.75 0 0 0 9.1 9.2M4.3 4.4C2.7 5.4 1.5 8 1.5 8s2.5 4.5 6.5 4.5c1.4 0 2.7-.4 3.7-1.1M7 3.6c.33-.07.66-.1 1-.1 4 0 6.5 4.5 6.5 4.5s-.5 1-1.4 2"
-      stroke="currentColor"
-      strokeWidth="1.3"
-      strokeLinecap="round"
-    />
-  </svg>
-)
-
-interface FieldWrapProps {
-  label: string
-  id: string
-  error?: string | undefined
-  children: React.ReactNode
-}
-const FieldWrap = ({ label, id, error, children }: FieldWrapProps) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-    <label
-      htmlFor={id}
-      style={{
-        fontFamily: 'var(--dz-font-sans)',
-        fontSize: 'var(--dz-fs-caption)',
-        fontWeight: 500,
-        color: 'var(--dz-text-secondary)',
-        letterSpacing: '-0.005em',
-      }}
-    >
-      {label}
-    </label>
-    {children}
-    {error && (
-      <span
-        role="alert"
-        style={{
-          fontFamily: 'var(--dz-font-sans)',
-          fontSize: '12px',
-          color: 'var(--dz-expense)',
-          lineHeight: 1.4,
-        }}
-      >
-        {error}
-      </span>
-    )}
-  </div>
-)
 
 export const LoginForm = () => {
   const emailId = useId()
@@ -176,13 +122,14 @@ export const LoginForm = () => {
         noValidate
         style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
       >
-        <FieldWrap label="Correo electrónico" id={emailId} error={errors.email?.message}>
-          <InputField
+        <FormField label="Correo electrónico" htmlFor={emailId}>
+          <Input
             id={emailId}
             type="email"
             autoComplete="email"
             placeholder="tu@correo.com"
-            hasError={!!errors.email}
+            error={errors.email?.message ?? ''}
+            fullWidth
             {...register('email', {
               required: 'El correo es requerido',
               pattern: {
@@ -191,17 +138,18 @@ export const LoginForm = () => {
               },
             })}
           />
-        </FieldWrap>
+        </FormField>
 
-        <FieldWrap label="Contraseña" id={passId} error={errors.password?.message}>
+        <FormField label="Contraseña" htmlFor={passId}>
           <div style={{ position: 'relative' }}>
-            <InputField
+            <Input
               id={passId}
               type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
               placeholder="••••••••"
-              hasError={!!errors.password}
+              error={errors.password?.message ?? ''}
               style={{ paddingRight: '44px' }}
+              fullWidth
               {...register('password', {
                 required: 'La contraseña es requerida',
                 minLength: { value: 6, message: 'Mínimo 6 caracteres' },
@@ -214,8 +162,7 @@ export const LoginForm = () => {
               style={{
                 position: 'absolute',
                 right: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
+                top: '21px',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -226,10 +173,14 @@ export const LoginForm = () => {
                 lineHeight: 0,
               }}
             >
-              {showPassword ? <EyeClosed /> : <EyeOpen />}
+              {showPassword ? (
+                <Icon as={EyeClosedIcon} size={16} />
+              ) : (
+                <Icon as={EyeOpenIcon} size={16} />
+              )}
             </button>
           </div>
-        </FieldWrap>
+        </FormField>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <label
@@ -297,15 +248,7 @@ export const LoginForm = () => {
           ) : (
             <>
               <span>Entrar</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path
-                  d="M5 12h14M13 6l6 6-6 6"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Icon as={ArrowRightIcon} size={14} />
             </>
           )}
         </button>
@@ -333,43 +276,5 @@ export const LoginForm = () => {
         </Link>
       </p>
     </div>
-  )
-}
-
-interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  hasError?: boolean
-}
-
-const InputField = ({ hasError, style, ...rest }: InputFieldProps) => {
-  const [focused, setFocused] = useState(false)
-  return (
-    <input
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      style={{
-        display: 'block',
-        width: '100%',
-        height: '42px',
-        padding: '0 14px',
-        background: 'var(--dz-bg-sunken)',
-        border: `1.5px solid ${
-          hasError
-            ? 'var(--dz-expense)'
-            : focused
-              ? 'var(--dz-border-focus)'
-              : 'var(--dz-border-base)'
-        }`,
-        borderRadius: 'var(--dz-r-sm)',
-        color: 'var(--dz-text-primary)',
-        fontFamily: 'var(--dz-font-sans)',
-        fontSize: 'var(--dz-fs-body)',
-        letterSpacing: '-0.005em',
-        outline: 'none',
-        boxSizing: 'border-box',
-        transition: 'border-color var(--dz-transition-fast)',
-        ...style,
-      }}
-      {...rest}
-    />
   )
 }

@@ -5,6 +5,7 @@ import {
   deleteIncome,
   deleteExpense,
 } from '../services/transactions.service.ts'
+import { fetchDashboard } from '@/features/dashboard/store/dashboard.slice.ts'
 import type {
   TransactionsState,
   NewTransactionForm,
@@ -38,7 +39,8 @@ export const addTransaction = createAsyncThunk(
   async (form: NewTransactionForm, { dispatch, rejectWithValue }) => {
     try {
       await createTransaction(form)
-      return await dispatch(fetchTransactions())
+      await Promise.all([dispatch(fetchTransactions()), dispatch(fetchDashboard())])
+      return undefined
     } catch (err) {
       return rejectWithValue(err instanceof Error ? err.message : 'Error al guardar movimiento')
     }
@@ -54,7 +56,7 @@ export const removeTransaction = createAsyncThunk(
       } else {
         await deleteExpense(tx.id)
       }
-      await dispatch(fetchTransactions())
+      await Promise.all([dispatch(fetchTransactions()), dispatch(fetchDashboard())])
       return tx.id
     } catch (err) {
       return rejectWithValue(err instanceof Error ? err.message : 'Error al eliminar movimiento')

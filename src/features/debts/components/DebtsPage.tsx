@@ -1,4 +1,7 @@
-import { useState, useMemo, useEffect, useRef, type FC } from 'react'
+﻿import { useState, useMemo, useEffect, useRef, type FC } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { PlusIcon } from '@/assets/icons/index.ts'
 import { Button } from '@atoms/button/Button.tsx'
 import { Alert } from '@/shared/components/molecules/alert/index.ts'
 import { EmptyState } from '@molecules/empty-state/EmptyState.tsx'
@@ -9,6 +12,7 @@ import { DebtsSummaryPanel } from './DebtsSummaryPanel.tsx'
 import { AIAdvisorBanner } from './AIAdvisorBanner.tsx'
 import { DebtCard } from './DebtCard.tsx'
 import { RegisterDebtModal } from './RegisterDebtModal.tsx'
+import { ConfirmModal } from '@molecules/confirm-modal/ConfirmModal.tsx'
 import type { Debt, DebtFormValues, FetchStatus } from '../types/debts.types.ts'
 
 type StatusFilter = 'active' | 'paid' | 'all'
@@ -32,12 +36,6 @@ const STATUS_MAP: Record<StatusFilter, FetchStatus> = {
   all: 'ALL',
 }
 
-const PlusIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-)
-
 function sortDebts(debts: Debt[], mode: SortMode): Debt[] {
   return [...debts].sort((a, b) => {
     if (mode === 'rate') return b.monthlyRate - a.monthlyRate
@@ -57,6 +55,7 @@ function debtToFormValues(debt: Debt): DebtFormValues {
 }
 
 export const DebtsPage: FC = () => {
+  const navigate = useNavigate()
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [sortMode, setSortMode] = useState<SortMode>('rate')
 
@@ -78,6 +77,8 @@ export const DebtsPage: FC = () => {
     dismiss,
   } = useDebts(apiStatus)
 
+  const [confirmPay, setConfirmPay] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [modalDebt, setModalDebt] = useState<Debt | null | 'new'>(null)
   const editingIdRef = useRef<string | null>(null)
 
@@ -118,14 +119,11 @@ export const DebtsPage: FC = () => {
     dismiss()
   }
 
-  async function handlePay(id: string) {
-    if (!confirm('¿Marcar esta deuda como liquidada? Esta acción no se puede deshacer.')) return
-    await pay(id)
+  function handlePay(id: string) {
+    setConfirmPay(id)
   }
-
-  async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar esta deuda permanentemente?')) return
-    await remove(id)
+  function handleDelete(id: string) {
+    setConfirmDelete(id)
   }
 
   return (
@@ -147,7 +145,7 @@ export const DebtsPage: FC = () => {
         <AIAdvisorBanner
           summary={data.summary}
           debts={data.debts}
-          onGeneratePlan={() => console.log('generate plan')}
+          onGeneratePlan={() => navigate('/ai')}
         />
       )}
 
@@ -188,7 +186,7 @@ export const DebtsPage: FC = () => {
             <Button
               variant="primary"
               size="sm"
-              iconLeft={<PlusIcon />}
+              iconLeft={<Icon as={PlusIcon} size={14} />}
               onClick={() => setModalDebt('new')}
             >
               Registrar deuda
@@ -256,6 +254,30 @@ export const DebtsPage: FC = () => {
         isSaving={isSaving}
         saveError={saveError}
         defaultKind={isEditMode ? modalDebt.kind : 'card'}
+      />
+      <ConfirmModal
+        open={confirmPay !== null}
+        title="Liquidar deuda"
+        description="¿Marcar esta deuda como liquidada? Esta acción no se puede deshacer."
+        confirmLabel="Liquidar"
+        variant="warning"
+        onConfirm={async () => {
+          await pay(confirmPay!)
+          setConfirmPay(null)
+        }}
+        onCancel={() => setConfirmPay(null)}
+      />
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Eliminar deuda"
+        description="¿Eliminar esta deuda permanentemente?"
+        confirmLabel="Eliminar"
+        variant="danger"
+        onConfirm={async () => {
+          await remove(confirmDelete!)
+          setConfirmDelete(null)
+        }}
+        onCancel={() => setConfirmDelete(null)}
       />
     </div>
   )

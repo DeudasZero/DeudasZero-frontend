@@ -1,7 +1,10 @@
-import type { FC } from 'react'
+﻿import type { FC } from 'react'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { CardIcon, LoanIcon, TrashIcon, EditIcon } from '@/assets/icons/index.ts'
 import { Badge } from '@atoms/badge/Badge.tsx'
 import { ProgressBar } from '@atoms/progress-bar/ProgressBar.tsx'
 import { Button } from '@atoms/button/Button.tsx'
+import { IconButton } from '@atoms/icon-button/IconButton.tsx'
 import type { Debt } from '../types/debts.types.ts'
 
 interface DebtCardProps {
@@ -15,95 +18,6 @@ interface DebtCardProps {
 }
 
 const KIND_LABEL = { card: 'TARJETA', loan: 'CRÉDITO' } as const
-
-const CardIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" />
-    <path d="M2 10h20" stroke="currentColor" strokeWidth="1.8" />
-  </svg>
-)
-const LoanIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M12 2v20M6 12l6-6 6 6"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-const TrashIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-const EditIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const IconButton: FC<{
-  onClick: () => void
-  disabled?: boolean
-  label: string
-  title: string
-  hoverBorder: string
-  hoverColor: string
-  children: React.ReactNode
-}> = ({ onClick, disabled = false, label, title, hoverBorder, hoverColor, children }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    disabled={disabled}
-    aria-label={label}
-    title={title}
-    style={{
-      background: 'transparent',
-      border: '1px solid rgba(220,235,255,0.5)',
-      borderRadius: '6px',
-      padding: '4px 6px',
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      color: 'rgba(220,235,255,0.5)',
-      display: 'inline-flex',
-      alignItems: 'center',
-      lineHeight: 0,
-      transition: 'all 0.15s',
-    }}
-    onMouseEnter={(e) => {
-      if (!disabled) {
-        ;(e.currentTarget as HTMLButtonElement).style.borderColor = hoverBorder
-        ;(e.currentTarget as HTMLButtonElement).style.color = hoverColor
-      }
-    }}
-    onMouseLeave={(e) => {
-      ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(220,235,255,0.08)'
-      ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--dz-text-faint)'
-    }}
-  >
-    {children}
-  </button>
-)
 
 export const DebtCard: FC<DebtCardProps> = ({
   debt,
@@ -138,7 +52,11 @@ export const DebtCard: FC<DebtCardProps> = ({
             className="flex items-center gap-1.5 font-mono uppercase"
             style={{ fontSize: '11px', letterSpacing: '0.44px', color: 'var(--dz-text-faint)' }}
           >
-            {debt.kind === 'card' ? <CardIcon /> : <LoanIcon />}
+            {debt.kind === 'card' ? (
+              <Icon as={CardIcon} size={12} />
+            ) : (
+              <Icon as={LoanIcon} size={12} />
+            )}
             {KIND_LABEL[debt.kind]}
           </span>
         </div>
@@ -164,7 +82,7 @@ export const DebtCard: FC<DebtCardProps> = ({
               hoverBorder="rgba(94,225,230,0.4)"
               hoverColor="var(--dz-signature)"
             >
-              <EditIcon />
+              <Icon as={EditIcon} size={13} />
             </IconButton>
           )}
 
@@ -177,7 +95,7 @@ export const DebtCard: FC<DebtCardProps> = ({
               hoverBorder="rgba(224,122,156,0.4)"
               hoverColor="var(--dz-expense)"
             >
-              <TrashIcon />
+              <Icon as={TrashIcon} size={13} />
             </IconButton>
           )}
         </div>

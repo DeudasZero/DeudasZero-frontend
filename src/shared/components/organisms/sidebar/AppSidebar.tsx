@@ -1,61 +1,15 @@
-import type { CSSProperties, FC } from 'react'
+﻿import type { CSSProperties, FC, SVGProps } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import {
+  HomeIcon,
+  TransactionsIcon,
+  CreditCardIcon,
+  SparklesIcon,
+  ArrowRightIcon,
+  DotsIcon,
+} from '@/assets/icons/index.ts'
 
-const HomeIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M4 11L12 4L20 11V20H14V14H10V20H4Z"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-const TransactionsIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M4 8H16M12 4L16 8L12 12M20 16H8M12 20L8 16L12 12"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-const DebtIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" strokeWidth="1.8" />
-    <path d="M3 10h18" stroke="currentColor" strokeWidth="1.8" />
-  </svg>
-)
-const AIIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M12 3L14 9L20 9L15 13L17 19L12 15L7 19L9 13L4 9L10 9Z"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-const DotsIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <circle cx="5" cy="12" r="1.5" fill="currentColor" />
-    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-    <circle cx="19" cy="12" r="1.5" fill="currentColor" />
-  </svg>
-)
-const ArrowIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-    <path
-      d="M5 12h14M13 6l6 6-6 6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 const DZLogo = () => (
   <svg width="23" height="23" viewBox="0 0 32 32" fill="none" aria-label="DeudaZero">
     <circle cx="16" cy="16" r="13" stroke="rgb(232, 238, 245)" strokeWidth="2" />
@@ -66,18 +20,18 @@ const DZLogo = () => (
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Inicio', icon: HomeIcon, path: '/dashboard' },
   { id: 'transactions', label: 'Ingresos & Gastos', icon: TransactionsIcon, path: '/transactions' },
-  { id: 'debts', label: 'Mis deudas', icon: DebtIcon, path: '/debts' },
-  { id: 'ai', label: 'Plan IA', icon: AIIcon, path: '/ai' },
+  { id: 'debts', label: 'Mis deudas', icon: CreditCardIcon, path: '/debts' },
+  { id: 'ai', label: 'Plan IA', icon: SparklesIcon, path: '/ai' },
 ]
 
 interface NavButtonProps {
   label: string
-  Icon: FC
+  NavIcon: FC<SVGProps<SVGSVGElement>>
   active: boolean
   onClick: () => void
 }
 
-const NavButton: FC<NavButtonProps> = ({ label, Icon, active, onClick }) => {
+const NavButton: FC<NavButtonProps> = ({ label, NavIcon, active, onClick }) => {
   const btnStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
@@ -129,7 +83,7 @@ const NavButton: FC<NavButtonProps> = ({ label, Icon, active, onClick }) => {
           transition: 'color 0.15s ease',
         }}
       >
-        <Icon />
+        <NavIcon width="16" height="16" />
       </span>
 
       <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -220,11 +174,11 @@ export const AppSidebar: FC<AppSidebarProps> = ({
         aria-label="Navegación principal"
         style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginBottom: 'auto' }}
       >
-        {NAV_ITEMS.map(({ id, label, icon: Icon, path }) => (
+        {NAV_ITEMS.map(({ id, label, icon, path }) => (
           <NavButton
             key={id}
             label={label}
-            Icon={Icon}
+            NavIcon={icon}
             active={activeId === id}
             onClick={() => navigate(path)}
           />
@@ -285,7 +239,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({
             color: '#5EE1E6',
           }}
         >
-          Ver detalle <ArrowIcon />
+          Ver detalle <Icon as={ArrowRightIcon} size={14} />
         </button>
       </div>
 
@@ -365,9 +319,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({
           </span>
         </div>
 
-        <span style={{ color: 'var(--dz-text-faint)', flexShrink: 0, lineHeight: 0 }}>
-          <DotsIcon />
-        </span>
+        <Icon as={DotsIcon} size={14} color="faint" />
       </button>
     </aside>
   )
