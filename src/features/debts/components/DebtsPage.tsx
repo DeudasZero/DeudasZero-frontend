@@ -1,4 +1,5 @@
 ﻿import { useState, useMemo, useEffect, useRef, type FC } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Icon } from '@atoms/icon/Icon.tsx'
 import { PlusIcon } from '@/assets/icons/index.ts'
 import { Button } from '@atoms/button/Button.tsx'
@@ -11,6 +12,7 @@ import { DebtsSummaryPanel } from './DebtsSummaryPanel.tsx'
 import { AIAdvisorBanner } from './AIAdvisorBanner.tsx'
 import { DebtCard } from './DebtCard.tsx'
 import { RegisterDebtModal } from './RegisterDebtModal.tsx'
+import { ConfirmModal } from '@molecules/confirm-modal/ConfirmModal.tsx'
 import type { Debt, DebtFormValues, FetchStatus } from '../types/debts.types.ts'
 
 type StatusFilter = 'active' | 'paid' | 'all'
@@ -53,6 +55,7 @@ function debtToFormValues(debt: Debt): DebtFormValues {
 }
 
 export const DebtsPage: FC = () => {
+  const navigate = useNavigate()
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [sortMode, setSortMode] = useState<SortMode>('rate')
 
@@ -74,6 +77,8 @@ export const DebtsPage: FC = () => {
     dismiss,
   } = useDebts(apiStatus)
 
+  const [confirmPay, setConfirmPay] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [modalDebt, setModalDebt] = useState<Debt | null | 'new'>(null)
   const editingIdRef = useRef<string | null>(null)
 
@@ -114,14 +119,11 @@ export const DebtsPage: FC = () => {
     dismiss()
   }
 
-  async function handlePay(id: string) {
-    if (!confirm('¿Marcar esta deuda como liquidada? Esta acción no se puede deshacer.')) return
-    await pay(id)
+  function handlePay(id: string) {
+    setConfirmPay(id)
   }
-
-  async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar esta deuda permanentemente?')) return
-    await remove(id)
+  function handleDelete(id: string) {
+    setConfirmDelete(id)
   }
 
   return (
@@ -143,7 +145,7 @@ export const DebtsPage: FC = () => {
         <AIAdvisorBanner
           summary={data.summary}
           debts={data.debts}
-          onGeneratePlan={() => console.log('generate plan')}
+          onGeneratePlan={() => navigate('/ai')}
         />
       )}
 
@@ -252,6 +254,30 @@ export const DebtsPage: FC = () => {
         isSaving={isSaving}
         saveError={saveError}
         defaultKind={isEditMode ? modalDebt.kind : 'card'}
+      />
+      <ConfirmModal
+        open={confirmPay !== null}
+        title="Liquidar deuda"
+        description="¿Marcar esta deuda como liquidada? Esta acción no se puede deshacer."
+        confirmLabel="Liquidar"
+        variant="warning"
+        onConfirm={async () => {
+          await pay(confirmPay!)
+          setConfirmPay(null)
+        }}
+        onCancel={() => setConfirmPay(null)}
+      />
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Eliminar deuda"
+        description="¿Eliminar esta deuda permanentemente?"
+        confirmLabel="Eliminar"
+        variant="danger"
+        onConfirm={async () => {
+          await remove(confirmDelete!)
+          setConfirmDelete(null)
+        }}
+        onCancel={() => setConfirmDelete(null)}
       />
     </div>
   )

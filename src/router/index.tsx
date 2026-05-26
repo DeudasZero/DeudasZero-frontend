@@ -157,6 +157,8 @@ function AppShell() {
 
   const firstName = user?.name?.split(' ')[0] ?? 'Usuario'
 
+  const txIsSaving = useAppSelector((s) => s.transactions.isSaving)
+
   const [txModalOpen, setTxModalOpen] = useState(false)
   const [debtModalOpen, setDebtModalOpen] = useState(false)
 
@@ -241,6 +243,7 @@ function AppShell() {
         open={txModalOpen}
         onClose={() => setTxModalOpen(false)}
         onSave={handleGlobalTxSave}
+        isSaving={txIsSaving}
       />
       <RegisterDebtModal
         open={debtModalOpen}

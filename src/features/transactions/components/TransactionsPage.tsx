@@ -1,10 +1,12 @@
 import { useState, useMemo, useEffect, type FC } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useTransactions } from '../hooks/useTransactions.ts'
 import { NewMovementModal } from './NewMovementModal.tsx'
 import { Alert } from '@/shared/components/molecules/alert/index.ts'
 import { TransactionRow } from './TransactionRow.tsx'
 import { TransactionSkeletonRow } from './TransactionSkeletonRow.tsx'
 import { TransactionSummaryCards } from './TransactionSummaryCards.tsx'
+import { ConfirmModal } from '@molecules/confirm-modal/ConfirmModal.tsx'
 import type { Transaction, TxType, NewTransactionForm } from '../types/transactions.types.ts'
 
 const CARD: React.CSSProperties = {
@@ -42,7 +44,11 @@ export const TransactionsPage: FC = () => {
     return () => clearTimeout(timer)
   }, [successMessage, deleteError, dismiss])
 
-  const [tab, setTab] = useState<FilterTab>('income')
+  const location = useLocation()
+  const initialTab = (location.state as { tab?: FilterTab } | null)?.tab ?? 'income'
+
+  const [confirmTx, setConfirmTx] = useState<Transaction | null>(null)
+  const [tab, setTab] = useState<FilterTab>(initialTab)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalType, setModalType] = useState<TxType>('income')
 
@@ -57,9 +63,8 @@ export const TransactionsPage: FC = () => {
     setModalOpen(false)
   }
 
-  async function handleDelete(tx: Transaction) {
-    if (!confirm(`¿Eliminar "${tx.name}"? Esta acción no se puede deshacer.`)) return
-    await remove({ id: tx.id, type: tx.type })
+  function handleDelete(tx: Transaction) {
+    setConfirmTx(tx)
   }
 
   return (
@@ -265,6 +270,20 @@ export const TransactionsPage: FC = () => {
         onSave={handleSave}
         isSaving={isSaving}
         saveError={saveError}
+      />
+      <ConfirmModal
+        open={confirmTx !== null}
+        title="Eliminar movimiento"
+        description={
+          confirmTx ? `¿Eliminar "${confirmTx.name}"? Esta acción no se puede deshacer.` : ''
+        }
+        confirmLabel="Eliminar"
+        variant="danger"
+        onConfirm={async () => {
+          await remove({ id: confirmTx!.id, type: confirmTx!.type })
+          setConfirmTx(null)
+        }}
+        onCancel={() => setConfirmTx(null)}
       />
     </div>
   )
