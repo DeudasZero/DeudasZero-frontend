@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback, type FC, type FormEvent } from 'react'
+﻿import { useState, useEffect, useCallback, useRef, type FC, type FormEvent } from 'react'
 import { Icon } from '@atoms/icon/Icon.tsx'
 import { XIcon, CardIcon, LoanIcon } from '@/assets/icons/index.ts'
 import { Input } from '@atoms/input/Input.tsx'
@@ -28,6 +28,26 @@ const EMPTY_FORM: DebtFormValues = {
   minPayment: '',
 }
 
+function formatMoney(raw: string): string {
+  const digits = raw.replace(/\D/g, '')
+  const n = parseInt(digits, 10)
+  if (!n) return ''
+  return new Intl.NumberFormat('es-CO').format(n)
+}
+
+function handleMoneyKey(e: React.KeyboardEvent<HTMLInputElement>) {
+  const nav = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End']
+  if (nav.includes(e.key) || e.metaKey || e.ctrlKey) return
+  if (!/\d/.test(e.key)) e.preventDefault()
+}
+
+function handleRateKey(e: React.KeyboardEvent<HTMLInputElement>) {
+  const nav = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End']
+  if (nav.includes(e.key) || e.metaKey || e.ctrlKey) return
+  if (e.key === ',' || e.key === '.') return
+  if (!/\d/.test(e.key)) e.preventDefault()
+}
+
 export const RegisterDebtModal: FC<RegisterDebtModalProps> = ({
   open,
   onClose,
@@ -46,6 +66,7 @@ export const RegisterDebtModal: FC<RegisterDebtModalProps> = ({
     initialValues ?? { ...EMPTY_FORM, type: KIND_TO_API[initKind] },
   )
   const [errors, setErrors] = useState<DebtFormErrors>({})
+  const isSubmittingRef = useRef(false)
 
   const [prevOpen, setPrevOpen] = useState(open)
   if (prevOpen !== open) {
@@ -57,6 +78,10 @@ export const RegisterDebtModal: FC<RegisterDebtModalProps> = ({
       setErrors({})
     }
   }
+
+  useEffect(() => {
+    if (open) isSubmittingRef.current = false
+  }, [open])
 
   const handleGlobalKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -90,6 +115,30 @@ export const RegisterDebtModal: FC<RegisterDebtModalProps> = ({
     }
   }
 
+  function handleMoneyChange(key: 'balance' | 'minPayment') {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      const raw = e.target.value.replace(/\D/g, '')
+      setValues((prev) => ({ ...prev, [key]: raw }))
+      setErrors((prev) => {
+        const next = { ...prev }
+        delete next[key]
+        return next
+      })
+    }
+  }
+
+  function handleRateChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value.replace(',', '.').replace(/[^\d.]/g, '')
+    const parts = raw.split('.')
+    const normalized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : raw
+    setValues((prev) => ({ ...prev, monthlyRate: normalized }))
+    setErrors((prev) => {
+      const next = { ...prev }
+      delete next.monthlyRate
+      return next
+    })
+  }
+
   function validate(): DebtFormErrors {
     const errs: DebtFormErrors = {}
     if (!values.name.trim()) errs.name = 'Requerido'
@@ -103,12 +152,13 @@ export const RegisterDebtModal: FC<RegisterDebtModalProps> = ({
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (isSaving) return
+    if (isSaving || isSubmittingRef.current) return
     const errs = validate()
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
       return
     }
+    isSubmittingRef.current = true
     onSave(values)
   }
 
@@ -240,10 +290,12 @@ export const RegisterDebtModal: FC<RegisterDebtModalProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <Input
                   label="Saldo actual"
-                  type="number"
-                  placeholder={kind === 'card' ? '1500000' : '6800000'}
-                  value={values.balance}
-                  onChange={setField('balance')}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder={kind === 'card' ? '1.500.000' : '6.800.000'}
+                  value={formatMoney(values.balance)}
+                  onChange={handleMoneyChange('balance')}
+                  onKeyDown={handleMoneyKey}
                   error={errors.balance ?? ''}
                   prefix="$"
                   suffix="COP"
@@ -252,11 +304,12 @@ export const RegisterDebtModal: FC<RegisterDebtModalProps> = ({
                 <div className="flex flex-col gap-1.5">
                   <Input
                     label="Tasa de interés mensual"
-                    type="number"
-                    step="0.01"
+                    type="text"
+                    inputMode="decimal"
                     placeholder={kind === 'card' ? '3.1' : '1.8'}
                     value={values.monthlyRate}
-                    onChange={setField('monthlyRate')}
+                    onChange={handleRateChange}
+                    onKeyDown={handleRateKey}
                     error={errors.monthlyRate ?? ''}
                     suffix="%"
                     fullWidth
@@ -274,10 +327,12 @@ export const RegisterDebtModal: FC<RegisterDebtModalProps> = ({
 
               <Input
                 label={kind === 'card' ? 'Pago mínimo mensual' : 'Cuota mensual'}
-                type="number"
-                placeholder={kind === 'card' ? '75000' : '410000'}
-                value={values.minPayment}
-                onChange={setField('minPayment')}
+                type="text"
+                inputMode="numeric"
+                placeholder={kind === 'card' ? '75.000' : '410.000'}
+                value={formatMoney(values.minPayment)}
+                onChange={handleMoneyChange('minPayment')}
+                onKeyDown={handleMoneyKey}
                 error={errors.minPayment ?? ''}
                 prefix="$"
                 suffix="COP"

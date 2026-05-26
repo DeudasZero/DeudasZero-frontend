@@ -1,8 +1,5 @@
 ﻿import { useState, useMemo, useEffect, useRef, type FC } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Icon } from '@atoms/icon/Icon.tsx'
-import { PlusIcon } from '@/assets/icons/index.ts'
-import { Button } from '@atoms/button/Button.tsx'
 import { Alert } from '@/shared/components/molecules/alert/index.ts'
 import { EmptyState } from '@molecules/empty-state/EmptyState.tsx'
 import { SegmentedControl } from '@molecules/segmented-control/SegmentedControl.tsx'
@@ -157,41 +154,30 @@ export const DebtsPage: FC = () => {
             onChange={setStatusFilter}
           />
 
-          <div className="flex items-center gap-2">
-            <select
-              value={sortMode}
-              onChange={(e) => setSortMode(e.target.value as SortMode)}
-              className="font-sans rounded-[6px] outline-none cursor-pointer"
-              style={{
-                padding: '7px 32px 7px 12px',
-                background: 'rgb(8,13,18)',
-                border: '1px solid rgba(220,235,255,0.08)',
-                fontSize: '12.5px',
-                color: 'var(--dz-text-secondary)',
-                appearance: 'none',
-                WebkitAppearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 5l4 4 4-4' stroke='%236e7986' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 10px center',
-                colorScheme: 'dark',
-              }}
-            >
-              {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-
-            <Button
-              variant="primary"
-              size="sm"
-              iconLeft={<Icon as={PlusIcon} size={14} />}
-              onClick={() => setModalDebt('new')}
-            >
-              Registrar deuda
-            </Button>
-          </div>
+          <select
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value as SortMode)}
+            className="font-sans rounded-[6px] outline-none cursor-pointer"
+            style={{
+              padding: '7px 32px 7px 12px',
+              background: 'rgb(8,13,18)',
+              border: '1px solid rgba(220,235,255,0.08)',
+              fontSize: '12.5px',
+              color: 'var(--dz-text-secondary)',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 5l4 4 4-4' stroke='%236e7986' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 10px center',
+              colorScheme: 'dark',
+            }}
+          >
+            {SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {isLoading ? (
