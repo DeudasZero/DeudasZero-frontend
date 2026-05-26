@@ -4,6 +4,7 @@ import { CardIcon, LoanIcon, TrashIcon, EditIcon } from '@/assets/icons/index.ts
 import { Badge } from '@atoms/badge/Badge.tsx'
 import { ProgressBar } from '@atoms/progress-bar/ProgressBar.tsx'
 import { Button } from '@atoms/button/Button.tsx'
+import { IconButton } from '@atoms/icon-button/IconButton.tsx'
 import type { Debt } from '../types/debts.types.ts'
 
 interface DebtCardProps {
@@ -17,48 +18,6 @@ interface DebtCardProps {
 }
 
 const KIND_LABEL = { card: 'TARJETA', loan: 'CRÉDITO' } as const
-
-const IconButton: FC<{
-  onClick: () => void
-  disabled?: boolean
-  label: string
-  title: string
-  hoverBorder: string
-  hoverColor: string
-  children: React.ReactNode
-}> = ({ onClick, disabled = false, label, title, hoverBorder, hoverColor, children }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    disabled={disabled}
-    aria-label={label}
-    title={title}
-    style={{
-      background: 'transparent',
-      border: '1px solid rgba(220,235,255,0.5)',
-      borderRadius: '6px',
-      padding: '4px 6px',
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      color: 'rgba(220,235,255,0.5)',
-      display: 'inline-flex',
-      alignItems: 'center',
-      lineHeight: 0,
-      transition: 'all 0.15s',
-    }}
-    onMouseEnter={(e) => {
-      if (!disabled) {
-        ;(e.currentTarget as HTMLButtonElement).style.borderColor = hoverBorder
-        ;(e.currentTarget as HTMLButtonElement).style.color = hoverColor
-      }
-    }}
-    onMouseLeave={(e) => {
-      ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(220,235,255,0.08)'
-      ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--dz-text-faint)'
-    }}
-  >
-    {children}
-  </button>
-)
 
 export const DebtCard: FC<DebtCardProps> = ({
   debt,

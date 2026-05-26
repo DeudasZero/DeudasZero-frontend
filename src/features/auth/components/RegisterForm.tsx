@@ -3,6 +3,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { useRegister } from '../hooks/useRegister.ts'
 import { Spinner } from '@shared/components/atoms/spinner/Spinner.tsx'
+import { FormField } from '@molecules/form-field/FormField.tsx'
 import type { RegisterCredentials } from '../types/auth.types.ts'
 
 const EyeOpen = () => (
@@ -51,41 +52,6 @@ function getPasswordStrength(password: string): PasswordStrength {
 
   return levels[score - 1] ?? { score: 0, label: '', color: 'transparent' }
 }
-
-interface FieldWrapProps {
-  label: string
-  id: string
-  error?: string | undefined
-  children: React.ReactNode
-  hint?: React.ReactNode | undefined
-}
-
-const FieldWrap = ({ label, id, error, children, hint }: FieldWrapProps) => (
-  <div className="flex flex-col gap-1.5">
-    <label
-      htmlFor={id}
-      className="text-xs font-medium uppercase tracking-widest"
-      style={{
-        fontFamily: 'var(--dz-font-mono)',
-        color: 'var(--dz-text-secondary)',
-        letterSpacing: 'var(--dz-ls-eyebrow)',
-      }}
-    >
-      {label}
-    </label>
-    {children}
-    {hint}
-    {error && (
-      <p
-        className="text-xs"
-        style={{ fontFamily: 'var(--dz-font-sans)', color: 'var(--dz-expense)' }}
-        role="alert"
-      >
-        {error}
-      </p>
-    )}
-  </div>
-)
 
 const inputBase: React.CSSProperties = {
   width: '100%',
@@ -202,7 +168,7 @@ export const RegisterForm = () => {
       )}
 
       <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <FieldWrap label="Nombre completo" id={nameId} error={errors.name?.message}>
+        <FormField label="Nombre completo" htmlFor={nameId} error={errors.name?.message ?? ''}>
           <input
             id={nameId}
             type="text"
@@ -223,9 +189,9 @@ export const RegisterForm = () => {
                 : 'var(--dz-border-soft)'
             }}
           />
-        </FieldWrap>
+        </FormField>
 
-        <FieldWrap label="Correo electrónico" id={emailId} error={errors.email?.message}>
+        <FormField label="Correo electrónico" htmlFor={emailId} error={errors.email?.message ?? ''}>
           <input
             id={emailId}
             type="email"
@@ -246,43 +212,9 @@ export const RegisterForm = () => {
                 : 'var(--dz-border-soft)'
             }}
           />
-        </FieldWrap>
+        </FormField>
 
-        <FieldWrap
-          label="Contraseña"
-          id={passwordId}
-          error={errors.password?.message}
-          hint={
-            passwordValue.length > 0 && (
-              <div className="flex flex-col gap-1.5 mt-0.5">
-                <div className="flex gap-1 h-1">
-                  {[1, 2, 3, 4].map((bar) => (
-                    <div
-                      key={bar}
-                      className="flex-1 rounded-full transition-all duration-300"
-                      style={{
-                        background:
-                          bar <= strength.score ? strength.color : 'var(--dz-border-soft)',
-                      }}
-                    />
-                  ))}
-                </div>
-                {strength.label && (
-                  <p
-                    className="text-xs"
-                    style={{
-                      fontFamily: 'var(--dz-font-mono)',
-                      color: strength.color,
-                      letterSpacing: 'var(--dz-ls-eyebrow)',
-                    }}
-                  >
-                    FUERZA · {strength.label}
-                  </p>
-                )}
-              </div>
-            )
-          }
-        >
+        <FormField label="Contraseña" htmlFor={passwordId} error={errors.password?.message ?? ''}>
           <div className="relative">
             <input
               id={passwordId}
@@ -322,7 +254,34 @@ export const RegisterForm = () => {
               {showPassword ? <EyeClosed /> : <EyeOpen />}
             </button>
           </div>
-        </FieldWrap>
+          {passwordValue.length > 0 && (
+            <div className="flex flex-col gap-1.5 mt-0.5">
+              <div className="flex gap-1 h-1">
+                {[1, 2, 3, 4].map((bar) => (
+                  <div
+                    key={bar}
+                    className="flex-1 rounded-full transition-all duration-300"
+                    style={{
+                      background: bar <= strength.score ? strength.color : 'var(--dz-border-soft)',
+                    }}
+                  />
+                ))}
+              </div>
+              {strength.label && (
+                <p
+                  className="text-xs"
+                  style={{
+                    fontFamily: 'var(--dz-font-mono)',
+                    color: strength.color,
+                    letterSpacing: 'var(--dz-ls-eyebrow)',
+                  }}
+                >
+                  FUERZA · {strength.label}
+                </p>
+              )}
+            </div>
+          )}
+        </FormField>
 
         <button
           type="submit"
