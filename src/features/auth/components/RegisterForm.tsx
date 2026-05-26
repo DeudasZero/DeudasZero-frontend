@@ -4,29 +4,9 @@ import { Link } from 'react-router-dom'
 import { useRegister } from '../hooks/useRegister.ts'
 import { Spinner } from '@shared/components/atoms/spinner/Spinner.tsx'
 import { FormField } from '@molecules/form-field/FormField.tsx'
+import { Icon } from '@atoms/icon/Icon.tsx'
+import { EyeOpenIcon, EyeClosedIcon, XIcon } from '@/assets/icons/index.ts'
 import type { RegisterCredentials } from '../types/auth.types.ts'
-
-const EyeOpen = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-    <path
-      d="M1.5 8s2.5-4.5 6.5-4.5S14.5 8 14.5 8s-2.5 4.5-6.5 4.5S1.5 8 1.5 8Z"
-      stroke="currentColor"
-      strokeWidth="1.3"
-    />
-    <circle cx="8" cy="8" r="1.75" stroke="currentColor" strokeWidth="1.3" />
-  </svg>
-)
-
-const EyeClosed = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-    <path
-      d="M2 2l12 12M6.8 6.9A1.75 1.75 0 0 0 9.1 9.2M4.3 4.4C2.7 5.4 1.5 8 1.5 8s2.5 4.5 6.5 4.5c1.4 0 2.7-.4 3.7-1.1M7 3.6c.33-.07.66-.1 1-.1 4 0 6.5 4.5 6.5 4.5s-.5 1-1.4 2"
-      stroke="currentColor"
-      strokeWidth="1.3"
-      strokeLinecap="round"
-    />
-  </svg>
-)
 
 interface PasswordStrength {
   score: number
@@ -155,14 +135,7 @@ export const RegisterForm = () => {
               lineHeight: 0,
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-              <path
-                d="M2 2l10 10M12 2L2 12"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <Icon as={XIcon} size={14} />
           </button>
         </div>
       )}
@@ -251,7 +224,11 @@ export const RegisterForm = () => {
                 lineHeight: 0,
               }}
             >
-              {showPassword ? <EyeClosed /> : <EyeOpen />}
+              {showPassword ? (
+                <Icon as={EyeClosedIcon} size={16} />
+              ) : (
+                <Icon as={EyeOpenIcon} size={16} />
+              )}
             </button>
           </div>
           {passwordValue.length > 0 && (
