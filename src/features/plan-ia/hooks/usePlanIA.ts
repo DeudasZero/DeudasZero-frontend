@@ -52,7 +52,7 @@ function installmentToRow(inst: InstallmentResponseDTO, paidInstallments: number
     month: inst.monthNumber,
     date: formatMonthLabel(inst.dueDate),
     dueDate: formatDueDate(inst.dueDate),
-    totalPayment: inst.paymentAmount + inst.extraPayment,
+    totalPayment: inst.paymentAmount,
     extraPayment: inst.extraPayment,
     status,
   }
